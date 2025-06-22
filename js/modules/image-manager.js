@@ -515,3 +515,13 @@ if (typeof window !== 'undefined') {
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = ImageManager;
 }
+
+// In image-manager.js, at the very end
+if (typeof window !== 'undefined') {
+    if (!window.ImageManager) {
+        window.ImageManager = ImageManager;
+        console.log('✅ ImageManager załadowany i dostępny globalnie');
+    } else {
+        console.warn('⚠️ ImageManager już istnieje w obiekcie window. Możliwa podwójna deklaracja.');
+    }
+}
