@@ -69,52 +69,60 @@ class NotificationManager {
         const actualDuration = duration !== null ? duration : 
                              (duration === 0 ? 0 : this.defaultDuration);
         
-        const notification = this.createNotification(id, message, type, actualDuration, options);
-        
-        // Usuń najstarsze powiadomienia jeśli przekroczono limit
+        // Opcje powiadomienia
+        const {
+            closable = true,
+            persistent = duration === 0,
+            position = 'top-right'
+        } = options;
+
+        // Ogranicz liczbę powiadomień
         this.limitNotifications();
-        
+
+        // Stwórz element powiadomienia
+        const notification = this.createNotificationElement(
+            id, message, type, actualDuration, closable
+        );
+
         // Dodaj do kontenera
         this.container.appendChild(notification);
         this.notifications.set(id, notification);
-        
-        // Animacja wejścia
-        requestAnimationFrame(() => {
+
+        // Pokaż z animacją
+        setTimeout(() => {
             notification.classList.add('show');
-        });
-        
-        // Auto-usuwanie
-        if (actualDuration > 0) {
+        }, 50);
+
+        // Auto-ukrywanie
+        if (!persistent && actualDuration > 0) {
             setTimeout(() => {
                 this.hide(id);
             }, actualDuration);
         }
-        
+
         return id;
     }
 
     /**
      * Tworzenie elementu powiadomienia
      */
-    createNotification(id, message, type, duration, options) {
+    createNotificationElement(id, message, type, duration, closable) {
         const notification = document.createElement('div');
         notification.className = `notification notification-${type}`;
         notification.setAttribute('data-id', id);
         notification.setAttribute('role', 'alert');
-        
-        const iconMap = {
+        notification.setAttribute('aria-live', 'assertive');
+
+        const icons = {
             success: '✅',
             error: '❌',
             warning: '⚠️',
             info: 'ℹ️'
         };
 
-        const icon = options.icon || iconMap[type] || 'ℹ️';
-        const closable = options.closable !== false;
-
         notification.innerHTML = `
             <div class="notification-content">
-                <span class="notification-icon" aria-hidden="true">${icon}</span>
+                <span class="notification-icon" aria-hidden="true">${icons[type] || icons.info}</span>
                 <div class="notification-message">${this.sanitizeMessage(message)}</div>
                 ${closable ? '<button class="notification-close" aria-label="Zamknij powiadomienie">×</button>' : ''}
             </div>
@@ -198,8 +206,17 @@ class NotificationManager {
     isDarkMode() {
         try {
             // Sprawdź ThemeManager jeśli dostępny
-            if (typeof window !== 'undefined' && window.ThemeManager && window.ThemeManager.isDarkMode) {
+            if (typeof window !== 'undefined' && 
+                window.ThemeManager && 
+                typeof window.ThemeManager.isDarkMode === 'function') {
                 return window.ThemeManager.isDarkMode();
+            }
+            
+            // Sprawdź instancję ThemeManager
+            if (typeof window !== 'undefined' && 
+                window.themeManagerInstance && 
+                typeof window.themeManagerInstance.isDarkMode === 'function') {
+                return window.themeManagerInstance.isDarkMode();
             }
             
             // Fallback - sprawdź atrybut data-theme
@@ -391,7 +408,7 @@ class NotificationManager {
         return {
             available: typeof window !== 'undefined' && typeof window.ThemeManager !== 'undefined',
             type: typeof window.ThemeManager,
-            hasInstance: !!(window.ThemeManager && window.ThemeManager.instance)
+            hasInstance: !!(window.themeManagerInstance)
         };
     }
 }
@@ -505,7 +522,7 @@ class ImageManager {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
             reader.onload = () => resolve(reader.result);
-            reader.onerror = () => reject(new Error('Błąd odczytu pliku'));
+            reader.onerror = reject;
             reader.readAsDataURL(file);
         });
     }
@@ -513,63 +530,55 @@ class ImageManager {
     /**
      * Optymalizacja obrazka
      */
-    async optimizeImage(base64Data, mimeType) {
-        try {
-            return new Promise((resolve) => {
-                const img = new Image();
-                img.onload = () => {
-                    const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d');
+    async optimizeImage(base64, type) {
+        return new Promise((resolve) => {
+            const img = new Image();
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
 
-                    // Oblicz nowe wymiary zachowując proporcje
-                    const { width, height } = this.calculateDimensions(
-                        img.width, 
-                        img.height, 
-                        this.defaultImageSize.width, 
-                        this.defaultImageSize.height
-                    );
+                // Oblicz nowe wymiary zachowując proporcje
+                const { width, height } = this.calculateOptimalSize(
+                    img.width, 
+                    img.height, 
+                    this.defaultImageSize.width, 
+                    this.defaultImageSize.height
+                );
 
-                    canvas.width = width;
-                    canvas.height = height;
+                canvas.width = width;
+                canvas.height = height;
 
-                    // Narysuj przeskalowany obrazek
-                    ctx.drawImage(img, 0, 0, width, height);
+                // Narysuj zoptymalizowany obrazek
+                ctx.drawImage(img, 0, 0, width, height);
 
-                    // Konwertuj do base64 z kompresją
-                    const quality = mimeType === 'image/jpeg' ? 0.8 : undefined;
-                    const optimizedBase64 = canvas.toDataURL(mimeType, quality);
-
-                    resolve(optimizedBase64);
-                };
-                img.src = base64Data;
-            });
-        } catch (error) {
-            console.warn('Błąd optymalizacji obrazka, używam oryginału:', error);
-            return base64Data;
-        }
+                // Konwertuj z kompresją
+                const quality = type === 'image/jpeg' ? 0.8 : undefined;
+                const optimized = canvas.toDataURL(type, quality);
+                
+                resolve(optimized);
+            };
+            img.src = base64;
+        });
     }
 
     /**
-     * Obliczanie nowych wymiarów zachowując proporcje
+     * Obliczenie optymalnego rozmiaru
      */
-    calculateDimensions(originalWidth, originalHeight, maxWidth, maxHeight) {
-        let { width, height } = { width: originalWidth, height: originalHeight };
-
-        if (width > maxWidth) {
-            height = (height * maxWidth) / width;
-            width = maxWidth;
+    calculateOptimalSize(originalWidth, originalHeight, maxWidth, maxHeight) {
+        const ratio = Math.min(maxWidth / originalWidth, maxHeight / originalHeight);
+        
+        if (ratio >= 1) {
+            return { width: originalWidth, height: originalHeight };
         }
-
-        if (height > maxHeight) {
-            width = (width * maxHeight) / height;
-            height = maxHeight;
-        }
-
-        return { width: Math.round(width), height: Math.round(height) };
+        
+        return {
+            width: Math.round(originalWidth * ratio),
+            height: Math.round(originalHeight * ratio)
+        };
     }
 
     /**
-     * Zapisanie obrazka
+     * Zapis/odczyt obrazków z localStorage
      */
     saveImage(wordId, imageData) {
         const images = this.loadImages();
@@ -577,13 +586,10 @@ class ImageManager {
         this.saveImages(images);
     }
 
-    /**
-     * Storage methods
-     */
     loadImages() {
         try {
-            const saved = localStorage.getItem(this.storageKey);
-            return saved ? JSON.parse(saved) : {};
+            const data = localStorage.getItem(this.storageKey);
+            return data ? JSON.parse(data) : {};
         } catch (error) {
             console.warn('Błąd ładowania obrazków:', error);
             return {};
@@ -595,41 +601,28 @@ class ImageManager {
             localStorage.setItem(this.storageKey, JSON.stringify(images));
         } catch (error) {
             console.error('Błąd zapisywania obrazków:', error);
-            // Sprawdź czy to problem z miejscem
-            if (error.name === 'QuotaExceededError') {
-                // BEZPIECZNE WYWOŁANIE
-                if (typeof NotificationManager !== 'undefined') {
-                    NotificationManager.show('Brak miejsca na obrazki. Usuń stare obrazki.', 'error');
-                }
+            
+            if (typeof NotificationManager !== 'undefined') {
+                NotificationManager.show('Błąd zapisywania obrazków. Sprawdź miejsce w pamięci.', 'error');
             }
-            throw error;
         }
     }
 
     /**
-     * Resetowanie wszystkich obrazków
-     */
-    reset() {
-        localStorage.removeItem(this.storageKey);
-    }
-
-    /**
-     * Pobranie wszystkich obrazków
+     * Pobranie listy wszystkich obrazków
      */
     getAllImages() {
         return this.loadImages();
     }
 
     /**
-     * Statystyki obrazków
+     * Sprawdzenie rozmiaru zajętego przez obrazki
      */
-    getStats() {
+    getStorageInfo() {
         const images = this.loadImages();
         const imageKeys = Object.keys(images);
-        const totalSize = imageKeys.reduce((sum, key) => {
-            return sum + (images[key].size || 0);
-        }, 0);
-
+        const totalSize = JSON.stringify(images).length;
+        
         return {
             count: imageKeys.length,
             totalSize: totalSize,
@@ -639,50 +632,7 @@ class ImageManager {
 }
 
 // =====================================
-// BEZPIECZNY EKSPORT GLOBALNY
-// =====================================
-
-// Bezpieczny eksport do window
-if (typeof window !== 'undefined') {
-    // NotificationManager - zawsze dostępny
-    window.NotificationManager = NotificationManager;
-    
-    // ImageManager - zawsze dostępny
-    window.ImageManager = ImageManager;
-    
-    console.log('✅ NotificationManager i ImageManager załadowane');
-}
-
-// Export dla modułów (jeśli używane w Node.js)
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { NotificationManager, ImageManager };
-}
-
-// =====================================
-// AUTO-INICJALIZACJA
-// =====================================
-
-// Automatyczne utworzenie instancji NotificationManager
-document.addEventListener('DOMContentLoaded', () => {
-    if (!window.notificationManagerInstance) {
-        window.notificationManagerInstance = new NotificationManager();
-        console.log('✅ NotificationManager zainicjalizowany');
-    }
-});
-
-// Fallback dla przypadku gdy DOMContentLoaded już się wydarzył
-if (document.readyState === 'loading') {
-    // DOM wciąż się ładuje - zostanie obsłużone przez event listener powyżej
-} else {
-    // DOM już gotowy
-    if (!window.notificationManagerInstance) {
-        window.notificationManagerInstance = new NotificationManager();
-        console.log('✅ NotificationManager zainicjalizowany (DOM ready)');
-    }
-}
-
-// =====================================
-// BEZPIECZNY EKSPORT GLOBALNY - WKLEJ NA KONIEC notification-manager.js
+// BEZPIECZNY EKSPORT GLOBALNY - POPRAWIONY
 // =====================================
 
 /**
@@ -704,14 +654,27 @@ function safeGlobalExport() {
         console.log('✅ ImageManager → window.ImageManager');
     }
 
-    // ThemeManager - BEZPIECZNE SPRAWDZENIE
-    // NIE próbuj przypisać jeśli nie istnieje!
-    if (typeof ThemeManager !== 'undefined') {
-        window.ThemeManager = ThemeManager;
-        console.log('✅ ThemeManager → window.ThemeManager');
-    } else {
-        console.log('⏳ ThemeManager nie jest jeszcze dostępny (zostanie załadowany później)');
+    // ThemeManager - BEZPIECZNE SPRAWDZENIE BEZ WYWOŁYWANIA BŁĘDU
+    try {
+        if (typeof window.ThemeManager !== 'undefined') {
+            console.log('✅ ThemeManager już dostępny');
+        } else {
+            console.log('⏳ ThemeManager zostanie załadowany później');
+        }
+    } catch (error) {
+        console.log('⏳ ThemeManager nie jest jeszcze dostępny');
     }
+}
+
+// Bezpieczny eksport do window
+if (typeof window !== 'undefined') {
+    // NotificationManager - zawsze dostępny
+    window.NotificationManager = NotificationManager;
+    
+    // ImageManager - zawsze dostępny
+    window.ImageManager = ImageManager;
+    
+    console.log('✅ NotificationManager i ImageManager załadowane');
 }
 
 // Export dla modułów Node.js
@@ -782,6 +745,7 @@ window.checkClassAvailability = function() {
     
     console.log('\n📋 Instancje:');
     console.log(`notificationManagerInstance: ${typeof window.notificationManagerInstance}`);
+    console.log(`themeManagerInstance: ${typeof window.themeManagerInstance}`);
 };
 
 console.log('💡 Uruchom window.checkClassAvailability() w konsoli aby sprawdzić dostępność klas');

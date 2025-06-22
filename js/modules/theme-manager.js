@@ -1,5 +1,6 @@
 /**
  * ThemeManager - Zarządzanie motywami
+ * Wersja bez cyklicznej zależności od NotificationManager
  */
 class ThemeManager {
     constructor() {
@@ -27,6 +28,8 @@ class ThemeManager {
         
         // Aktualizuj przycisk
         this.updateToggleButton();
+        
+        console.log('✅ ThemeManager zainicjalizowany');
     }
 
     /**
@@ -54,17 +57,44 @@ class ThemeManager {
             detail: { theme: this.getEffectiveTheme() } 
         }));
         
-        NotificationManager.show(`Przełączono na motyw: ${this.getThemeDisplayName(theme)}`, 'info');
+        // BEZPIECZNE powiadomienie - sprawdź czy NotificationManager istnieje
+        this.showThemeNotification(theme);
+    }
+
+    /**
+     * Bezpieczne pokazanie powiadomienia o zmianie motywu
+     */
+    showThemeNotification(theme) {
+        try {
+            // Sprawdź czy NotificationManager jest dostępny
+            if (typeof window !== 'undefined' && 
+                window.NotificationManager && 
+                typeof window.NotificationManager.show === 'function') {
+                
+                window.NotificationManager.show(
+                    `Przełączono na motyw: ${this.getThemeDisplayName(theme)}`, 
+                    'info'
+                );
+            } else {
+                // Fallback - zwykły console.log
+                console.log(`🎨 Motyw zmieniony na: ${this.getThemeDisplayName(theme)}`);
+            }
+        } catch (error) {
+            console.warn('Nie można pokazać powiadomienia o zmianie motywu:', error);
+        }
     }
 
     /**
      * Zastosowanie motywu
      */
     applyTheme(theme) {
-        document.documentElement.setAttribute('data-theme', this.getEffectiveTheme(theme));
+        const effectiveTheme = this.getEffectiveTheme(theme);
+        document.documentElement.setAttribute('data-theme', effectiveTheme);
         
         // Aktualizuj meta theme-color
         this.updateThemeColor();
+        
+        console.log(`🎨 Zastosowano motyw: ${effectiveTheme}`);
     }
 
     /**
@@ -171,4 +201,35 @@ class ThemeManager {
     cleanup() {
         this.mediaQuery.removeListener(this.applySystemTheme);
     }
+}
+
+// =====================================
+// GLOBALNY EKSPORT I AUTO-INICJALIZACJA
+// =====================================
+
+// Automatyczne dodanie do window
+if (typeof window !== 'undefined') {
+    window.ThemeManager = ThemeManager;
+    console.log('✅ ThemeManager załadowany i dostępny globalnie');
+
+    // Auto-inicjalizacja gdy DOM będzie gotowy
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!window.themeManagerInstance) {
+                window.themeManagerInstance = new ThemeManager();
+                window.themeManagerInstance.init();
+            }
+        });
+    } else {
+        // DOM już gotowy
+        if (!window.themeManagerInstance) {
+            window.themeManagerInstance = new ThemeManager();
+            window.themeManagerInstance.init();
+        }
+    }
+}
+
+// Export dla modułów Node.js
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = ThemeManager;
 }

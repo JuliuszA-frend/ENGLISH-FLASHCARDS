@@ -44,12 +44,18 @@ class EnglishFlashcardsApp {
     }
 
     /**
-     * Inicjalizacja menedżerów
+     * Inicjalizacja menedżerów - POPRAWIONA WERSJA
      */
     async initializeManagers() {
-        // Inicjalizacja motywów
-        this.managers.theme = new ThemeManager();
-        this.managers.theme.init();
+        // ThemeManager - sprawdź czy już istnieje instancja, jeśli nie - utwórz
+        if (window.themeManagerInstance) {
+            this.managers.theme = window.themeManagerInstance;
+            console.log('✅ Używam istniejącej instancji ThemeManager');
+        } else {
+            this.managers.theme = new ThemeManager();
+            this.managers.theme.init();
+            console.log('✅ Utworzono nową instancję ThemeManager');
+        }
 
         // Ładowanie danych
         this.managers.dataLoader = new DataLoader();
@@ -68,6 +74,8 @@ class EnglishFlashcardsApp {
         
         // Menedżer quizów
         this.managers.quiz = new QuizManager();
+        
+        console.log('✅ Wszystkie menedżery zainicjalizowane');
     }
 
     /**
