@@ -1,60 +1,41 @@
 <!DOCTYPE html>
-<html lang="pl">
+<html lang="pl" data-theme="auto">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>English Flashcards B1/B2 - 1600+ słów w 32 kategoriach</title>
-    <meta name="description" content="Profesjonalna aplikacja do nauki angielskiego B1/B2 - 1600+ słów, quizy, przykłady zdań, tryb offline">
+    <meta name="description" content="Profesjonalna aplikacja do nauki angielskiego poziom B1/B2 z 1600+ słowami w 32 kategoriach">
+    <meta name="keywords" content="angielski, nauka, fiszki, vocabulary, B1, B2, flashcards">
     <meta name="author" content="English Learning App">
-    <meta name="keywords" content="nauka angielskiego, fiszki, B1, B2, słownictwo, quiz">
+    <meta name="theme-color" content="#1e3a8a">
     
-    <!-- Preconnect to external domains -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://translate.google.com">
+    <title>English Flashcards B1/B2 - Nauka Angielskiego</title>
     
-    <!-- Favicon and App Icons -->
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🇬🇧</text></svg>">
-    <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16x16.png">
-    
-    <!-- PWA Manifest -->
+    <!-- Manifest PWA -->
     <link rel="manifest" href="manifest.json">
     
-    <!-- Theme colors -->
-    <meta name="theme-color" content="#1e3a8a" media="(prefers-color-scheme: light)">
-    <meta name="theme-color" content="#1f2937" media="(prefers-color-scheme: dark)">
+    <!-- Favicons -->
+    <link rel="icon" type="image/svg+xml" href="assets/icons/favicon.svg">
+    <link rel="icon" type="image/png" href="assets/icons/favicon.png">
+    <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
     
-    <!-- Critical CSS - Inline for better performance -->
+    <!-- Critical CSS inline -->
     <style>
-        /* Critical Path CSS */
-        :root {
-            --primary-blue: #1e3a8a;
-            --white: #ffffff;
-            --gray-900: #111827;
-            --font-family-sans: 'Inter', system-ui, -apple-system, sans-serif;
-            --transition-normal: 250ms ease-in-out;
-            --radius-xl: 0.75rem;
-            --spacing-4: 1rem;
-            --spacing-6: 1.5rem;
-            --glass-backdrop: rgba(255, 255, 255, 0.1);
-            --glass-border: rgba(255, 255, 255, 0.2);
-            --glass-blur: 10px;
-        }
+        :root{--primary:#1e3a8a;--primary-dark:#1e40af;--primary-light:#3b82f6;--secondary:#059669;--accent:#dc2626;--success:#059669;--warning:#d97706;--error:#dc2626;--info:#0284c7;--white:#ffffff;--black:#000000;--gray-50:#f9fafb;--gray-100:#f3f4f6;--gray-200:#e5e7eb;--gray-300:#d1d5db;--gray-400:#9ca3af;--gray-500:#6b7280;--gray-600:#4b5563;--gray-700:#374151;--gray-800:#1f2937;--gray-900:#111827;--gradient-primary:linear-gradient(135deg,var(--primary) 0%,var(--primary-light) 100%);--gradient-secondary:linear-gradient(135deg,var(--secondary) 0%,#10b981 100%);--shadow-sm:0 1px 2px 0 rgba(0,0,0,0.05);--shadow:0 1px 3px 0 rgba(0,0,0,0.1),0 1px 2px 0 rgba(0,0,0,0.06);--shadow-md:0 4px 6px -1px rgba(0,0,0,0.1),0 2px 4px -1px rgba(0,0,0,0.06);--shadow-lg:0 10px 15px -3px rgba(0,0,0,0.1),0 4px 6px -2px rgba(0,0,0,0.05);--shadow-xl:0 20px 25px -5px rgba(0,0,0,0.1),0 10px 10px -5px rgba(0,0,0,0.04);--radius-none:0;--radius-sm:0.125rem;--radius:0.25rem;--radius-md:0.375rem;--radius-lg:0.5rem;--radius-xl:0.75rem;--radius-2xl:1rem;--radius-full:9999px}
         *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-        body{font-family:var(--font-family-sans);background:linear-gradient(135deg,var(--primary-blue) 0%,#3b82f6 100%);min-height:100vh;color:var(--gray-900);-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
-        .loading-screen{position:fixed;top:0;left:0;width:100%;height:100%;background:inherit;display:flex;align-items:center;justify-content:center;z-index:1050;color:#fff}
+        html{font-size:16px;scroll-behavior:smooth}
+        body{font-family:system-ui,-apple-system,sans-serif;background:var(--gradient-primary);min-height:100vh;color:var(--gray-900)}
+        body.loading{overflow:hidden}
+        .loading-screen{position:fixed;top:0;left:0;width:100%;height:100%;background:var(--gradient-primary);display:flex;align-items:center;justify-content:center;z-index:9999;opacity:1;transition:opacity 0.3s}
+        .loading-content{text-align:center;color:white}
         .loading-spinner{width:40px;height:40px;border:3px solid rgba(255,255,255,0.3);border-top:3px solid #fff;border-radius:50%;animation:spin 1s linear infinite;margin:1.5rem auto}
         @keyframes spin{to{transform:rotate(360deg)}}
         .app-container{min-height:100vh}
-        .container{max-width:1200px;margin:0 auto;padding:0 var(--spacing-4)}
-        .app-header{background:var(--glass-backdrop);backdrop-filter:blur(var(--glass-blur));border-bottom:1px solid var(--glass-border);padding:var(--spacing-4) 0;position:sticky;top:0;z-index:1020}
+        .container{max-width:1200px;margin:0 auto;padding:0 1rem}
         .hidden{display:none!important}
     </style>
     
     <!-- Preload critical resources -->
     <link rel="preload" href="css/main.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <link rel="preload" href="data/vocabulary.json" as="fetch" crossorigin="anonymous">
     <link rel="preload" href="js/app.js" as="script">
     
     <!-- Non-critical CSS -->
@@ -69,16 +50,6 @@
         <link rel="stylesheet" href="css/components.css">
         <link rel="stylesheet" href="css/responsive.css">
     </noscript>
-    
-    <!-- PWA Support -->
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="English Flashcards">
-    
-    <!-- Security headers -->
-    <meta http-equiv="X-Content-Type-Options" content="nosniff">
-    <meta http-equiv="X-Frame-Options" content="DENY">
-    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
 </head>
 <body class="loading">
     <!-- Loading Screen -->
@@ -87,426 +58,17 @@
             <div class="loading-logo" style="font-size:3rem;margin-bottom:1rem;animation:pulse 2s infinite">🇬🇧</div>
             <h2 style="font-size:1.5rem;font-weight:bold;margin-bottom:1.5rem;text-shadow:0 2px 4px rgba(0,0,0,0.3)">English Flashcards B1/B2</h2>
             <div class="loading-spinner"></div>
-            <p id="loading-message" style="font-size:1.125rem;opacity:0.9;margin-top:1rem">Ładowanie słownictwa...</p>
+            <p id="loading-message" style="font-size:1.125rem;opacity:0.9">Ładowanie aplikacji...</p>
         </div>
     </div>
 
-    <!-- App Container -->
+    <!-- Main App Container -->
     <div id="app" class="app-container hidden">
-        <!-- Skip to content link for accessibility -->
-        <a href="#main-content" class="skip-to-content">Przejdź do głównej treści</a>
-        
-        <!-- Header -->
-        <header class="app-header" role="banner">
-            <div class="container">
-                <div class="header-content">
-                    <div class="logo-section">
-                        <h1>
-                            <span class="flag" aria-hidden="true">🇬🇧</span>
-                            English B1/B2
-                            <span class="flag" aria-hidden="true">🇺🇸</span>
-                        </h1>
-                        <p class="subtitle">1600+ słów w 32 kategoriach</p>
-                    </div>
-                    
-                    <!-- Header Controls -->
-                    <nav class="header-controls" aria-label="Główne opcje">
-                        <button class="control-btn" id="theme-toggle" title="Zmień motyw" aria-label="Przełącz motyw kolorystyczny">
-                            <span class="icon" aria-hidden="true">🌙</span>
-                            <span class="text">Tryb ciemny</span>
-                        </button>
-                        <button class="control-btn" id="stats-toggle" title="Pokaż statystyki" aria-label="Pokaż statystyki nauki">
-                            <span class="icon" aria-hidden="true">📊</span>
-                            <span class="text">Statystyki</span>
-                        </button>
-                        <button class="control-btn" id="settings-toggle" title="Ustawienia" aria-label="Otwórz ustawienia">
-                            <span class="icon" aria-hidden="true">⚙️</span>
-                            <span class="text">Ustawienia</span>
-                        </button>
-                    </nav>
-                </div>
-            </div>
-        </header>
-
-        <!-- Stats Panel -->
-        <aside id="stats-panel" class="stats-panel" aria-labelledby="stats-title">
-            <div class="container">
-                <div class="stats-content">
-                    <h3 id="stats-title">📈 Twoje statystyki nauki</h3>
-                    <div class="stats-grid" role="grid">
-                        <div class="stat-card" role="gridcell">
-                            <div class="stat-value" id="total-studied" aria-describedby="total-studied-label">0</div>
-                            <div class="stat-label" id="total-studied-label">Przejrzane karty</div>
-                            <div class="stat-progress">
-                                <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
-                                    <div class="progress-fill" id="cards-progress"></div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="stat-card" role="gridcell">
-                            <div class="stat-value" id="study-streak">0</div>
-                            <div class="stat-label">Dni z rzędu</div>
-                            <div class="stat-icon" aria-hidden="true">🔥</div>
-                        </div>
-                        <div class="stat-card" role="gridcell">
-                            <div class="stat-value" id="quiz-score">0%</div>
-                            <div class="stat-label">Średni wynik quizów</div>
-                            <div class="stat-icon" aria-hidden="true">🎯</div>
-                        </div>
-                        <div class="stat-card" role="gridcell">
-                            <div class="stat-value" id="favorite-category">-</div>
-                            <div class="stat-label">Ulubiona kategoria</div>
-                            <div class="stat-icon" aria-hidden="true">⭐</div>
-                        </div>
-                        <div class="stat-card" role="gridcell">
-                            <div class="stat-value" id="total-words">1600+</div>
-                            <div class="stat-label">Dostępne słowa</div>
-                            <div class="stat-icon" aria-hidden="true">📚</div>
-                        </div>
-                        <div class="stat-card" role="gridcell">
-                            <div class="stat-value" id="completed-categories">0/32</div>
-                            <div class="stat-label">Ukończone kategorie</div>
-                            <div class="stat-icon" aria-hidden="true">✅</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </aside>
-
-        <!-- Main Content -->
-        <main id="main-content" class="main-content" role="main">
-            <div class="container">
-                <!-- Mode Selector -->
-                <nav class="mode-selector" role="tablist" aria-label="Tryby nauki">
-                    <button class="mode-btn active" id="flashcards-mode" data-action="switch-mode" data-mode="flashcards" role="tab" aria-selected="true" aria-controls="flashcard-content">
-                        <span class="icon" aria-hidden="true">📚</span>
-                        <span class="text">Fiszki</span>
-                    </button>
-                    <button class="mode-btn" id="quiz-mode" data-action="switch-mode" data-mode="quiz" role="tab" aria-selected="false" aria-controls="quiz-content">
-                        <span class="icon" aria-hidden="true">🎯</span>
-                        <span class="text">Quizy</span>
-                    </button>
-                    <button class="mode-btn" id="sentences-mode" data-action="switch-mode" data-mode="sentences" role="tab" aria-selected="false" aria-controls="sentences-content">
-                        <span class="icon" aria-hidden="true">💬</span>
-                        <span class="text">Przykłady zdań</span>
-                    </button>
-                </nav>
-
-                <!-- Category Selector -->
-                <section id="category-selector" class="category-selector" role="tabpanel" aria-labelledby="flashcards-mode">
-                    <div class="category-search">
-                        <label for="category-search-input" class="sr-only">Szukaj kategorii</label>
-                        <input type="text" id="category-search-input" placeholder="🔍 Szukaj kategorii..." class="search-input" aria-describedby="search-help">
-                        <div id="search-help" class="sr-only">Wpisz nazwę kategorii aby filtrować</div>
-                    </div>
-                    <div id="category-grid" class="category-grid" role="grid" aria-label="Kategorie słownictwa">
-                        <!-- Categories will be loaded dynamically -->
-                    </div>
-                </section>
-
-                <!-- Quiz Selector -->
-                <section id="quiz-selector" class="quiz-selector hidden" role="tabpanel" aria-labelledby="quiz-mode">
-                    <div class="quiz-sections">
-                        <!-- Category Quizzes -->
-                        <section class="quiz-section">
-                            <h3>🎯 Quizy kategorii (15 pytań, zalicz 12)</h3>
-                            <div id="category-quiz-grid" class="quiz-grid" role="grid" aria-label="Quizy kategorii">
-                                <!-- Category quizzes will be loaded dynamically -->
-                            </div>
-                        </section>
-
-                        <!-- Mixed Quizzes -->
-                        <section class="quiz-section">
-                            <h3>🔄 Quizy mieszane</h3>
-                            <div class="quiz-grid" role="grid" aria-label="Quizy mieszane">
-                                <button class="quiz-card mixed-quiz" id="random-quiz-btn" data-action="start-quiz" data-quiz="random">
-                                    <span class="quiz-icon" aria-hidden="true">🎲</span>
-                                    <span class="quiz-name">Quiz losowy</span>
-                                    <span class="quiz-description">20 losowych słów</span>
-                                    <span class="quiz-status">Zawsze dostępny</span>
-                                </button>
-                                <button class="quiz-card mixed-quiz" id="difficult-words-quiz" data-action="start-quiz" data-quiz="difficult">
-                                    <span class="quiz-icon" aria-hidden="true">💪</span>
-                                    <span class="quiz-name">Trudne słowa</span>
-                                    <span class="quiz-description">Słowa z najgorszymi wynikami</span>
-                                    <span class="quiz-status">Dostępny po 5 quizach</span>
-                                </button>
-                            </div>
-                        </section>
-
-                        <!-- Final Quiz -->
-                        <section class="quiz-section">
-                            <h3>🏆 Quiz końcowy (50 pytań, zalicz 42)</h3>
-                            <div class="quiz-grid" role="grid" aria-label="Quiz końcowy">
-                                <button class="quiz-card final-quiz" id="final-quiz-btn" data-action="start-quiz" data-quiz="final">
-                                    <span class="quiz-icon" aria-hidden="true">🎓</span>
-                                    <span class="quiz-name">Test ze wszystkich kategorii</span>
-                                    <span class="quiz-description">50 pytań z całego materiału</span>
-                                    <span class="quiz-status" id="final-quiz-status">Niedostępny</span>
-                                </button>
-                            </div>
-                        </section>
-                    </div>
-                </section>
-
-                <!-- Flashcard Container -->
-                <section id="flashcard-container" class="flashcard-container" aria-live="polite">
-                    <div class="flashcard-wrapper">
-                        <div class="flashcard" id="flashcard" tabindex="0" role="button" aria-label="Kliknij aby obrócić fiszkę" data-action="flip-card">
-                            <div class="card-face card-front" id="card-front" aria-hidden="false">
-                                <!-- Front content will be inserted here -->
-                            </div>
-                            <div class="card-face card-back" id="card-back" aria-hidden="true">
-                                <!-- Back content will be inserted here -->
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Card Controls -->
-                    <div class="card-controls" role="group" aria-label="Kontrolki karty">
-                        <button class="control-btn secondary" id="difficulty-btn" title="Oznacz trudność" aria-label="Zmień poziom trudności słowa">
-                            <span class="icon" aria-hidden="true">⭐</span>
-                            <span class="text">Trudność</span>
-                        </button>
-                        <button class="control-btn secondary" id="bookmark-btn" title="Dodaj do ulubionych" aria-label="Dodaj lub usuń z ulubionych">
-                            <span class="icon" aria-hidden="true">🔖</span>
-                            <span class="text">Ulubione</span>
-                        </button>
-                        <button class="control-btn secondary" id="image-btn" title="Zarządzaj obrazkiem" aria-label="Dodaj lub edytuj obrazek">
-                            <span class="icon" aria-hidden="true">🖼️</span>
-                            <span class="text">Obrazek</span>
-                        </button>
-                    </div>
-                </section>
-
-                <!-- Quiz Container -->
-                <section id="quiz-container" class="quiz-container hidden" aria-live="polite">
-                    <div class="quiz-header">
-                        <div class="quiz-info">
-                            <h3 id="quiz-title">Quiz: Build and Appearance</h3>
-                            <div class="quiz-progress">
-                                <span class="progress-text">
-                                    Pytanie <span id="quiz-current">1</span> z <span id="quiz-total">15</span>
-                                </span>
-                                <div class="progress-bar" role="progressbar" aria-valuenow="1" aria-valuemin="1" aria-valuemax="15">
-                                    <div class="progress-fill" id="quiz-progress-fill"></div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="quiz-score">
-                            <span class="score-label">Wynik:</span>
-                            <span class="score-value" id="quiz-score-display">0/0</span>
-                        </div>
-                    </div>
-                    
-                    <div class="quiz-content">
-                        <div class="quiz-question-card">
-                            <div class="question-section">
-                                <div class="english-word" id="quiz-english-word">beautiful</div>
-                                <div class="quiz-instruction">Wybierz poprawne polskie tłumaczenie:</div>
-                            </div>
-                            
-                            <!-- Multiple Choice Quiz -->
-                            <div id="multiple-choice-section" class="answer-section">
-                                <div class="answer-options" id="answer-options" role="radiogroup" aria-labelledby="quiz-instruction">
-                                    <!-- Options will be inserted here -->
-                                </div>
-                            </div>
-                            
-                            <!-- Text Input Quiz -->
-                            <div id="text-input-section" class="answer-section hidden">
-                                <div class="input-group">
-                                    <label for="quiz-answer-input" class="sr-only">Wpisz odpowiedź</label>
-                                    <input type="text" id="quiz-answer-input" class="quiz-input" 
-                                           placeholder="Wpisz polskie tłumaczenie..." autocomplete="off">
-                                    <button class="quiz-btn primary" id="quiz-submit-btn">Sprawdź</button>
-                                </div>
-                            </div>
-                            
-                            <!-- Sentence Quiz -->
-                            <div id="sentence-section" class="answer-section hidden">
-                                <div class="sentence-question">
-                                    <p class="instruction">Przetłumacz zdanie:</p>
-                                    <p class="sentence-text" id="sentence-to-translate"></p>
-                                </div>
-                                <div class="input-group">
-                                    <label for="sentence-answer" class="sr-only">Przetłumacz zdanie</label>
-                                    <textarea id="sentence-answer" class="sentence-input" 
-                                              placeholder="Wpisz tłumaczenie zdania..." rows="3"></textarea>
-                                    <button class="quiz-btn primary" id="sentence-submit-btn">Sprawdź</button>
-                                </div>
-                            </div>
-                            
-                            <!-- Quiz Feedback -->
-                            <div id="quiz-feedback" class="quiz-feedback hidden" aria-live="assertive">
-                                <div class="feedback-content">
-                                    <div class="feedback-icon" id="feedback-icon" aria-hidden="true">✅</div>
-                                    <div class="feedback-text" id="feedback-text">Poprawnie!</div>
-                                    <div class="feedback-details" id="feedback-details"></div>
-                                </div>
-                                <div class="feedback-actions">
-                                    <button class="quiz-btn primary" id="quiz-next-btn" data-action="next-question">Następne pytanie</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- Quiz Results -->
-                <section id="quiz-results" class="quiz-results hidden" aria-live="polite">
-                    <div class="results-card">
-                        <div class="results-header">
-                            <div class="results-icon" id="results-icon" aria-hidden="true">🎉</div>
-                            <h3 id="results-title">Gratulacje!</h3>
-                        </div>
-                        
-                        <div class="results-content">
-                            <div class="score-display">
-                                <div class="score-main" id="results-score">12/15</div>
-                                <div class="score-percentage" id="results-percentage">80%</div>
-                            </div>
-                            
-                            <div class="results-status" id="results-status">
-                                Quiz zaliczony!
-                            </div>
-                            
-                            <div class="results-details" id="results-details">
-                                <!-- Detailed results will be shown here -->
-                            </div>
-                        </div>
-                        
-                        <div class="results-actions">
-                            <button class="quiz-btn secondary" id="quiz-retry-btn" data-action="retry-quiz">
-                                <span class="icon" aria-hidden="true">🔄</span>
-                                <span class="text">Spróbuj ponownie</span>
-                            </button>
-                            <button class="quiz-btn primary" id="quiz-continue-btn" data-action="continue-after-quiz">
-                                <span class="icon" aria-hidden="true">➡️</span>
-                                <span class="text">Kontynuuj naukę</span>
-                            </button>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- Navigation Controls -->
-                <nav class="navigation-controls" role="group" aria-label="Nawigacja po kartach">
-                    <button class="nav-btn" id="prev-btn" data-action="nav-prev" aria-label="Poprzednia karta">
-                        <span class="icon" aria-hidden="true">⬅️</span>
-                        <span class="text">Poprzednia</span>
-                    </button>
-                    <button class="nav-btn primary" id="flip-btn" data-action="flip-card" aria-label="Obróć fiszkę">
-                        <span class="icon" aria-hidden="true">🔄</span>
-                        <span class="text">Obróć fiszkę</span>
-                    </button>
-                    <button class="nav-btn" id="next-btn" data-action="nav-next" aria-label="Następna karta">
-                        <span class="icon" aria-hidden="true">➡️</span>
-                        <span class="text">Następna</span>
-                    </button>
-                </nav>
-
-                <!-- Progress Display -->
-                <section id="progress-display" class="progress-display" aria-live="polite">
-                    <div class="progress-info">
-                        <span class="progress-text">
-                            Karta <span id="current-card">1</span> z <span id="total-cards">50</span>
-                        </span>
-                        <span class="category-name" id="current-category">Build and Appearance</span>
-                    </div>
-                    <div class="progress-bar" role="progressbar" aria-valuenow="1" aria-valuemin="1" aria-valuemax="50">
-                        <div class="progress-fill" id="progress-fill"></div>
-                    </div>
-                    <div class="progress-actions">
-                        <button class="action-btn" id="shuffle-btn" title="Wymieszaj karty" data-action="shuffle">
-                            <span class="icon" aria-hidden="true">🔀</span>
-                            <span class="text">Wymieszaj</span>
-                        </button>
-                        <button class="action-btn" id="reset-btn" title="Resetuj postęp" data-action="reset-category">
-                            <span class="icon" aria-hidden="true">🔄</span>
-                            <span class="text">Reset</span>
-                        </button>
-                    </div>
-                </section>
-            </div>
-        </main>
-    </div>
-
-    <!-- Modals -->
-    <div id="modal-overlay" class="modal-overlay" role="dialog" aria-modal="true">
-        <!-- Settings Modal -->
-        <div id="settings-modal" class="modal" role="document">
-            <div class="modal-header">
-                <h3 id="settings-modal-title">⚙️ Ustawienia</h3>
-                <button class="modal-close" id="settings-close" aria-label="Zamknij ustawienia">×</button>
-            </div>
-            <div class="modal-content">
-                <form class="settings-grid" aria-labelledby="settings-modal-title">
-                    <div class="setting-group">
-                        <label class="setting-label">
-                            <input type="checkbox" id="auto-audio" class="setting-checkbox">
-                            <span class="checkbox-custom" aria-hidden="true"></span>
-                            <span class="label-text">Automatyczne audio</span>
-                        </label>
-                    </div>
-                    <div class="setting-group">
-                        <label class="setting-label">
-                            <input type="checkbox" id="show-phonetics" class="setting-checkbox" checked>
-                            <span class="checkbox-custom" aria-hidden="true"></span>
-                            <span class="label-text">Pokaż fonetykę</span>
-                        </label>
-                    </div>
-                    <div class="setting-group">
-                        <label class="setting-label">
-                            <span class="label-text">Trudność quizów</span>
-                            <select id="quiz-difficulty" class="setting-select" aria-describedby="difficulty-help">
-                                <option value="easy">Łatwy</option>
-                                <option value="medium" selected>Średni</option>
-                                <option value="hard">Trudny</option>
-                            </select>
-                            <div id="difficulty-help" class="sr-only">Wybierz poziom trudności pytań w quizach</div>
-                        </label>
-                    </div>
-                    <div class="setting-group">
-                        <label class="setting-label">
-                            <span class="label-text">Język quizów</span>
-                            <select id="quiz-language" class="setting-select">
-                                <option value="pl-en" selected>Polski → Angielski</option>
-                                <option value="en-pl">Angielski → Polski</option>
-                                <option value="mixed">Mieszany</option>
-                            </select>
-                        </label>
-                    </div>
-                </form>
-                <div class="modal-actions">
-                    <button class="btn secondary" id="export-data" data-action="export-data">
-                        <span class="icon" aria-hidden="true">💾</span>
-                        <span class="text">Eksportuj dane</span>
-                    </button>
-                    <button class="btn secondary" id="import-data" data-action="import-data">
-                        <span class="icon" aria-hidden="true">📂</span>
-                        <span class="text">Importuj dane</span>
-                    </button>
-                    <button class="btn danger" id="reset-all-data" data-action="reset-all">
-                        <span class="icon" aria-hidden="true">🗑️</span>
-                        <span class="text">Resetuj wszystko</span>
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Image Manager Modal -->
-        <div id="image-modal" class="modal" role="document">
-            <div class="modal-header">
-                <h3>🖼️ Zarządzanie obrazkami</h3>
-                <button class="modal-close" id="image-modal-close" aria-label="Zamknij zarządzanie obrazkami">×</button>
-            </div>
-            <div class="modal-content" id="image-modal-content">
-                <!-- Content will be inserted dynamically -->
-            </div>
-        </div>
+        <!-- Zawartość aplikacji zostanie wygenerowana dynamicznie -->
     </div>
 
     <!-- Notifications Container -->
-    <div id="notifications-container" class="notifications-container" aria-live="polite" aria-atomic="false" role="status"></div>
+    <div id="notifications-container" class="notifications-container" aria-live="polite" role="status"></div>
 
     <!-- Offline indicator -->
     <div id="offline-indicator" class="offline-indicator hidden" role="alert">
@@ -514,42 +76,55 @@
         <span class="text">Aplikacja działa offline</span>
     </div>
 
-    <!-- JavaScript Modules -->
+    <!-- JavaScript Modules - POPRAWIONA KOLEJNOŚĆ Z WSZYSTKIMI MODUŁAMI -->
     <script>
-        // Feature detection and polyfills
-        if (!window.Promise) {
-            document.write('<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"><\/script>');
-        }
-        
-        // Performance mark
-        performance.mark('app-start');
-        
         // Critical error handling
         window.addEventListener('error', function(e) {
             console.error('Critical error:', e.error);
-            document.getElementById('loading-screen').innerHTML = `
-                <div style="text-align:center;color:white;padding:20px">
-                    <h2>⚠️ Błąd ładowania</h2>
-                    <p>Aplikacja nie może się załadować. Spróbuj odświeżyć stronę.</p>
-                    <button onclick="location.reload()" style="background:#1e3a8a;color:white;border:none;padding:10px 20px;border-radius:8px;margin-top:10px">
-                        Odśwież stronę
-                    </button>
-                </div>
-            `;
+            const loadingScreen = document.getElementById('loading-screen');
+            if (loadingScreen) {
+                loadingScreen.innerHTML = `
+                    <div style="text-align:center;color:white;padding:20px">
+                        <h2>⚠️ Błąd ładowania</h2>
+                        <p>Aplikacja nie może się załadować. Spróbuj odświeżyć stronę.</p>
+                        <button onclick="location.reload()" style="background:#1e3a8a;color:white;border:none;padding:10px 20px;border-radius:8px;margin-top:10px">
+                            Odśwież stronę
+                        </button>
+                    </div>
+                `;
+            }
         });
+
+        // Performance mark
+        performance.mark('app-start');
+        
+        console.log('🚀 Rozpoczynam ładowanie aplikacji English Flashcards...');
     </script>
     
-    <!-- Core JavaScript - defer for better performance -->
-    <script src="js/config/constants.js" defer></script>
-    <script src="js/utils/utils.js" defer></script>
-    <script src="js/utils/storage-manager.js" defer></script>
-    <script src="js/utils/notification-manager.js" defer></script>
-    <script src="js/modules/module-loader.js" defer></script>
-    <script src="js/app.js" defer></script>
+    <!-- 1. CORE MODULES - Podstawowe narzędzia -->
+    <script src="js/config/constants.js"></script>
+    <script src="js/utils/utils.js"></script>
+    <script src="js/utils/storage-manager.js"></script>
+    <script src="js/utils/notification-manager.js"></script>
+    
+    <!-- 2. MANAGER MODULES - Menedżery funkcjonalności -->
+    <script src="js/modules/data-loader.js"></script>
+    <script src="js/modules/theme-manager.js"></script>              <!-- ← DODANE! -->
+    <script src="js/modules/audio-manager.js"></script>              <!-- ← DODANE! -->
+    <script src="js/modules/image-manager.js"></script>              <!-- ← DODANE! -->
+    <script src="js/modules/progress-manager.js"></script>           <!-- ← DODANE! -->
+    <script src="js/modules/flashcard-manager.js"></script>          <!-- ← DODANE! -->
+    <script src="js/modules/quiz-manager.js"></script>               <!-- ← DODANE! -->
+    
+    <!-- 3. MODULE SYSTEM - System ładowania modułów -->
+    <script src="js/modules/module-loader.js"></script>
+    
+    <!-- 4. MAIN APPLICATION - Główna aplikacja -->
+    <script src="js/app.js"></script>
 
-    <!-- Service Worker Registration -->
+    <!-- Service Worker Registration - TYLKO DLA HTTP/HTTPS -->
     <script>
-        if ('serviceWorker' in navigator) {
+        if ('serviceWorker' in navigator && window.location.protocol !== 'file:') {
             window.addEventListener('load', async () => {
                 try {
                     const registration = await navigator.serviceWorker.register('/sw.js', {
@@ -587,29 +162,14 @@
         
         window.addEventListener('online', updateOnlineStatus);
         window.addEventListener('offline', updateOnlineStatus);
-    </script>
-
-    <!-- Schema.org structured data -->
-    <script type="application/ld+json">
-    {
-        "@context": "https://schema.org",
-        "@type": "WebApplication",
-        "name": "English Flashcards B1/B2",
-        "description": "Profesjonalna aplikacja do nauki angielskiego poziom B1/B2 z 1600+ słowami w 32 kategoriach",
-        "url": "https://yourdomain.com",
-        "applicationCategory": "EducationalApplication",
-        "operatingSystem": "Any",
-        "browserRequirements": "Requires JavaScript. Requires HTML5.",
-        "author": {
-            "@type": "Organization",
-            "name": "English Learning App"
-        },
-        "offers": {
-            "@type": "Offer",
-            "price": "0",
-            "priceCurrency": "USD"
-        }
-    }
+        
+        // Performance measurement
+        window.addEventListener('load', () => {
+            performance.mark('app-end');
+            performance.measure('app-loading', 'app-start', 'app-end');
+            const measure = performance.getEntriesByName('app-loading')[0];
+            console.log(`⚡ Aplikacja załadowana w ${Math.round(measure.duration)}ms`);
+        });
     </script>
 </body>
 </html>
