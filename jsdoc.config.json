@@ -1,0 +1,30 @@
+{
+  "source": {
+    "include": [
+      "./js/",
+      "./README.md"
+    ],
+    "includePattern": "\\.(js|jsx)$",
+    "exclude": [
+      "node_modules/",
+      "dist/",
+      "build/"
+    ]
+  },
+  "opts": {
+    "destination": "./docs/generated/",
+    "recurse": true,
+    "readme": "./README.md"
+  },
+  "plugins": [
+    "plugins/markdown"
+  ],
+  "templates": {
+    "cleverLinks": false,
+    "monospaceLinks": false
+  },
+  "metadata": {
+    "title": "English Flashcards B1/B2 - Documentation",
+    "description": "Dokumentacja API dla aplikacji English Flashcards B1/B2"
+  }
+}

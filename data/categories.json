@@ -1,0 +1,349 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2025-01-22",
+  "totalCategories": 38,
+  "categories": {
+    "build_and_appearance": {
+      "name": "Build and Appearance",
+      "icon": "👤",
+      "description": "Opis wyglądu i budowy ciała",
+      "order": 1,
+      "color": "#8b5cf6",
+      "estimatedTime": 45,
+      "difficulty": "easy"
+    },
+    "personality": {
+      "name": "Personality", 
+      "icon": "🧠",
+      "description": "Cechy charakteru i osobowości",
+      "order": 2,
+      "color": "#06b6d4",
+      "estimatedTime": 40,
+      "difficulty": "easy"
+    },
+    "clothes": {
+      "name": "Clothes",
+      "icon": "👕", 
+      "description": "Ubrania i dodatki",
+      "order": 3,
+      "color": "#f59e0b",
+      "estimatedTime": 35,
+      "difficulty": "easy"
+    },
+    "age": {
+      "name": "Age",
+      "icon": "📅",
+      "description": "Wiek i okresy życia", 
+      "order": 4,
+      "color": "#10b981",
+      "estimatedTime": 30,
+      "difficulty": "easy"
+    },
+    "feelings_and_emotions": {
+      "name": "Feelings and Emotions",
+      "icon": "😊",
+      "description": "Uczucia i emocje",
+      "order": 5,
+      "color": "#f43f5e",
+      "estimatedTime": 50,
+      "difficulty": "medium"
+    },
+    "body_language": {
+      "name": "Body Language and Gestures",
+      "icon": "🤲",
+      "description": "Mowa ciała i gesty",
+      "order": 6,
+      "color": "#8b5cf6",
+      "estimatedTime": 45,
+      "difficulty": "medium"
+    },
+    "family": {
+      "name": "Family",
+      "icon": "👨‍👩‍👧‍👦",
+      "description": "Rodzina i relacje rodzinne",
+      "order": 7,
+      "color": "#06b6d4",
+      "estimatedTime": 40,
+      "difficulty": "easy"
+    },
+    "friends_and_relations": {
+      "name": "Friends and Relations",
+      "icon": "👥",
+      "description": "Przyjaciele i znajomi",
+      "order": 8,
+      "color": "#f59e0b",
+      "estimatedTime": 35,
+      "difficulty": "medium"
+    },
+    "celebrations": {
+      "name": "Celebrations and Special Occasions",
+      "icon": "🎉",
+      "description": "Święta i uroczystości",
+      "order": 9,
+      "color": "#10b981",
+      "estimatedTime": 40,
+      "difficulty": "medium"
+    },
+    "housing_and_living": {
+      "name": "Housing and Living",
+      "icon": "🏠",
+      "description": "Mieszkanie i warunki życia",
+      "order": 10,
+      "color": "#f43f5e",
+      "estimatedTime": 45,
+      "difficulty": "medium"
+    },
+    "house_problems": {
+      "name": "Problems Around the House",
+      "icon": "🔧",
+      "description": "Problemy domowe",
+      "order": 11,
+      "color": "#8b5cf6",
+      "estimatedTime": 40,
+      "difficulty": "hard"
+    },
+    "in_the_house": {
+      "name": "In the House",
+      "icon": "🛋️",
+      "description": "Wnętrza domu",
+      "order": 12,
+      "color": "#06b6d4",
+      "estimatedTime": 35,
+      "difficulty": "easy"
+    },
+    "daily_activities": {
+      "name": "Daily Activities",
+      "icon": "📋",
+      "description": "Codzienne czynności",
+      "order": 13,
+      "color": "#f59e0b",
+      "estimatedTime": 45,
+      "difficulty": "easy"
+    },
+    "hobbies_and_leisure": {
+      "name": "Hobbies and Leisure",
+      "icon": "⚽",
+      "description": "Hobby i czas wolny",
+      "order": 14,
+      "color": "#10b981",
+      "estimatedTime": 50,
+      "difficulty": "medium"
+    },
+    "shopping": {
+      "name": "Shopping",
+      "icon": "🛍️",
+      "description": "Zakupy",
+      "order": 15,
+      "color": "#f43f5e",
+      "estimatedTime": 40,
+      "difficulty": "medium"
+    },
+    "talking_about_food": {
+      "name": "Talking About Food",
+      "icon": "🍽️",
+      "description": "Rozmowy o jedzeniu",
+      "order": 16,
+      "color": "#8b5cf6",
+      "estimatedTime": 45,
+      "difficulty": "medium"
+    },
+    "food_preparation": {
+      "name": "Food Preparation",
+      "icon": "👨‍🍳",
+      "description": "Przygotowywanie jedzenia",
+      "order": 17,
+      "color": "#06b6d4",
+      "estimatedTime": 40,
+      "difficulty": "medium"
+    },
+    "eating_in": {
+      "name": "Eating In",
+      "icon": "🍽️",
+      "description": "Jedzenie w domu",
+      "order": 18,
+      "color": "#f59e0b",
+      "estimatedTime": 35,
+      "difficulty": "easy"
+    },
+    "eating_out": {
+      "name": "Eating Out",
+      "icon": "🍕",
+      "description": "Restauracje i jedzenie na mieście",
+      "order": 19,
+      "color": "#10b981",
+      "estimatedTime": 40,
+      "difficulty": "medium"
+    },
+    "drinking": {
+      "name": "Drinking",
+      "icon": "🥤",
+      "description": "Napoje",
+      "order": 20,
+      "color": "#f43f5e",
+      "estimatedTime": 30,
+      "difficulty": "easy"
+    },
+    "on_the_road": {
+      "name": "On the Road",
+      "icon": "🛣️",
+      "description": "Na drodze",
+      "order": 21,
+      "color": "#8b5cf6",
+      "estimatedTime": 40,
+      "difficulty": "medium"
+    },
+    "driving": {
+      "name": "Driving",
+      "icon": "🚗",
+      "description": "Prowadzenie pojazdu",
+      "order": 22,
+      "color": "#06b6d4",
+      "estimatedTime": 35,
+      "difficulty": "medium"
+    },
+    "traveling": {
+      "name": "Traveling and Means of Transport",
+      "icon": "✈️",
+      "description": "Podróżowanie i transport",
+      "order": 23,
+      "color": "#f59e0b",
+      "estimatedTime": 50,
+      "difficulty": "medium"
+    },
+    "holidays": {
+      "name": "Holidays",
+      "icon": "🏖️",
+      "description": "Wakacje",
+      "order": 24,
+      "color": "#10b981",
+      "estimatedTime": 45,
+      "difficulty": "medium"
+    },
+    "health_problems": {
+      "name": "Health Problems",
+      "icon": "🏥",
+      "description": "Problemy zdrowotne",
+      "order": 25,
+      "color": "#f43f5e",
+      "estimatedTime": 45,
+      "difficulty": "hard"
+    },
+    "at_the_doctor": {
+      "name": "At the Doctor's",
+      "icon": "👨‍⚕️",
+      "description": "U lekarza",
+      "order": 26,
+      "color": "#8b5cf6",
+      "estimatedTime": 40,
+      "difficulty": "hard"
+    },
+    "in_hospital": {
+      "name": "In Hospital",
+      "icon": "🏥",
+      "description": "W szpitalu",
+      "order": 27,
+      "color": "#06b6d4",
+      "estimatedTime": 35,
+      "difficulty": "hard"
+    },
+    "education": {
+      "name": "Education",
+      "icon": "🎓",
+      "description": "Edukacja",
+      "order": 28,
+      "color": "#f59e0b",
+      "estimatedTime": 50,
+      "difficulty": "medium"
+    },
+    "looking_for_job": {
+      "name": "Looking for a Job",
+      "icon": "💼",
+      "description": "Poszukiwanie pracy",
+      "order": 29,
+      "color": "#10b981",
+      "estimatedTime": 45,
+      "difficulty": "hard"
+    },
+    "work_and_career": {
+      "name": "Work and Career",
+      "icon": "💻",
+      "description": "Praca i kariera",
+      "order": 30,
+      "color": "#f43f5e",
+      "estimatedTime": 50,
+      "difficulty": "medium"
+    },
+    "film_and_cinema": {
+      "name": "Film and Cinema",
+      "icon": "🎬",
+      "description": "Film i kino",
+      "order": 31,
+      "color": "#8b5cf6",
+      "estimatedTime": 40,
+      "difficulty": "medium"
+    },
+    "books": {
+      "name": "Books",
+      "icon": "📚",
+      "description": "Książki",
+      "order": 32,
+      "color": "#06b6d4",
+      "estimatedTime": 45,
+      "difficulty": "medium"
+    },
+    "music": {
+      "name": "Music",
+      "icon": "🎵",
+      "description": "Muzyka",
+      "order": 33,
+      "color": "#f59e0b",
+      "estimatedTime": 40,
+      "difficulty": "medium"
+    },
+    "television": {
+      "name": "Television",
+      "icon": "📺",
+      "description": "Telewizja",
+      "order": 34,
+      "color": "#10b981",
+      "estimatedTime": 35,
+      "difficulty": "easy"
+    },
+    "computers_and_internet": {
+      "name": "Computers and the Internet",
+      "icon": "💻",
+      "description": "Komputery i internet",
+      "order": 35,
+      "color": "#f43f5e",
+      "estimatedTime": 50,
+      "difficulty": "hard"
+    },
+    "newspapers_and_magazines": {
+      "name": "Newspapers and Magazines",
+      "icon": "📰",
+      "description": "Prasa",
+      "order": 36,
+      "color": "#8b5cf6",
+      "estimatedTime": 40,
+      "difficulty": "medium"
+    },
+    "weather": {
+      "name": "The Weather",
+      "icon": "🌤️",
+      "description": "Pogoda",
+      "order": 37,
+      "color": "#06b6d4",
+      "estimatedTime": 35,
+      "difficulty": "easy"
+    },
+    "natural_world": {
+      "name": "Natural World",
+      "icon": "🌍",
+      "description": "Świat przyrody",
+      "order": 38,
+      "color": "#f59e0b",
+      "estimatedTime": 50,
+      "difficulty": "medium"
+    }
+  }
+}
