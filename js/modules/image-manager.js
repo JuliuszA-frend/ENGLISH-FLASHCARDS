@@ -1,203 +1,362 @@
 /**
- * ImageManager - Zarządzanie obrazkami
+ * ImageManager - Zarządzanie obrazkami dla słówek
+ * UWAGA: Upewnij się, że ta klasa nie jest zdefiniowana nigdzie indziej!
  */
 class ImageManager {
     constructor() {
         this.storageKey = 'english-flashcards-images';
+        this.defaultImageSize = { width: 300, height: 200 };
+        this.supportedFormats = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+        this.maxFileSize = 5 * 1024 * 1024; // 5MB
+        this.allowedTypes = [
+            'image/jpeg',
+            'image/jpg', 
+            'image/png',
+            'image/gif',
+            'image/webp'
+        ];
         this.maxImageSize = 5 * 1024 * 1024; // 5MB
-        this.allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-        this.compressionQuality = 0.8;
-        this.maxDimensions = { width: 500, height: 500 };
     }
 
     /**
-     * Zapisanie obrazka
+     * Dodanie obrazka dla słówka
      */
-    async saveImage(wordId, file) {
+    async addImage(wordId, file) {
         try {
             // Walidacja pliku
-            if (!this.validateFile(file)) {
-                return false;
-            }
+            this.validateImageFile(file);
 
-            // Kompresja obrazka
-            const compressedImageData = await this.compressImage(file);
-            
-            // Zapis w localStorage
-            const images = this.loadImages();
-            images[wordId] = {
-                data: compressedImageData,
-                originalName: file.name,
-                size: compressedImageData.length,
-                timestamp: new Date().toISOString()
+            // Konwersja do base64
+            const base64 = await this.fileToBase64(file);
+
+            // Optymalizacja obrazka
+            const optimizedImage = await this.optimizeImage(base64, file.type);
+
+            // Zapisz obrazek
+            const imageData = {
+                id: wordId,
+                data: optimizedImage,
+                type: file.type,
+                size: optimizedImage.length,
+                timestamp: new Date().toISOString(),
+                filename: file.name
             };
 
-            this.saveImages(images);
-            return true;
+            this.saveImage(wordId, imageData);
+            
+            // Pokaż powiadomienie o sukcesie - BEZPIECZNE WYWOŁANIE
+            if (typeof NotificationManager !== 'undefined') {
+                NotificationManager.show('Obrazek został dodany pomyślnie!', 'success');
+            }
+
+            return imageData;
 
         } catch (error) {
-            console.error('Błąd zapisywania obrazka:', error);
-            return false;
+            console.error('Błąd dodawania obrazka:', error);
+            
+            // Pokaż powiadomienie o błędzie - BEZPIECZNE WYWOŁANIE
+            if (typeof NotificationManager !== 'undefined') {
+                NotificationManager.show('Błąd dodawania obrazka: ' + error.message, 'error');
+            }
+            
+            throw error;
         }
     }
 
     /**
-     * Pobranie obrazka
+     * Pobranie obrazka dla słówka
      */
     getImage(wordId) {
         const images = this.loadImages();
-        const imageData = images[wordId];
-        return imageData ? imageData.data : null;
+        return images[wordId] || null;
+    }
+
+    /**
+     * Sprawdzenie czy słówko ma obrazek
+     */
+    hasImage(wordId) {
+        const image = this.getImage(wordId);
+        return image !== null;
     }
 
     /**
      * Usunięcie obrazka
      */
-    deleteImage(wordId) {
-        try {
-            const images = this.loadImages();
+    removeImage(wordId) {
+        const images = this.loadImages();
+        
+        if (images[wordId]) {
             delete images[wordId];
             this.saveImages(images);
+            
+            // BEZPIECZNE WYWOŁANIE
+            if (typeof NotificationManager !== 'undefined') {
+                NotificationManager.show('Obrazek został usunięty', 'info');
+            }
+            
             return true;
-        } catch (error) {
-            console.error('Błąd usuwania obrazka:', error);
-            return false;
+        }
+        
+        return false;
+    }
+
+    /**
+     * Walidacja pliku obrazka
+     */
+    validateImageFile(file) {
+        if (!file) {
+            throw new Error('Nie wybrano pliku');
+        }
+
+        if (!this.supportedFormats.includes(file.type)) {
+            throw new Error('Nieobsługiwany format pliku. Wybierz JPG, PNG, GIF lub WebP.');
+        }
+
+        if (file.size > this.maxFileSize) {
+            throw new Error('Plik jest za duży. Maksymalny rozmiar to 5MB.');
         }
     }
 
     /**
-     * Pobranie wszystkich obrazków
+     * Konwersja pliku do base64
      */
-    getAllImages() {
-        return this.loadImages();
+    fileToBase64(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+        });
     }
 
     /**
-     * Otwarcie menedżera dla konkretnego słowa
+     * Optymalizacja obrazka
+     */
+    async optimizeImage(base64, type) {
+        return new Promise((resolve) => {
+            const img = new Image();
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+
+                // Oblicz nowe wymiary zachowując proporcje
+                const maxWidth = this.defaultImageSize.width;
+                const maxHeight = this.defaultImageSize.height;
+                
+                let { width, height } = img;
+                
+                if (width > height) {
+                    if (width > maxWidth) {
+                        height = (height * maxWidth) / width;
+                        width = maxWidth;
+                    }
+                } else {
+                    if (height > maxHeight) {
+                        width = (width * maxHeight) / height;
+                        height = maxHeight;
+                    }
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+
+                // Narysuj przeskalowany obrazek
+                ctx.drawImage(img, 0, 0, width, height);
+
+                // Konwertuj do base64 z kompresją
+                const quality = 0.8;
+                resolve(canvas.toDataURL(type, quality));
+            };
+            img.src = base64;
+        });
+    }
+
+    /**
+     * Zapisanie obrazka
+     */
+    saveImage(wordId, imageData) {
+        const images = this.loadImages();
+        images[wordId] = imageData;
+        this.saveImages(images);
+    }
+
+    /**
+     * Ładowanie wszystkich obrazków
+     */
+    loadImages() {
+        try {
+            const data = localStorage.getItem(this.storageKey);
+            return data ? JSON.parse(data) : {};
+        } catch (error) {
+            console.error('Błąd ładowania obrazków:', error);
+            return {};
+        }
+    }
+
+    /**
+     * Zapisanie wszystkich obrazków
+     */
+    saveImages(images) {
+        try {
+            localStorage.setItem(this.storageKey, JSON.stringify(images));
+        } catch (error) {
+            console.error('Błąd zapisywania obrazków:', error);
+            if (error.name === 'QuotaExceededError') {
+                if (typeof NotificationManager !== 'undefined') {
+                    NotificationManager.show('Brak miejsca w pamięci przeglądarki', 'error');
+                }
+            }
+        }
+    }
+
+    /**
+     * Pobranie rozmiaru pamięci używanej przez obrazki
+     */
+    getStorageSize() {
+        try {
+            const data = localStorage.getItem(this.storageKey);
+            return data ? new Blob([data]).size : 0;
+        } catch (error) {
+            return 0;
+        }
+    }
+
+    /**
+     * Otwarcie managera obrazków dla słówka
      */
     openManagerForWord(wordId, word) {
-        const modal = document.getElementById('image-modal');
-        const overlay = document.getElementById('modal-overlay');
-        const content = document.getElementById('image-modal-content');
-
-        if (!modal || !overlay || !content) return;
-
-        // Zbuduj zawartość modala
-        content.innerHTML = this.buildModalContent(wordId, word);
-        
-        // Skonfiguruj upload
-        this.setupImageUpload(wordId, word);
-        
-        // Pokaż modal
-        overlay.classList.add('visible');
-        modal.classList.add('visible');
+        this.showImageModal(wordId, word);
     }
 
     /**
-     * Budowanie zawartości modala
+     * Pokazanie modala do zarządzania obrazkami
      */
-    buildModalContent(wordId, word) {
+    showImageModal(wordId, word) {
+        // Usuń istniejący modal jeśli istnieje
+        const existingModal = document.getElementById('image-manager-modal');
+        if (existingModal) {
+            existingModal.remove();
+        }
+
+        // Stwórz modal
+        const modal = this.createImageModal(wordId, word);
+        document.body.appendChild(modal);
+
+        // Pokaż modal
+        setTimeout(() => {
+            modal.classList.add('active');
+        }, 10);
+
+        // Obsługa zamknięcia na ESC
+        const handleEscape = (e) => {
+            if (e.key === 'Escape') {
+                this.closeModal();
+                document.removeEventListener('keydown', handleEscape);
+            }
+        };
+        document.addEventListener('keydown', handleEscape);
+    }
+
+    /**
+     * Stworzenie modala
+     */
+    createImageModal(wordId, word) {
         const existingImage = this.getImage(wordId);
         
-        return `
-            <div class="image-manager-content">
-                <h4>📷 Obrazek dla słowa</h4>
-                <div class="word-info">
-                    <strong>${word.english}</strong> → ${word.polish}
+        const modal = document.createElement('div');
+        modal.id = 'image-manager-modal';
+        modal.className = 'modal-overlay';
+        
+        modal.innerHTML = `
+            <div class="modal-container">
+                <div class="modal-header">
+                    <h3>🖼️ Zarządzaj obrazkiem</h3>
+                    <button class="modal-close" onclick="window.imageManager?.closeModal()">&times;</button>
                 </div>
-
-                ${existingImage ? `
-                    <div class="current-image">
-                        <h5>Aktualny obrazek:</h5>
-                        <img src="${existingImage}" alt="${word.polish}" class="current-image-preview">
-                        <button class="btn danger" id="delete-current-image">
-                            <span class="icon">🗑️</span>
-                            <span class="text">Usuń obrazek</span>
-                        </button>
+                
+                <div class="modal-content">
+                    <div class="word-info">
+                        <strong>${word.english}</strong> - ${word.polish}
                     </div>
-                ` : ''}
-
-                <div class="image-upload-section">
-                    <h5>${existingImage ? 'Zmień obrazek:' : 'Dodaj obrazek:'}</h5>
                     
-                    <div class="file-drop-zone" id="file-drop-zone">
-                        <div class="drop-zone-content">
-                            <div class="upload-icon">📁</div>
-                            <p class="upload-text">Przeciągnij obrazek tutaj lub kliknij, aby wybrać</p>
-                            <p class="upload-info">Obsługiwane formaty: JPG, PNG, GIF, WebP<br>Maksymalny rozmiar: 5MB</p>
+                    ${existingImage ? this.createExistingImageSection(existingImage) : ''}
+                    
+                    <div class="upload-section">
+                        <div class="drop-zone" id="drop-zone">
+                            <div class="drop-zone-content">
+                                <div class="upload-icon">📷</div>
+                                <p>Przeciągnij obrazek tutaj lub kliknij aby wybrać</p>
+                                <p class="upload-hint">JPG, PNG, GIF, WebP (maks. 5MB)</p>
+                            </div>
+                            <input type="file" id="image-file-input" accept="image/*" style="display: none;">
                         </div>
-                        <input type="file" id="image-file-input" accept="image/*" style="display: none;">
-                    </div>
-
-                    <div id="image-preview-section" style="display: none;">
-                        <h5>Podgląd:</h5>
-                        <img id="image-preview" class="image-preview">
-                        <div class="preview-actions">
-                            <button class="btn success" id="save-image">
-                                <span class="icon">💾</span>
-                                <span class="text">Zapisz obrazek</span>
-                            </button>
-                            <button class="btn secondary" id="cancel-upload">
-                                <span class="icon">❌</span>
-                                <span class="text">Anuluj</span>
-                            </button>
+                        
+                        <div class="preview-section" id="preview-section" style="display: none;">
+                            <img id="image-preview" src="" alt="Podgląd">
+                            <div class="preview-actions">
+                                <button id="save-image-btn" class="btn btn-primary">Zapisz obrazek</button>
+                                <button id="cancel-upload-btn" class="btn btn-secondary">Anuluj</button>
+                            </div>
                         </div>
                     </div>
                 </div>
+            </div>
+        `;
 
-                <div class="image-tips">
-                    <h5>💡 Wskazówki:</h5>
-                    <ul>
-                        <li>Używaj obrazków, które pomagają zapamiętać słowo</li>
-                        <li>Preferuj wysoką jakość i czytelność</li>
-                        <li>Obrazek zostanie automatycznie przeskalowany</li>
-                        <li>Można używać zdjęć, ilustracji lub ikon</li>
-                    </ul>
+        this.setupImageModalEvents(modal, wordId);
+        return modal;
+    }
+
+    /**
+     * Stworzenie sekcji istniejącego obrazka
+     */
+    createExistingImageSection(imageData) {
+        return `
+            <div class="existing-image-section">
+                <h4>Aktualny obrazek:</h4>
+                <div class="current-image">
+                    <img src="${imageData.data}" alt="Obecny obrazek">
+                    <div class="image-actions">
+                        <button id="delete-image-btn" class="btn btn-danger">🗑️ Usuń obrazek</button>
+                    </div>
                 </div>
             </div>
         `;
     }
 
     /**
-     * Konfiguracja uploadu obrazków
+     * Konfiguracja event listenerów dla modala
      */
-    setupImageUpload(wordId, word) {
-        const dropZone = document.getElementById('file-drop-zone');
-        const fileInput = document.getElementById('image-file-input');
-        const previewSection = document.getElementById('image-preview-section');
-        const preview = document.getElementById('image-preview');
-        const saveBtn = document.getElementById('save-image');
-        const cancelBtn = document.getElementById('cancel-upload');
-        const deleteBtn = document.getElementById('delete-current-image');
+    setupImageModalEvents(modal, wordId) {
+        const dropZone = modal.querySelector('#drop-zone');
+        const fileInput = modal.querySelector('#image-file-input');
+        const previewSection = modal.querySelector('#preview-section');
+        const preview = modal.querySelector('#image-preview');
+        const saveBtn = modal.querySelector('#save-image-btn');
+        const cancelBtn = modal.querySelector('#cancel-upload-btn');
+        const deleteBtn = modal.querySelector('#delete-image-btn');
 
         let selectedFile = null;
 
-        // Drag & Drop
-        if (dropZone) {
-            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-                dropZone.addEventListener(eventName, this.preventDefaults);
+        // Event listeners dla drag & drop
+        if (dropZone && fileInput) {
+            dropZone.addEventListener('click', () => fileInput.click());
+            dropZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropZone.classList.add('drag-over');
             });
-
-            ['dragenter', 'dragover'].forEach(eventName => {
-                dropZone.addEventListener(eventName, () => dropZone.classList.add('drag-over'));
+            dropZone.addEventListener('dragleave', () => {
+                dropZone.classList.remove('drag-over');
             });
-
-            ['dragleave', 'drop'].forEach(eventName => {
-                dropZone.addEventListener(eventName, () => dropZone.classList.remove('drag-over'));
-            });
-
             dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('drag-over');
                 const files = e.dataTransfer.files;
                 if (files.length > 0) {
                     this.handleFileSelection(files[0]);
                 }
             });
 
-            dropZone.addEventListener('click', () => fileInput.click());
-        }
-
-        // File input
-        if (fileInput) {
             fileInput.addEventListener('change', (e) => {
                 if (e.target.files.length > 0) {
                     this.handleFileSelection(e.target.files[0]);
@@ -205,36 +364,44 @@ class ImageManager {
             });
         }
 
-        // Buttons
+        // Zapisywanie obrazka
         if (saveBtn) {
             saveBtn.addEventListener('click', async () => {
                 if (selectedFile) {
-                    const success = await this.saveImage(wordId, selectedFile);
-                    if (success) {
-                        NotificationManager.show('Obrazek został zapisany!', 'success');
+                    try {
+                        await this.addImage(wordId, selectedFile);
+                        if (typeof NotificationManager !== 'undefined') {
+                            NotificationManager.show('Obrazek został zapisany!', 'success');
+                        }
                         this.closeModal();
                         // Odśwież kartę
                         if (window.englishFlashcardsApp) {
                             window.englishFlashcardsApp.updateCard();
                         }
-                    } else {
-                        NotificationManager.show('Błąd podczas zapisywania obrazka', 'error');
+                    } catch (error) {
+                        if (typeof NotificationManager !== 'undefined') {
+                            NotificationManager.show('Błąd podczas zapisywania obrazka', 'error');
+                        }
                     }
                 }
             });
         }
 
+        // Anulowanie uploadu
         if (cancelBtn) {
             cancelBtn.addEventListener('click', () => {
                 this.resetUpload();
             });
         }
 
+        // Usuwanie obrazka
         if (deleteBtn) {
             deleteBtn.addEventListener('click', () => {
                 if (confirm('Czy na pewno chcesz usunąć ten obrazek?')) {
-                    if (this.deleteImage(wordId)) {
-                        NotificationManager.show('Obrazek został usunięty', 'info');
+                    if (this.removeImage(wordId)) {
+                        if (typeof NotificationManager !== 'undefined') {
+                            NotificationManager.show('Obrazek został usunięty', 'info');
+                        }
                         this.closeModal();
                         if (window.englishFlashcardsApp) {
                             window.englishFlashcardsApp.updateCard();
@@ -253,18 +420,22 @@ class ImageManager {
             // Pokaż podgląd
             const reader = new FileReader();
             reader.onload = (e) => {
-                preview.src = e.target.result;
-                previewSection.style.display = 'block';
-                dropZone.style.display = 'none';
+                if (preview && previewSection && dropZone) {
+                    preview.src = e.target.result;
+                    previewSection.style.display = 'block';
+                    dropZone.style.display = 'none';
+                }
             };
             reader.readAsDataURL(file);
         };
 
         this.resetUpload = () => {
             selectedFile = null;
-            previewSection.style.display = 'none';
-            dropZone.style.display = 'block';
-            fileInput.value = '';
+            if (previewSection && dropZone && fileInput) {
+                previewSection.style.display = 'none';
+                dropZone.style.display = 'block';
+                fileInput.value = '';
+            }
         };
     }
 
@@ -274,13 +445,17 @@ class ImageManager {
     validateFile(file) {
         // Sprawdź typ
         if (!this.allowedTypes.includes(file.type)) {
-            NotificationManager.show('Nieobsługiwany format pliku. Użyj JPG, PNG, GIF lub WebP.', 'error');
+            if (typeof NotificationManager !== 'undefined') {
+                NotificationManager.show('Nieobsługiwany format pliku. Użyj JPG, PNG, GIF lub WebP.', 'error');
+            }
             return false;
         }
 
         // Sprawdź rozmiar
         if (file.size > this.maxImageSize) {
-            NotificationManager.show('Plik jest za duży. Maksymalny rozmiar to 5MB.', 'error');
+            if (typeof NotificationManager !== 'undefined') {
+                NotificationManager.show('Plik jest za duży. Maksymalny rozmiar to 5MB.', 'error');
+            }
             return false;
         }
 
@@ -288,185 +463,55 @@ class ImageManager {
     }
 
     /**
-     * Kompresja obrazka
-     */
-    async compressImage(file) {
-        return new Promise((resolve, reject) => {
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            const img = new Image();
-
-            img.onload = () => {
-                // Oblicz nowe wymiary
-                const { width, height } = this.calculateDimensions(
-                    img.width, 
-                    img.height, 
-                    this.maxDimensions.width, 
-                    this.maxDimensions.height
-                );
-
-                canvas.width = width;
-                canvas.height = height;
-
-                // Narysuj przeskalowany obrazek
-                ctx.drawImage(img, 0, 0, width, height);
-
-                // Konwertuj do base64
-                const compressedData = canvas.toDataURL('image/jpeg', this.compressionQuality);
-                resolve(compressedData);
-            };
-
-            img.onerror = () => {
-                reject(new Error('Błąd ładowania obrazka'));
-            };
-
-            img.src = URL.createObjectURL(file);
-        });
-    }
-
-    /**
-     * Obliczanie nowych wymiarów zachowując proporcje
-     */
-    calculateDimensions(originalWidth, originalHeight, maxWidth, maxHeight) {
-        let { width, height } = { width: originalWidth, height: originalHeight };
-
-        // Przeskaluj jeśli za duży
-        if (width > maxWidth || height > maxHeight) {
-            const ratio = Math.min(maxWidth / width, maxHeight / height);
-            width = Math.round(width * ratio);
-            height = Math.round(height * ratio);
-        }
-
-        return { width, height };
-    }
-
-    /**
      * Zamknięcie modala
      */
     closeModal() {
-        const modal = document.getElementById('image-modal');
-        const overlay = document.getElementById('modal-overlay');
-        
-        if (modal) modal.classList.remove('visible');
-        if (overlay) overlay.classList.remove('visible');
-    }
-
-    /**
-     * Zapobieganie domyślnym akcjom drag & drop
-     */
-    preventDefaults(e) {
-        e.preventDefault();
-        e.stopPropagation();
-    }
-
-    /**
-     * Statystyki obrazków
-     */
-    getImageStats() {
-        const images = this.loadImages();
-        const imageKeys = Object.keys(images);
-        const totalSize = Object.values(images).reduce((sum, img) => sum + (img.size || 0), 0);
-
-        return {
-            count: imageKeys.length,
-            totalSize: totalSize,
-            averageSize: imageKeys.length > 0 ? Math.round(totalSize / imageKeys.length) : 0,
-            oldestImage: this.getOldestImage(images),
-            newestImage: this.getNewestImage(images)
-        };
-    }
-
-    getOldestImage(images) {
-        const entries = Object.entries(images);
-        if (entries.length === 0) return null;
-
-        return entries.reduce((oldest, [key, img]) => {
-            const imgDate = new Date(img.timestamp || 0);
-            const oldestDate = new Date(oldest.timestamp || 0);
-            return imgDate < oldestDate ? img : oldest;
-        }, entries[0][1]);
-    }
-
-    getNewestImage(images) {
-        const entries = Object.entries(images);
-        if (entries.length === 0) return null;
-
-        return entries.reduce((newest, [key, img]) => {
-            const imgDate = new Date(img.timestamp || 0);
-            const newestDate = new Date(newest.timestamp || 0);
-            return imgDate > newestDate ? img : newest;
-        }, entries[0][1]);
-    }
-
-    /**
-     * Czyszczenie starych obrazków
-     */
-    cleanup(maxAge = 30 * 24 * 60 * 60 * 1000) { // 30 dni
-        const images = this.loadImages();
-        const now = Date.now();
-        let removedCount = 0;
-
-        Object.entries(images).forEach(([key, img]) => {
-            const imgAge = now - new Date(img.timestamp || 0).getTime();
-            if (imgAge > maxAge) {
-                delete images[key];
-                removedCount++;
-            }
-        });
-
-        if (removedCount > 0) {
-            this.saveImages(images);
-            console.log(`Usunięto ${removedCount} starych obrazków`);
+        const modal = document.getElementById('image-manager-modal');
+        if (modal) {
+            modal.classList.remove('active');
+            setTimeout(() => {
+                modal.remove();
+            }, 300);
         }
-
-        return removedCount;
     }
 
     /**
-     * Export/Import obrazków
+     * Usunięcie obrazka (alias dla removeImage)
+     */
+    deleteImage(wordId) {
+        return this.removeImage(wordId);
+    }
+
+    /**
+     * Export wszystkich obrazków
      */
     exportImages() {
         return this.loadImages();
     }
 
+    /**
+     * Import obrazków
+     */
     importImages(images) {
-        if (typeof images === 'object' && images !== null) {
+        if (images && typeof images === 'object') {
             this.saveImages(images);
-            return true;
         }
-        return false;
     }
 
     /**
-     * Reset wszystkich obrazków
+     * Czyszczenie wszystkich obrazków
      */
-    reset() {
+    clearAllImages() {
         localStorage.removeItem(this.storageKey);
     }
+}
 
-    /**
-     * Storage methods
-     */
-    loadImages() {
-        try {
-            const saved = localStorage.getItem(this.storageKey);
-            return saved ? JSON.parse(saved) : {};
-        } catch (error) {
-            console.warn('Błąd ładowania obrazków:', error);
-            return {};
-        }
-    }
+// Dodaj referencję globalną dla łatwiejszego dostępu
+if (typeof window !== 'undefined') {
+    window.imageManager = new ImageManager();
+}
 
-    saveImages(images) {
-        try {
-            localStorage.setItem(this.storageKey, JSON.stringify(images));
-        } catch (error) {
-            console.error('Błąd zapisywania obrazków:', error);
-            // Sprawdź czy to problem z miejscem
-            if (error.name === 'QuotaExceededError') {
-                NotificationManager.show('Brak miejsca na obrazki. Usuń stare obrazki.', 'error');
-            }
-            throw error;
-        }
-    }
+// Export dla modułów
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = ImageManager;
 }

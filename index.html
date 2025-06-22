@@ -32,6 +32,9 @@
         .app-container{min-height:100vh}
         .container{max-width:1200px;margin:0 auto;padding:0 1rem}
         .hidden{display:none!important}
+        .progress-bar{width:200px;height:4px;background:rgba(255,255,255,0.2);border-radius:2px;margin:20px auto;overflow:hidden}
+        .progress-fill{height:100%;background:#fbbf24;border-radius:2px;transition:width 0.3s ease;width:0%}
+        @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
     </style>
     
     <!-- Preload critical resources -->
@@ -59,6 +62,11 @@
             <h2 style="font-size:1.5rem;font-weight:bold;margin-bottom:1.5rem;text-shadow:0 2px 4px rgba(0,0,0,0.3)">English Flashcards B1/B2</h2>
             <div class="loading-spinner"></div>
             <p id="loading-message" style="font-size:1.125rem;opacity:0.9">Ładowanie aplikacji...</p>
+            
+            <!-- Progress bar -->
+            <div class="progress-bar" id="loading-progress-bar">
+                <div class="progress-fill" id="loading-progress-fill"></div>
+            </div>
         </div>
     </div>
 
@@ -76,100 +84,245 @@
         <span class="text">Aplikacja działa offline</span>
     </div>
 
-    <!-- JavaScript Modules - POPRAWIONA KOLEJNOŚĆ Z WSZYSTKIMI MODUŁAMI -->
+    <!-- 1. NAJPIERW - Narzędzia podstawowe -->
+    <script src="js/config/constants.js" onerror="handleScriptError('constants.js')"></script>
+    <script src="js/utils/utils.js" onerror="handleScriptError('utils.js')"></script>
+
+    <!-- 2. POTEM - NotificationManager (musi być przed innymi managerami) -->
+    <script src="js/utils/notification-manager.js" onerror="handleScriptError('notification-manager.js')"></script>
+
+    <!-- 3. NASTĘPNIE - StorageManager -->
+    <script src="js/utils/storage-manager.js" onerror="handleScriptError('storage-manager.js')"></script>
+
+    <!-- 4. POTEM - Pozostałe managery w kolejności -->
+    <script src="js/modules/theme-manager.js" onerror="handleScriptError('theme-manager.js')"></script>
+    <script src="js/modules/data-loader.js" onerror="handleScriptError('data-loader.js')"></script>
+    <script src="js/modules/progress-manager.js" onerror="handleScriptError('progress-manager.js')"></script>
+    <script src="js/modules/audio-manager.js" onerror="handleScriptError('audio-manager.js')"></script>
+    <script src="js/modules/image-manager.js" onerror="handleScriptError('image-manager.js')"></script>
+    <script src="js/modules/flashcard-manager.js" onerror="handleScriptError('flashcard-manager.js')"></script>
+    <script src="js/modules/quiz-manager.js" onerror="handleScriptError('quiz-manager.js')"></script>
+
+    <!-- 5. NA KOŃCU - Główna aplikacja -->
+    <script src="js/app.js" onerror="handleScriptError('app.js')"></script>
+
+    <!-- 6. Narzędzie diagnostyczne (opcjonalne) -->
+    <script src="js/utils/diagnostic.js" onerror="console.warn('Diagnostic tool not found')"></script>
+
+    <!-- 7. INICJALIZACJA APLIKACJI -->
     <script>
-        // Critical error handling
-        window.addEventListener('error', function(e) {
-            console.error('Critical error:', e.error);
+        // Śledzenie błędów ładowania skryptów
+        let scriptErrors = [];
+        
+        function handleScriptError(scriptName) {
+            scriptErrors.push(scriptName);
+            console.error(`❌ Błąd ładowania skryptu: ${scriptName}`);
+        }
+
+        // Funkcja aktualizacji paska postępu
+        function updateLoadingProgress(message, percent) {
+            const messageEl = document.getElementById('loading-message');
+            const progressFill = document.getElementById('loading-progress-fill');
+            
+            if (messageEl) messageEl.textContent = message;
+            if (progressFill) progressFill.style.width = `${percent}%`;
+        }
+
+        // Sprawdzenie czy wszystkie klasy są załadowane
+        function checkClassAvailability() {
+            const requiredClasses = [
+                'NotificationManager',
+                'ThemeManager', 
+                'DataLoader',
+                'ProgressManager',
+                'AudioManager', 
+                'ImageManager',
+                'FlashcardManager',
+                'QuizManager',
+                'EnglishFlashcardsApp'
+            ];
+            
+            const missingClasses = [];
+            
+            requiredClasses.forEach(className => {
+                if (typeof window[className] === 'undefined') {
+                    missingClasses.push(className);
+                }
+            });
+            
+            if (missingClasses.length > 0) {
+                console.error('❌ Brakujące klasy:', missingClasses);
+                return { success: false, missing: missingClasses };
+            }
+            
+            console.log('✅ Wszystkie klasy są dostępne');
+            return { success: true, missing: [] };
+        }
+
+        // Pokazanie komunikatu o błędzie
+        function showErrorScreen(title, message, details = null) {
             const loadingScreen = document.getElementById('loading-screen');
             if (loadingScreen) {
                 loadingScreen.innerHTML = `
-                    <div style="text-align:center;color:white;padding:20px">
-                        <h2>⚠️ Błąd ładowania</h2>
-                        <p>Aplikacja nie może się załadować. Spróbuj odświeżyć stronę.</p>
-                        <button onclick="location.reload()" style="background:#1e3a8a;color:white;border:none;padding:10px 20px;border-radius:8px;margin-top:10px">
-                            Odśwież stronę
-                        </button>
+                    <div style="text-align: center; color: white; padding: 2rem; max-width: 500px;">
+                        <div style="font-size: 4rem; margin-bottom: 1rem;">⚠️</div>
+                        <h2 style="font-size: 1.5rem; margin-bottom: 1rem;">${title}</h2>
+                        <p style="margin-bottom: 1rem; opacity: 0.9;">${message}</p>
+                        ${details ? `<details style="margin-bottom: 1rem; text-align: left; background: rgba(0,0,0,0.2); padding: 1rem; border-radius: 0.5rem;">
+                            <summary style="cursor: pointer; font-weight: bold;">Szczegóły techniczne</summary>
+                            <pre style="margin-top: 0.5rem; font-size: 0.875rem; overflow-x: auto;">${details}</pre>
+                        </details>` : ''}
+                        <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                            <button onclick="location.reload()" style="
+                                background: #3b82f6; 
+                                color: white; 
+                                border: none; 
+                                padding: 0.75rem 1.5rem; 
+                                border-radius: 0.375rem; 
+                                cursor: pointer;
+                                font-weight: bold;
+                            ">
+                                🔄 Spróbuj ponownie
+                            </button>
+                            <button onclick="window.debugApp && window.debugApp.checkStorage()" style="
+                                background: #059669; 
+                                color: white; 
+                                border: none; 
+                                padding: 0.75rem 1.5rem; 
+                                border-radius: 0.375rem; 
+                                cursor: pointer;
+                            ">
+                                🔍 Diagnostyka
+                            </button>
+                        </div>
                     </div>
                 `;
             }
-        });
-
-        // Performance mark
-        performance.mark('app-start');
-        
-        console.log('🚀 Rozpoczynam ładowanie aplikacji English Flashcards...');
-    </script>
-    
-    <!-- 1. CORE MODULES - Podstawowe narzędzia -->
-    <script src="js/config/constants.js"></script>
-    <script src="js/utils/utils.js"></script>
-    <script src="js/utils/storage-manager.js"></script>
-    <script src="js/utils/notification-manager.js"></script>
-    
-    <!-- 2. MANAGER MODULES - Menedżery funkcjonalności -->
-    <script src="js/modules/data-loader.js"></script>
-    <script src="js/modules/theme-manager.js"></script>              <!-- ← DODANE! -->
-    <script src="js/modules/audio-manager.js"></script>              <!-- ← DODANE! -->
-    <script src="js/modules/image-manager.js"></script>              <!-- ← DODANE! -->
-    <script src="js/modules/progress-manager.js"></script>           <!-- ← DODANE! -->
-    <script src="js/modules/flashcard-manager.js"></script>          <!-- ← DODANE! -->
-    <script src="js/modules/quiz-manager.js"></script>               <!-- ← DODANE! -->
-    
-    <!-- 3. MODULE SYSTEM - System ładowania modułów -->
-    <script src="js/modules/module-loader.js"></script>
-    
-    <!-- 4. MAIN APPLICATION - Główna aplikacja -->
-    <script src="js/app.js"></script>
-
-    <!-- Service Worker Registration - TYLKO DLA HTTP/HTTPS -->
-    <script>
-        if ('serviceWorker' in navigator && window.location.protocol !== 'file:') {
-            window.addEventListener('load', async () => {
-                try {
-                    const registration = await navigator.serviceWorker.register('/sw.js', {
-                        scope: '/'
-                    });
-                    console.log('SW registered:', registration.scope);
-                    
-                    // Listen for updates
-                    registration.addEventListener('updatefound', () => {
-                        const newWorker = registration.installing;
-                        newWorker.addEventListener('statechange', () => {
-                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                // New content available
-                                if (window.NotificationManager) {
-                                    NotificationManager.show('Nowa wersja dostępna. Odśwież stronę.', 'info', 0, {
-                                        closable: true
-                                    });
-                                }
-                            }
-                        });
-                    });
-                } catch (error) {
-                    console.log('SW registration failed:', error);
-                }
-            });
         }
-        
-        // Network status
-        function updateOnlineStatus() {
-            const indicator = document.getElementById('offline-indicator');
-            if (indicator) {
-                indicator.classList.toggle('hidden', navigator.onLine);
+
+        // Inicjalizacja aplikacji po załadowaniu DOM
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Rozpoczynam ładowanie aplikacji English Flashcards...');
+            
+            updateLoadingProgress('Sprawdzanie modułów...', 20);
+            
+            // Sprawdź czy były błędy ładowania skryptów
+            if (scriptErrors.length > 0) {
+                showErrorScreen(
+                    'Błąd ładowania plików',
+                    'Nie udało się załadować niektórych plików aplikacji.',
+                    `Brakujące pliki:\n${scriptErrors.join('\n')}`
+                );
+                return;
             }
-        }
-        
-        window.addEventListener('online', updateOnlineStatus);
-        window.addEventListener('offline', updateOnlineStatus);
-        
-        // Performance measurement
-        window.addEventListener('load', () => {
-            performance.mark('app-end');
-            performance.measure('app-loading', 'app-start', 'app-end');
-            const measure = performance.getEntriesByName('app-loading')[0];
-            console.log(`⚡ Aplikacja załadowana w ${Math.round(measure.duration)}ms`);
+            
+            updateLoadingProgress('Sprawdzanie klas...', 40);
+            
+            // Sprawdź dostępność klas
+            const classCheck = checkClassAvailability();
+            if (!classCheck.success) {
+                showErrorScreen(
+                    'Błąd inicjalizacji modułów',
+                    'Niektóre moduły aplikacji nie zostały poprawnie załadowane.',
+                    `Brakujące klasy:\n${classCheck.missing.join('\n')}`
+                );
+                return;
+            }
+            
+            updateLoadingProgress('Inicjalizacja aplikacji...', 60);
+            
+            try {
+                // Utworzenie globalnej instancji aplikacji
+                window.englishFlashcardsApp = new EnglishFlashcardsApp();
+                
+                updateLoadingProgress('Aplikacja gotowa!', 100);
+                
+                // Ukryj loading screen po krótkiej chwili
+                setTimeout(() => {
+                    const loadingScreen = document.getElementById('loading-screen');
+                    const appContainer = document.getElementById('app');
+                    
+                    if (loadingScreen && appContainer) {
+                        loadingScreen.style.opacity = '0';
+                        setTimeout(() => {
+                            loadingScreen.style.display = 'none';
+                            appContainer.classList.remove('hidden');
+                            document.body.classList.remove('loading');
+                        }, 300);
+                    }
+                }, 500);
+                
+                console.log('✅ Aplikacja została pomyślnie zainicjalizowana');
+                
+                // Dodaj funkcję diagnostyczną do window
+                window.checkClassAvailability = checkClassAvailability;
+                
+            } catch (error) {
+                console.error('❌ Błąd inicjalizacji aplikacji:', error);
+                
+                showErrorScreen(
+                    'Błąd uruchomienia aplikacji',
+                    'Wystąpił nieoczekiwany błąd podczas inicjalizacji.',
+                    `${error.name}: ${error.message}\n\nStos wywołań:\n${error.stack}`
+                );
+            }
         });
+
+        // Debug funkcje
+        window.debugApp = {
+            checkStorage: () => {
+                console.log('LocalStorage klucze:', Object.keys(localStorage));
+                const appKeys = Object.keys(localStorage).filter(key => 
+                    key.startsWith('english-flashcards')
+                );
+                console.log('Klucze aplikacji:', appKeys);
+                appKeys.forEach(key => {
+                    try {
+                        const data = JSON.parse(localStorage.getItem(key));
+                        console.log(`${key}:`, data);
+                    } catch (e) {
+                        console.log(`${key}: (nie JSON)`, localStorage.getItem(key));
+                    }
+                });
+            },
+            
+            clearStorage: () => {
+                if (confirm('Czy na pewno chcesz wyczyścić wszystkie dane aplikacji?')) {
+                    const appKeys = Object.keys(localStorage).filter(key => 
+                        key.startsWith('english-flashcards')
+                    );
+                    appKeys.forEach(key => localStorage.removeItem(key));
+                    console.log('✅ Dane aplikacji zostały wyczyszczone');
+                    location.reload();
+                }
+            },
+            
+            reloadApp: () => {
+                location.reload();
+            },
+            
+            getAppInfo: () => {
+                return {
+                    version: '1.0.0',
+                    loadedClasses: checkClassAvailability(),
+                    scriptErrors: scriptErrors,
+                    hasApp: typeof window.englishFlashcardsApp !== 'undefined'
+                };
+            }
+        };
+
+        // Obsługa offline/online
+        window.addEventListener('online', () => {
+            const indicator = document.getElementById('offline-indicator');
+            if (indicator) indicator.classList.add('hidden');
+        });
+
+        window.addEventListener('offline', () => {
+            const indicator = document.getElementById('offline-indicator');
+            if (indicator) indicator.classList.remove('hidden');
+        });
+
+        console.log('💡 Dostępne funkcje debug:', Object.keys(window.debugApp));
     </script>
 </body>
 </html>

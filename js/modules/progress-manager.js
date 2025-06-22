@@ -105,13 +105,11 @@ class ProgressManager {
         difficulty[wordKey] = levels[nextIndex];
         this.saveDifficulty(difficulty);
         
-        NotificationManager.show(`Trudność zmieniona na: ${this.getDifficultyLabel(levels[nextIndex])}`, 'info');
-        
         return levels[nextIndex];
     }
 
     /**
-     * Toggle ulubione słowo
+     * Toggle bookmark słowa
      */
     toggleWordBookmark(word) {
         const bookmarks = this.loadBookmarks();
@@ -120,10 +118,8 @@ class ProgressManager {
         if (bookmarks.includes(wordKey)) {
             const index = bookmarks.indexOf(wordKey);
             bookmarks.splice(index, 1);
-            NotificationManager.show('Usunięto z ulubionych', 'info');
         } else {
             bookmarks.push(wordKey);
-            NotificationManager.show('Dodano do ulubionych', 'success');
         }
         
         this.saveBookmarks(bookmarks);
@@ -131,7 +127,7 @@ class ProgressManager {
     }
 
     /**
-     * Sprawdzenie czy słowo jest ulubione
+     * Sprawdź czy słowo jest bookmarked
      */
     isWordBookmarked(word) {
         const bookmarks = this.loadBookmarks();
@@ -140,55 +136,181 @@ class ProgressManager {
     }
 
     /**
-     * Pobranie ulubionych słów
+     * Pobranie klucza słowa
      */
-    getBookmarkedWords() {
-        if (!this.vocabulary) return [];
-        
-        const bookmarks = this.loadBookmarks();
-        const words = [];
-        
-        Object.entries(this.vocabulary.categories).forEach(([categoryKey, category]) => {
-            category.words.forEach(word => {
-                const wordKey = this.getWordKey(word);
-                if (bookmarks.includes(wordKey)) {
-                    words.push({
-                        ...word,
-                        category: categoryKey
-                    });
-                }
-            });
-        });
-        
-        return words;
+    getWordKey(word) {
+        return word.id || `${word.english}-${word.polish}`;
     }
 
     /**
-     * Reset kategorii
+     * Ładowanie postępu
      */
-    resetCategory(category) {
-        const progress = this.loadProgress();
-        
-        // Usuń przejrzane karty z tej kategorii
-        progress.studiedCards = progress.studiedCards.filter(cardId => 
-            !cardId.startsWith(`${category}-`)
-        );
-        
-        // Resetuj statystyki kategorii
-        if (progress.categoryStats[category]) {
-            progress.categoryStats[category].studied = 0;
+    loadProgress() {
+        try {
+            const data = localStorage.getItem(this.storageKey);
+            if (data) {
+                return JSON.parse(data);
+            }
+        } catch (error) {
+            console.error('Błąd ładowania postępu:', error);
         }
         
-        this.saveProgress(progress);
+        return this.getDefaultProgress();
     }
 
     /**
-     * Reset wszystkich danych
+     * Zapisywanie postępu
      */
-    reset() {
-        localStorage.removeItem(this.storageKey);
-        localStorage.removeItem(this.bookmarksKey);
-        localStorage.removeItem(this.difficultyKey);
+    saveProgress(progress) {
+        try {
+            localStorage.setItem(this.storageKey, JSON.stringify(progress));
+        } catch (error) {
+            console.error('Błąd zapisywania postępu:', error);
+        }
+    }
+
+    /**
+     * Domyślny postęp
+     */
+    getDefaultProgress() {
+        return {
+            studiedCards: [],
+            studyDates: [],
+            categoryStats: {},
+            lastStudied: null,
+            version: '1.0.0'
+        };
+    }
+
+    /**
+     * Ładowanie bookmarks
+     */
+    loadBookmarks() {
+        try {
+            const data = localStorage.getItem(this.bookmarksKey);
+            return data ? JSON.parse(data) : [];
+        } catch (error) {
+            console.error('Błąd ładowania bookmarks:', error);
+            return [];
+        }
+    }
+
+    /**
+     * Zapisywanie bookmarks
+     */
+    saveBookmarks(bookmarks) {
+        try {
+            localStorage.setItem(this.bookmarksKey, JSON.stringify(bookmarks));
+        } catch (error) {
+            console.error('Błąd zapisywania bookmarks:', error);
+        }
+    }
+
+    /**
+     * Ładowanie poziomów trudności
+     */
+    loadDifficulty() {
+        try {
+            const data = localStorage.getItem(this.difficultyKey);
+            return data ? JSON.parse(data) : {};
+        } catch (error) {
+            console.error('Błąd ładowania poziomów trudności:', error);
+            return {};
+        }
+    }
+
+    /**
+     * Zapisywanie poziomów trudności
+     */
+    saveDifficulty(difficulty) {
+        try {
+            localStorage.setItem(this.difficultyKey, JSON.stringify(difficulty));
+        } catch (error) {
+            console.error('Błąd zapisywania poziomów trudności:', error);
+        }
+    }
+
+    /**
+     * Pobranie liczby słów w kategorii
+     */
+    getCategoryWordCount(category) {
+        if (!this.vocabulary || !this.vocabulary[category]) {
+            return 0;
+        }
+        return this.vocabulary[category].length;
+    }
+
+    /**
+     * Pobranie całkowitej liczby słów
+     */
+    getTotalWordCount() {
+        if (!this.vocabulary) return 0;
+        
+        return Object.values(this.vocabulary).reduce((total, category) => {
+            return total + category.length;
+        }, 0);
+    }
+
+    /**
+     * Aktualizacja dat nauki
+     */
+    updateStudyDates(progress) {
+        const today = new Date().toISOString().split('T')[0];
+        if (!progress.studyDates.includes(today)) {
+            progress.studyDates.push(today);
+            // Zachowaj tylko ostatnie 365 dni
+            if (progress.studyDates.length > 365) {
+                progress.studyDates = progress.studyDates.slice(-365);
+            }
+        }
+    }
+
+    /**
+     * Obliczenie streaku nauki
+     */
+    calculateStudyStreak(studyDates) {
+        if (!studyDates || studyDates.length === 0) return 0;
+        
+        const today = new Date();
+        let streak = 0;
+        let currentDate = new Date(today);
+        
+        for (let i = studyDates.length - 1; i >= 0; i--) {
+            const studyDate = new Date(studyDates[i]);
+            const daysDiff = Math.floor((currentDate - studyDate) / (1000 * 60 * 60 * 24));
+            
+            if (daysDiff === streak) {
+                streak++;
+            } else {
+                break;
+            }
+            
+            currentDate.setDate(currentDate.getDate() - 1);
+        }
+        
+        return streak;
+    }
+
+    /**
+     * Pobranie ulubionej kategorii
+     */
+    getFavoriteCategory(progress) {
+        const categoryStats = progress.categoryStats;
+        if (!categoryStats || Object.keys(categoryStats).length === 0) {
+            return null;
+        }
+        
+        let maxStudied = 0;
+        let favoriteCategory = null;
+        
+        for (const [category, stats] of Object.entries(categoryStats)) {
+            if (stats.studied > maxStudied) {
+                maxStudied = stats.studied;
+                favoriteCategory = category;
+            }
+        }
+        
+        return favoriteCategory;
     }
 
     /**
@@ -216,3 +338,18 @@ class ProgressManager {
             this.saveDifficulty(data.difficulty);
         }
     }
+
+    /**
+     * Reset wszystkich danych
+     */
+    resetAllData() {
+        localStorage.removeItem(this.storageKey);
+        localStorage.removeItem(this.bookmarksKey);
+        localStorage.removeItem(this.difficultyKey);
+    }
+}
+
+// Export dla modułów
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = ProgressManager;
+}
