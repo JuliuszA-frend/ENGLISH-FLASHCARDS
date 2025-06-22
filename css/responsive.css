@@ -79,28 +79,12 @@ body {
   display: none; /* Hide text on mobile, show only icons */
 }
 
-/* Stats panel mobile */
-.stats-grid {
-  grid-template-columns: repeat(2, 1fr);
-  gap: var(--spacing-3);
-}
-
-.stat-card {
-  padding: var(--spacing-4);
-}
-
-.stat-value {
-  font-size: var(--text-xl-mobile);
-}
-
-.stat-label {
-  font-size: var(--text-xs-mobile);
-}
-
 /* Mode selector mobile */
 .mode-selector {
   gap: var(--spacing-2);
   margin-bottom: var(--spacing-6);
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
 .mode-btn {
@@ -108,6 +92,7 @@ body {
   font-size: var(--text-sm-mobile);
   flex: 1;
   min-width: auto;
+  max-width: 150px;
 }
 
 .mode-btn .text {
@@ -140,51 +125,154 @@ body {
   margin-bottom: var(--spacing-3);
 }
 
-/* Flashcard mobile */
+/* ============================================
+   FLASHCARD RESPONSIVE - FIXED
+   ============================================ */
+
+/* Mobile flashcard */
+.flashcard-container {
+  height: 350px;
+  margin: 0 auto var(--spacing-6);
+  padding: 0 var(--spacing-2);
+  max-width: calc(100vw - var(--spacing-4));
+}
+
 .flashcard-wrapper {
-  height: 300px; /* Smaller on mobile */
-  margin: 0 var(--spacing-2);
+  width: 100%;
+  height: 100%;
+  max-width: none;
+}
+
+.flashcard {
+  width: 100%;
+  height: 100%;
+  min-height: 320px;
+  max-width: none;
+  /* Zapewnienie prawidłowego działania 3D */
+  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
 }
 
 .card-face {
   padding: var(--spacing-4);
+  /* Lepsze zarządzanie overflow */
+  overflow-y: auto;
+  overflow-x: hidden;
+  /* Zapewnienie backface visibility */
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
 }
 
 .english-word {
-  font-size: var(--text-3xl-mobile);
+  font-size: clamp(1.75rem, 6vw, 2.5rem);
   margin-bottom: var(--spacing-3);
+  line-height: 1.2;
+  word-break: break-word;
+  hyphens: auto;
 }
 
 .polish-translation {
-  font-size: var(--text-xl-mobile);
+  font-size: clamp(1.25rem, 4vw, 1.5rem);
   margin-bottom: var(--spacing-3);
+  line-height: 1.3;
+  word-break: break-word;
 }
 
 .pronunciation {
-  font-size: var(--text-base-mobile);
+  font-size: 1rem;
   margin-bottom: var(--spacing-2);
 }
 
 .phonetic {
-  font-size: var(--text-sm-mobile);
+  font-size: 0.875rem;
+  margin-bottom: var(--spacing-3);
+  padding: var(--spacing-1) var(--spacing-2);
+  word-break: break-all;
+}
+
+.word-type {
+  font-size: 0.75rem;
+  padding: var(--spacing-1) var(--spacing-2);
   margin-bottom: var(--spacing-3);
 }
+
+.example-sentence {
+  margin-top: var(--spacing-4);
+  padding: var(--spacing-3);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.sentence-english, .sentence-polish {
+  font-size: 0.875rem;
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+.word-image, .add-image-btn {
+  width: 120px;
+  height: 120px;
+  margin-bottom: var(--spacing-3);
+}
+
+.audio-btn {
+  padding: var(--spacing-2) var(--spacing-4);
+  font-size: 0.875rem;
+  margin-top: var(--spacing-3);
+}
+
+/* ============================================
+   NAVIGATION RESPONSIVE - FIXED
+   ============================================ */
 
 /* Navigation mobile */
 .navigation-controls {
   gap: var(--spacing-2);
   margin: var(--spacing-4) 0;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  padding: var(--spacing-2) var(--spacing-3);
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  /* Zapobieganie vertical overflow */
+  overflow-y: hidden;
+  min-height: 60px;
 }
 
 .nav-btn {
   padding: var(--spacing-3) var(--spacing-4);
   font-size: var(--text-sm-mobile);
-  min-width: auto;
-  flex: 1;
+  min-width: 100px;
+  flex: 0 0 auto;
+  scroll-snap-align: center;
+  /* Zapobieganie shrinking */
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 .nav-btn .text {
   display: none; /* Only icons on mobile */
+}
+
+/* Card controls mobile */
+.card-controls {
+  gap: var(--spacing-2);
+  margin: var(--spacing-4) 0;
+  flex-wrap: wrap;
+  justify-content: center;
+  padding: var(--spacing-2);
+  min-height: 50px;
+}
+
+.control-btn {
+  padding: var(--spacing-2) var(--spacing-3);
+  min-width: 80px;
+  font-size: var(--text-xs-mobile);
+  flex: 0 0 auto;
+}
+
+.control-btn .text {
+  display: none; /* Only icons on mobile for card-controls */
 }
 
 /* Progress mobile */
@@ -210,6 +298,7 @@ body {
 .progress-actions {
   gap: var(--spacing-2);
   margin-top: var(--spacing-3);
+  flex-wrap: wrap;
 }
 
 .action-btn {
@@ -286,41 +375,22 @@ body {
   gap: var(--spacing-3);
 }
 
-.quiz-input, .sentence-input {
-  min-width: auto;
+.quiz-input {
+  min-width: 200px;
+  font-size: 1rem;
   width: 100%;
-  padding: var(--spacing-3);
-  font-size: var(--text-base-mobile);
 }
 
 .quiz-btn {
-  padding: var(--spacing-3) var(--spacing-5);
-  font-size: var(--text-sm-mobile);
   width: 100%;
-  justify-content: center;
-}
-
-/* Quiz results mobile */
-.results-card {
-  padding: var(--spacing-8) var(--spacing-4);
-  margin: 0 var(--spacing-2);
-}
-
-.results-header h3 {
-  font-size: var(--text-2xl-mobile);
-}
-
-.score-main {
-  font-size: var(--text-4xl-mobile);
-}
-
-.score-percentage {
-  font-size: var(--text-xl-mobile);
-}
-
-.results-status {
+  padding: var(--spacing-4);
   font-size: var(--text-base-mobile);
-  padding: var(--spacing-3) var(--spacing-4);
+}
+
+/* Results mobile */
+.results-card {
+  padding: var(--spacing-6) var(--spacing-4);
+  margin: 0 var(--spacing-2);
 }
 
 .results-actions {
@@ -328,89 +398,33 @@ body {
   gap: var(--spacing-3);
 }
 
-/* Image components mobile */
-.word-image, .add-image-btn {
-  width: 120px;
-  height: 120px;
-  margin-bottom: var(--spacing-3);
+.results-actions .quiz-btn {
+  width: 100%;
 }
 
-/* Card controls mobile */
-.card-controls, .word-controls {
-  flex-wrap: wrap;
-  gap: var(--spacing-2);
-  margin: var(--spacing-4) 0;
-}
-
-.control-btn {
-  flex: 1;
-  min-width: auto;
-  padding: var(--spacing-2) var(--spacing-3);
-  font-size: var(--text-xs-mobile);
-}
-
-/* Audio button mobile */
-.audio-btn {
-  padding: var(--spacing-3) var(--spacing-4);
-  font-size: var(--text-sm-mobile);
-  margin-top: var(--spacing-3);
-}
-
-/* Modals mobile */
-.modal-content {
-  margin: var(--spacing-4);
-  padding: var(--spacing-6);
-  max-height: 90vh;
-  overflow-y: auto;
-}
-
-/* Notifications mobile */
-.notifications-container {
-  left: var(--spacing-2) !important;
-  right: var(--spacing-2) !important;
-  max-width: none;
-}
-
-.notification {
-  margin-bottom: var(--spacing-2);
-  padding: var(--spacing-3);
-}
-
-.notification-content {
+/* Stats grid mobile */
+.stats-grid {
+  grid-template-columns: repeat(2, 1fr);
   gap: var(--spacing-3);
 }
 
-.notification-message {
-  font-size: var(--text-sm-mobile);
+.stat-card {
+  padding: var(--spacing-4);
+}
+
+.stat-value {
+  font-size: var(--text-xl-mobile);
+}
+
+.stat-label {
+  font-size: var(--text-xs-mobile);
 }
 
 /* ============================================
-   SMALL MOBILE (320px+)
+   LARGER MOBILE (577px+)
    ============================================ */
 
-@media (min-width: 320px) {
-  .control-btn .text {
-    display: none; /* Still hidden on small mobile */
-  }
-  
-  .flashcard-wrapper {
-    height: 280px;
-  }
-  
-  .english-word {
-    font-size: 2rem;
-  }
-  
-  .polish-translation {
-    font-size: 1.1rem;
-  }
-}
-
-/* ============================================
-   LARGE MOBILE (576px+)
-   ============================================ */
-
-@media (min-width: 576px) {
+@media (min-width: 577px) {
   :root {
     --text-base-mobile: 1rem;
     --text-lg-mobile: 1.125rem;
@@ -426,12 +440,18 @@ body {
 
   /* Show text on larger mobiles */
   .mode-btn .text,
-  .nav-btn .text {
+  .nav-btn .text,
+  .control-btn .text {
     display: inline;
   }
 
   .mode-btn, .nav-btn {
     padding: var(--spacing-3) var(--spacing-5);
+  }
+
+  .control-btn {
+    padding: var(--spacing-3) var(--spacing-4);
+    min-width: 100px;
   }
 
   /* Two columns for categories on larger mobile */
@@ -440,8 +460,29 @@ body {
   }
 
   /* Larger flashcard */
-  .flashcard-wrapper {
-    height: 350px;
+  .flashcard-container {
+    height: 380px;
+    max-width: 500px;
+  }
+
+  .flashcard {
+    min-height: 350px;
+  }
+
+  .card-face {
+    padding: var(--spacing-6);
+  }
+
+  /* Better navigation layout */
+  .navigation-controls {
+    gap: var(--spacing-3);
+    flex-wrap: nowrap;
+    overflow-x: visible;
+  }
+
+  .card-controls {
+    gap: var(--spacing-3);
+    flex-wrap: nowrap;
   }
 
   /* Two columns for stats */
@@ -501,9 +542,39 @@ body {
   }
 
   /* Larger flashcard */
-  .flashcard-wrapper {
+  .flashcard-container {
     height: 400px;
-    max-width: 500px;
+    max-width: 600px;
+  }
+
+  .flashcard {
+    min-height: 380px;
+  }
+
+  .card-face {
+    padding: var(--spacing-8);
+  }
+
+  /* Navigation improvements */
+  .navigation-controls {
+    gap: var(--spacing-4);
+    flex-wrap: nowrap;
+    overflow-x: visible;
+  }
+
+  .nav-btn {
+    min-width: 140px;
+    padding: var(--spacing-4) var(--spacing-6);
+  }
+
+  .card-controls {
+    gap: var(--spacing-3);
+    flex-wrap: nowrap;
+  }
+
+  .control-btn {
+    min-width: 120px;
+    padding: var(--spacing-3) var(--spacing-5);
   }
 
   /* Three columns for stats */
@@ -522,15 +593,6 @@ body {
     text-align: left;
   }
 
-  /* Side by side navigation */
-  .navigation-controls {
-    gap: var(--spacing-4);
-  }
-
-  .nav-btn {
-    min-width: 140px;
-  }
-
   /* Progress layout */
   .progress-info {
     flex-direction: row;
@@ -543,17 +605,6 @@ body {
     max-width: 600px;
     margin-left: auto;
     margin-right: auto;
-  }
-
-  /* Card controls */
-  .card-controls, .word-controls {
-    justify-content: center;
-    flex-wrap: nowrap;
-  }
-
-  .control-btn {
-    flex: none;
-    min-width: 120px;
   }
 }
 
@@ -573,8 +624,13 @@ body {
   }
 
   /* Full size flashcard */
-  .flashcard-wrapper {
+  .flashcard-container {
     max-width: 600px;
+    height: 400px;
+  }
+
+  .flashcard {
+    min-height: 380px;
   }
 
   /* Four columns for stats */
@@ -609,6 +665,25 @@ body {
   /* Larger modals */
   .modal-content {
     max-width: 700px;
+  }
+
+  /* Better navigation spacing */
+  .navigation-controls {
+    gap: var(--spacing-5);
+  }
+
+  .nav-btn {
+    min-width: 160px;
+    padding: var(--spacing-4) var(--spacing-8);
+  }
+
+  .card-controls {
+    gap: var(--spacing-4);
+  }
+
+  .control-btn {
+    min-width: 140px;
+    padding: var(--spacing-4) var(--spacing-6);
   }
 }
 
@@ -652,8 +727,21 @@ body {
   }
 
   .nav-btn {
-    min-width: 160px;
-    padding: var(--spacing-4) var(--spacing-8);
+    min-width: 180px;
+  }
+
+  .card-controls {
+    gap: var(--spacing-5);
+  }
+
+  /* Maximum flashcard size */
+  .flashcard-container {
+    max-width: 700px;
+    height: 450px;
+  }
+
+  .flashcard {
+    min-height: 420px;
   }
 }
 
@@ -672,8 +760,13 @@ body {
   }
 
   /* Maximum sizes */
-  .flashcard-wrapper {
-    max-width: 700px;
+  .flashcard-container {
+    max-width: 800px;
+    height: 500px;
+  }
+
+  .flashcard {
+    min-height: 480px;
   }
 
   .quiz-container {
@@ -687,7 +780,7 @@ body {
 
 @media (hover: none) and (pointer: coarse) {
   /* Larger touch targets */
-  .btn, .nav-btn, .quiz-btn {
+  .btn, .nav-btn, .quiz-btn, .control-btn {
     min-height: 44px;
     padding: var(--spacing-3) var(--spacing-5);
   }
@@ -697,23 +790,23 @@ body {
     padding: var(--spacing-3) var(--spacing-4);
   }
 
-  .control-btn {
-    min-height: 40px;
-    padding: var(--spacing-2) var(--spacing-4);
-  }
-
   /* Remove hover effects */
   .category-card:hover,
   .quiz-card:hover,
   .btn:hover,
-  .nav-btn:hover {
+  .nav-btn:hover,
+  .control-btn:hover {
     transform: none;
     box-shadow: var(--shadow-md);
   }
 
   /* Larger flashcard for touch */
-  .flashcard-wrapper {
-    height: 350px;
+  .flashcard-container {
+    height: 380px;
+  }
+
+  .flashcard {
+    min-height: 350px;
   }
 
   /* Easier swiping area */
@@ -750,7 +843,8 @@ body {
   .category-card,
   .quiz-card,
   .btn,
-  .nav-btn {
+  .nav-btn,
+  .control-btn {
     border-width: 0.5px;
   }
 
@@ -761,84 +855,17 @@ body {
 }
 
 /* ============================================
-   PRINT STYLES
-   ============================================ */
-
-@media print {
-  /* Hide interactive elements */
-  .navigation-controls,
-  .card-controls,
-  .header-controls,
-  .mode-selector,
-  .audio-btn,
-  .action-btn,
-  .quiz-grid,
-  .notifications-container {
-    display: none !important;
-  }
-
-  /* Print-friendly layout */
-  .app-container {
-    background: white !important;
-  }
-
-  .flashcard-container {
-    perspective: none;
-  }
-
-  .flashcard {
-    transform: none !important;
-    position: static;
-    display: block;
-  }
-
-  .card-face {
-    position: static;
-    box-shadow: none;
-    border: 1px solid #ccc;
-    margin-bottom: var(--spacing-4);
-    break-inside: avoid;
-  }
-
-  .card-front {
-    page-break-after: avoid;
-  }
-
-  .english-word,
-  .polish-translation {
-    color: #000 !important;
-  }
-
-  /* Better typography for print */
-  body {
-    font-size: 12pt;
-    line-height: 1.4;
-    color: #000 !important;
-  }
-
-  .category-name {
-    font-size: 14pt;
-    font-weight: bold;
-  }
-
-  /* Page breaks */
-  .category-card {
-    page-break-inside: avoid;
-  }
-
-  .quiz-question-card {
-    page-break-inside: avoid;
-  }
-}
-
-/* ============================================
    LANDSCAPE ORIENTATION
    ============================================ */
 
 @media (orientation: landscape) and (max-height: 600px) {
   /* Optimize for landscape phones */
-  .flashcard-wrapper {
+  .flashcard-container {
     height: 250px;
+  }
+
+  .flashcard {
+    min-height: 220px;
   }
 
   .app-header {
@@ -895,7 +922,8 @@ body {
   .category-card:hover,
   .quiz-card:hover,
   .btn:hover,
-  .nav-btn:hover {
+  .nav-btn:hover,
+  .control-btn:hover {
     transform: none;
   }
 
@@ -911,8 +939,16 @@ body {
   /* Disable decorative animations */
   .card-face::before,
   .btn::before,
+  .nav-btn::before,
+  .control-btn::before,
   .category-card::before {
     display: none;
+  }
+
+  /* Remove scroll behavior */
+  .navigation-controls {
+    scroll-behavior: auto;
+    -webkit-overflow-scrolling: auto;
   }
 }
 
@@ -926,6 +962,7 @@ body {
   .quiz-card,
   .btn,
   .nav-btn,
+  .control-btn,
   .flashcard {
     border-width: 2px;
     border-style: solid;
@@ -951,9 +988,18 @@ body {
   /* Remove gradients */
   .btn,
   .nav-btn,
-  .quiz-btn {
+  .quiz-btn,
+  .control-btn {
     background: solid;
     background-image: none;
+  }
+
+  /* Better navigation contrast */
+  .navigation-controls,
+  .card-controls {
+    background: rgba(0, 0, 0, 0.8);
+    border-radius: var(--radius-xl);
+    padding: var(--spacing-3);
   }
 }
 
@@ -975,5 +1021,80 @@ body {
     .quiz-instruction {
       text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
     }
+  }
+}
+
+/* ============================================
+   PRINT STYLES
+   ============================================ */
+
+@media print {
+  /* Hide interactive elements */
+  .navigation-controls,
+  .card-controls,
+  .header-controls,
+  .mode-selector,
+  .audio-btn,
+  .action-btn,
+  .quiz-grid,
+  .notifications-container {
+    display: none !important;
+  }
+
+  /* Print-friendly layout */
+  .app-container {
+    background: white !important;
+  }
+
+  .flashcard-container {
+    perspective: none;
+    height: auto;
+  }
+
+  .flashcard {
+    transform: none !important;
+    position: static;
+    display: block;
+    height: auto;
+  }
+
+  .card-face {
+    position: static;
+    box-shadow: none;
+    border: 1px solid #ccc;
+    margin-bottom: var(--spacing-4);
+    break-inside: avoid;
+    background: white !important;
+    color: black !important;
+  }
+
+  .card-front {
+    page-break-after: avoid;
+  }
+
+  .english-word,
+  .polish-translation {
+    color: #000 !important;
+  }
+
+  /* Better typography for print */
+  body {
+    font-size: 12pt;
+    line-height: 1.4;
+    color: #000 !important;
+  }
+
+  .category-name {
+    font-size: 14pt;
+    font-weight: bold;
+  }
+
+  /* Page breaks */
+  .category-card {
+    page-break-inside: avoid;
+  }
+
+  .quiz-question-card {
+    page-break-inside: avoid;
   }
 }

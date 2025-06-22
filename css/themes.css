@@ -1,43 +1,45 @@
 /**
  * Themes.css - Motywy kolorystyczne aplikacji
- * Obsługa jasnego/ciemnego motywu oraz automatycznego przełączania
+ * Zawiera style dla różnych motywów i wariantów kolorystycznych
  */
 
 /* ============================================
-   LIGHT THEME (DEFAULT)
+   DEFAULT THEME - BRITISH STYLE
    ============================================ */
 
-[data-theme="light"] {
-  /* Background colors */
-  --primary-blue: #1e3a8a;
-  --primary-blue-light: #3b82f6;
-  --primary-blue-dark: #1e40af;
+:root {
+  /* Theme identifier */
+  --theme-name: 'british';
   
-  /* Text colors */
-  --white: #ffffff;
-  --gray-50: #f9fafb;
-  --gray-100: #f3f4f6;
-  --gray-200: #e5e7eb;
-  --gray-300: #d1d5db;
-  --gray-400: #9ca3af;
-  --gray-500: #6b7280;
-  --gray-600: #4b5563;
-  --gray-700: #374151;
-  --gray-800: #1f2937;
-  --gray-900: #111827;
+  /* Enhanced color palette */
+  --theme-primary: #1e3a8a;
+  --theme-primary-light: #3b82f6;
+  --theme-primary-dark: #1e40af;
+  --theme-primary-contrast: #ffffff;
   
-  /* Glass morphism dla jasnego motywu */
-  --glass-backdrop: rgba(255, 255, 255, 0.1);
-  --glass-border: rgba(255, 255, 255, 0.2);
-  --glass-blur: 10px;
+  --theme-secondary: #dc2626;
+  --theme-secondary-light: #ef4444;
+  --theme-secondary-dark: #b91c1c;
+  --theme-secondary-contrast: #ffffff;
   
-  /* Gradients */
-  --gradient-primary: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-light) 100%);
-  --gradient-card: linear-gradient(135deg, var(--white) 0%, var(--gray-50) 100%);
-  --gradient-glass: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+  --theme-accent: #f59e0b;
+  --theme-accent-light: #fbbf24;
+  --theme-accent-dark: #d97706;
+  --theme-accent-contrast: #111827;
   
-  /* Background patterns */
-  --bg-pattern: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+  /* Background gradients */
+  --theme-bg-primary: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+  --theme-bg-secondary: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+  --theme-bg-accent: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+  
+  /* Card specific themes */
+  --theme-card-front: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  --theme-card-back: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+  
+  /* Flag colors */
+  --flag-blue: #012169;
+  --flag-red: #c8102e;
+  --flag-white: #ffffff;
 }
 
 /* ============================================
@@ -45,242 +47,457 @@
    ============================================ */
 
 [data-theme="dark"] {
-  /* Inverted colors for dark theme */
-  --white: #111827;
-  --gray-50: #1f2937;
-  --gray-100: #374151;
-  --gray-200: #4b5563;
-  --gray-300: #6b7280;
-  --gray-400: #9ca3af;
-  --gray-500: #d1d5db;
-  --gray-600: #e5e7eb;
-  --gray-700: #f3f4f6;
-  --gray-800: #f9fafb;
-  --gray-900: #ffffff;
+  --theme-name: 'british-dark';
   
-  /* Primary colors remain the same but adjusted for dark */
-  --primary-blue: #3b82f6;
-  --primary-blue-light: #60a5fa;
-  --primary-blue-dark: #2563eb;
+  /* Dark theme colors */
+  --theme-primary: #3b82f6;
+  --theme-primary-light: #60a5fa;
+  --theme-primary-dark: #2563eb;
+  --theme-primary-contrast: #111827;
   
-  /* Glass morphism for dark theme */
+  --theme-secondary: #ef4444;
+  --theme-secondary-light: #f87171;
+  --theme-secondary-dark: #dc2626;
+  --theme-secondary-contrast: #111827;
+  
+  --theme-accent: #fbbf24;
+  --theme-accent-light: #fcd34d;
+  --theme-accent-dark: #f59e0b;
+  --theme-accent-contrast: #111827;
+  
+  /* Dark background gradients */
+  --theme-bg-primary: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+  --theme-bg-secondary: linear-gradient(135deg, #374151 0%, #1f2937 100%);
+  --theme-bg-accent: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  
+  /* Dark card themes */
+  --theme-card-front: linear-gradient(135deg, #374151 0%, #1f2937 100%);
+  --theme-card-back: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+  
+  /* Adjust glass morphism for dark mode */
   --glass-backdrop: rgba(0, 0, 0, 0.3);
   --glass-border: rgba(255, 255, 255, 0.1);
-  --glass-blur: 15px;
+}
+
+/* ============================================
+   AMERICAN THEME VARIANT
+   ============================================ */
+
+[data-theme="american"] {
+  --theme-name: 'american';
   
-  /* Dark gradients */
-  --gradient-primary: linear-gradient(135deg, #1f2937 0%, #111827 100%);
-  --gradient-card: linear-gradient(135deg, var(--gray-50) 0%, var(--gray-100) 100%);
-  --gradient-glass: linear-gradient(135deg, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.1) 100%);
+  /* American color palette */
+  --theme-primary: #1e40af;
+  --theme-primary-light: #3b82f6;
+  --theme-primary-dark: #1e3a8a;
+  --theme-primary-contrast: #ffffff;
   
-  /* Dark background patterns */
-  --bg-pattern: radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.05) 0%, transparent 50%);
+  --theme-secondary: #dc2626;
+  --theme-secondary-light: #ef4444;
+  --theme-secondary-dark: #b91c1c;
+  --theme-secondary-contrast: #ffffff;
+  
+  --theme-accent: #ffffff;
+  --theme-accent-light: #f9fafb;
+  --theme-accent-dark: #e5e7eb;
+  --theme-accent-contrast: #111827;
+  
+  /* American flag inspired gradients */
+  --theme-bg-primary: linear-gradient(135deg, #1e40af 0%, #dc2626 50%, #ffffff 100%);
+  --theme-bg-secondary: linear-gradient(45deg, #dc2626 0%, #ffffff 50%, #1e40af 100%);
+  --theme-bg-accent: linear-gradient(135deg, #ffffff 0%, #f3f4f6 100%);
+  
+  --theme-card-front: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  --theme-card-back: linear-gradient(135deg, #1e40af 0%, #dc2626 100%);
+  
+  /* Flag colors */
+  --flag-blue: #002868;
+  --flag-red: #bf0a30;
+  --flag-white: #ffffff;
 }
 
 /* ============================================
-   AUTO THEME (system preference)
+   HIGH CONTRAST THEME
    ============================================ */
 
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    /* Apply dark theme variables when system prefers dark */
-    --white: #111827;
-    --gray-50: #1f2937;
-    --gray-100: #374151;
-    --gray-200: #4b5563;
-    --gray-300: #6b7280;
-    --gray-400: #9ca3af;
-    --gray-500: #d1d5db;
-    --gray-600: #e5e7eb;
-    --gray-700: #f3f4f6;
-    --gray-800: #f9fafb;
-    --gray-900: #ffffff;
-    
-    --primary-blue: #3b82f6;
-    --primary-blue-light: #60a5fa;
-    --primary-blue-dark: #2563eb;
-    
-    --glass-backdrop: rgba(0, 0, 0, 0.3);
-    --glass-border: rgba(255, 255, 255, 0.1);
-    --glass-blur: 15px;
-    
-    --gradient-primary: linear-gradient(135deg, #1f2937 0%, #111827 100%);
-    --gradient-card: linear-gradient(135deg, #1f2937 0%, #374151 100%);
-    --gradient-glass: linear-gradient(135deg, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.1) 100%);
-    
-    --bg-pattern: radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.05) 0%, transparent 50%);
-  }
+[data-theme="high-contrast"] {
+  --theme-name: 'high-contrast';
+  
+  /* High contrast colors */
+  --theme-primary: #000000;
+  --theme-primary-light: #333333;
+  --theme-primary-dark: #000000;
+  --theme-primary-contrast: #ffffff;
+  
+  --theme-secondary: #ffffff;
+  --theme-secondary-light: #f3f4f6;
+  --theme-secondary-dark: #e5e7eb;
+  --theme-secondary-contrast: #000000;
+  
+  --theme-accent: #ffff00;
+  --theme-accent-light: #ffff99;
+  --theme-accent-dark: #cccc00;
+  --theme-accent-contrast: #000000;
+  
+  /* High contrast gradients */
+  --theme-bg-primary: linear-gradient(135deg, #000000 0%, #333333 100%);
+  --theme-bg-secondary: linear-gradient(135deg, #ffffff 0%, #f3f4f6 100%);
+  --theme-bg-accent: linear-gradient(135deg, #ffff00 0%, #ffff99 100%);
+  
+  --theme-card-front: linear-gradient(135deg, #ffffff 0%, #f9fafb 100%);
+  --theme-card-back: linear-gradient(135deg, #000000 0%, #333333 100%);
+  
+  /* Enhanced glass effect for high contrast */
+  --glass-backdrop: rgba(0, 0, 0, 0.9);
+  --glass-border: rgba(255, 255, 255, 0.8);
 }
 
 /* ============================================
-   THEME SPECIFIC COMPONENTS
+   THEME APPLICATIONS
    ============================================ */
 
-/* Background body dla różnych motywów */
-[data-theme="light"] body {
-  background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
-  color: var(--gray-900);
+/* Body background application */
+body {
+  background: var(--theme-bg-primary);
+  transition: background 0.3s ease;
 }
 
-[data-theme="dark"] body {
-  background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
-  color: var(--gray-100);
+/* Card theme applications */
+.card-front {
+  background: var(--theme-card-front) !important;
 }
 
-/* Card styling per theme */
-[data-theme="dark"] .category-card,
-[data-theme="dark"] .quiz-card,
-[data-theme="dark"] .stat-card {
-  background: rgba(31, 41, 55, 0.8);
-  border-color: rgba(107, 114, 128, 0.3);
+.card-back {
+  background: var(--theme-card-back) !important;
 }
 
-[data-theme="dark"] .category-card:hover,
-[data-theme="dark"] .quiz-card:hover {
-  background: rgba(55, 65, 81, 0.9);
-  border-color: rgba(156, 163, 175, 0.5);
+/* Primary elements */
+.btn.primary,
+.nav-btn.primary,
+.quiz-btn:not(.secondary):not(.success):not(.warning) {
+  background: var(--theme-bg-primary);
+  color: var(--theme-primary-contrast);
 }
 
-/* Flashcard theming */
-[data-theme="dark"] .card-front {
-  background: linear-gradient(135deg, #374151 0%, #4b5563 100%);
-  color: var(--gray-100);
+/* Secondary elements */
+.btn.secondary,
+.nav-btn:not(.primary) {
+  background: var(--glass-backdrop);
+  color: var(--theme-primary-contrast);
+  border-color: var(--glass-border);
 }
 
-[data-theme="dark"] .card-back {
-  background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
-  color: var(--gray-100);
+/* Accent elements */
+.btn.success,
+.quiz-btn.success,
+.word-type,
+.difficulty-badge {
+  background: var(--theme-bg-accent);
+  color: var(--theme-accent-contrast);
 }
 
-/* Input theming */
-[data-theme="dark"] .search-input,
-[data-theme="dark"] .quiz-input,
-[data-theme="dark"] .sentence-input {
-  background: rgba(31, 41, 55, 0.8);
-  border-color: rgba(107, 114, 128, 0.5);
-  color: var(--gray-100);
-}
-
-[data-theme="dark"] .search-input::placeholder,
-[data-theme="dark"] .quiz-input::placeholder,
-[data-theme="dark"] .sentence-input::placeholder {
-  color: rgba(156, 163, 175, 0.7);
-}
-
-/* Modal theming */
-[data-theme="dark"] .modal {
-  background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
-  border-color: rgba(107, 114, 128, 0.3);
-}
-
-[data-theme="dark"] .modal-header {
-  border-bottom-color: rgba(107, 114, 128, 0.3);
-}
-
-/* Progress bar theming */
-[data-theme="dark"] .progress-bar {
-  background: rgba(107, 114, 128, 0.3);
-}
-
-/* Notification theming */
-[data-theme="dark"] .notification {
-  backdrop-filter: blur(20px);
-}
-
-[data-theme="dark"] .notification-success {
-  background: rgba(16, 185, 129, 0.9);
-  border-color: rgba(16, 185, 129, 0.5);
-}
-
-[data-theme="dark"] .notification-error {
-  background: rgba(239, 68, 68, 0.9);
-  border-color: rgba(239, 68, 68, 0.5);
-}
-
-[data-theme="dark"] .notification-warning {
-  background: rgba(245, 158, 11, 0.9);
-  border-color: rgba(245, 158, 11, 0.5);
-}
-
-[data-theme="dark"] .notification-info {
-  background: rgba(59, 130, 246, 0.9);
-  border-color: rgba(59, 130, 246, 0.5);
+/* Error/Warning elements */
+.btn.danger,
+.quiz-btn.warning,
+.notification.error {
+  background: var(--theme-bg-secondary);
+  color: var(--theme-secondary-contrast);
 }
 
 /* ============================================
-   THEME TRANSITION ANIMATIONS
+   THEME-SPECIFIC COMPONENT STYLES
    ============================================ */
 
-body,
-.app-container,
-.category-card,
-.quiz-card,
-.stat-card,
-.flashcard,
-.card-face,
-.modal {
+/* Theme-specific word styling */
+.english-word {
+  color: var(--theme-primary);
+}
+
+[data-theme="dark"] .english-word {
+  color: var(--theme-accent);
+}
+
+[data-theme="high-contrast"] .english-word {
+  color: var(--theme-primary);
+  font-weight: var(--font-weight-extrabold);
+  text-shadow: 2px 2px 0 var(--theme-secondary);
+}
+
+/* Theme-specific progress bars */
+.progress-fill,
+.quiz-progress-fill {
+  background: var(--theme-bg-accent);
+}
+
+/* Theme-specific quiz cards */
+.quiz-card.completed {
+  background: var(--theme-bg-accent);
+  border-color: var(--theme-accent);
+  color: var(--theme-accent-contrast);
+}
+
+/* Theme-specific results */
+.results-status.results-passed {
+  background: var(--theme-bg-accent);
+  color: var(--theme-accent-contrast);
+  border-color: var(--theme-accent);
+}
+
+.results-status.results-failed {
+  background: var(--theme-bg-secondary);
+  color: var(--theme-secondary-contrast);
+  border-color: var(--theme-secondary);
+}
+
+/* ============================================
+   SEASONAL THEMES
+   ============================================ */
+
+/* Christmas Theme */
+[data-theme="christmas"] {
+  --theme-name: 'christmas';
+  
+  --theme-primary: #165b33;
+  --theme-primary-light: #22c55e;
+  --theme-primary-dark: #14532d;
+  --theme-primary-contrast: #ffffff;
+  
+  --theme-secondary: #dc2626;
+  --theme-secondary-light: #ef4444;
+  --theme-secondary-dark: #b91c1c;
+  --theme-secondary-contrast: #ffffff;
+  
+  --theme-accent: #fbbf24;
+  --theme-accent-light: #fcd34d;
+  --theme-accent-dark: #f59e0b;
+  --theme-accent-contrast: #111827;
+  
+  --theme-bg-primary: linear-gradient(135deg, #165b33 0%, #dc2626 50%, #fbbf24 100%);
+  --theme-bg-secondary: linear-gradient(135deg, #dc2626 0%, #165b33 100%);
+  --theme-bg-accent: linear-gradient(135deg, #fbbf24 0%, #fcd34d 100%);
+  
+  --theme-card-front: linear-gradient(135deg, #ffffff 0%, #fef3c7 100%);
+  --theme-card-back: linear-gradient(135deg, #165b33 0%, #dc2626 100%);
+}
+
+/* Halloween Theme */
+[data-theme="halloween"] {
+  --theme-name: 'halloween';
+  
+  --theme-primary: #f97316;
+  --theme-primary-light: #fb923c;
+  --theme-primary-dark: #ea580c;
+  --theme-primary-contrast: #111827;
+  
+  --theme-secondary: #111827;
+  --theme-secondary-light: #374151;
+  --theme-secondary-dark: #000000;
+  --theme-secondary-contrast: #ffffff;
+  
+  --theme-accent: #a855f7;
+  --theme-accent-light: #c084fc;
+  --theme-accent-dark: #9333ea;
+  --theme-accent-contrast: #ffffff;
+  
+  --theme-bg-primary: linear-gradient(135deg, #111827 0%, #f97316 50%, #a855f7 100%);
+  --theme-bg-secondary: linear-gradient(135deg, #f97316 0%, #111827 100%);
+  --theme-bg-accent: linear-gradient(135deg, #a855f7 0%, #c084fc 100%);
+  
+  --theme-card-front: linear-gradient(135deg, #fff7ed 0%, #fed7aa 100%);
+  --theme-card-back: linear-gradient(135deg, #111827 0%, #f97316 100%);
+}
+
+/* ============================================
+   THEME ANIMATIONS
+   ============================================ */
+
+/* Theme transition animations */
+:root,
+[data-theme] {
   transition: 
     background-color 0.3s ease,
+    color 0.3s ease,
+    border-color 0.3s ease;
+}
+
+.card-face,
+.btn,
+.nav-btn,
+.quiz-btn,
+.control-btn {
+  transition: 
+    background 0.3s ease,
+    color 0.3s ease,
     border-color 0.3s ease,
-    color 0.3s ease;
+    transform var(--transition-normal);
+}
+
+/* Theme-specific hover effects */
+[data-theme="high-contrast"] .btn:hover,
+[data-theme="high-contrast"] .nav-btn:hover,
+[data-theme="high-contrast"] .control-btn:hover {
+  background: var(--theme-accent) !important;
+  color: var(--theme-accent-contrast) !important;
+  border-color: var(--theme-primary) !important;
+  box-shadow: 0 0 10px var(--theme-accent);
 }
 
 /* ============================================
-   HIGH CONTRAST SUPPORT
+   THEME UTILITIES
    ============================================ */
 
+/* Theme-aware text colors */
+.text-theme-primary { color: var(--theme-primary); }
+.text-theme-secondary { color: var(--theme-secondary); }
+.text-theme-accent { color: var(--theme-accent); }
+
+/* Theme-aware background colors */
+.bg-theme-primary { background: var(--theme-bg-primary); }
+.bg-theme-secondary { background: var(--theme-bg-secondary); }
+.bg-theme-accent { background: var(--theme-bg-accent); }
+
+/* Theme-aware borders */
+.border-theme-primary { border-color: var(--theme-primary); }
+.border-theme-secondary { border-color: var(--theme-secondary); }
+.border-theme-accent { border-color: var(--theme-accent); }
+
+/* ============================================
+   THEME RESPONSIVE ADJUSTMENTS
+   ============================================ */
+
+/* Mobile theme adjustments */
+@media (max-width: 576px) {
+  [data-theme="high-contrast"] .english-word {
+    font-size: clamp(1.5rem, 8vw, 2rem);
+    text-shadow: 1px 1px 0 var(--theme-secondary);
+  }
+  
+  [data-theme="high-contrast"] .card-face {
+    border: 3px solid var(--theme-primary);
+  }
+}
+
+/* Theme-specific print styles */
+@media print {
+  [data-theme] {
+    --theme-bg-primary: white;
+    --theme-bg-secondary: white;
+    --theme-bg-accent: white;
+    --theme-card-front: white;
+    --theme-card-back: white;
+    --theme-primary: black;
+    --theme-secondary: black;
+    --theme-accent: black;
+    --theme-primary-contrast: black;
+    --theme-secondary-contrast: black;
+    --theme-accent-contrast: black;
+  }
+}
+
+/* ============================================
+   THEME ACCESSIBILITY
+   ============================================ */
+
+/* Ensure sufficient contrast ratios */
 @media (prefers-contrast: high) {
-  [data-theme="dark"] {
+  :root,
+  [data-theme] {
+    --theme-primary: #000000;
+    --theme-secondary: #ffffff;
+    --theme-accent: #ffff00;
+    --theme-primary-contrast: #ffffff;
+    --theme-secondary-contrast: #000000;
+    --theme-accent-contrast: #000000;
+    
     --glass-backdrop: rgba(0, 0, 0, 0.9);
-    --glass-border: rgba(255, 255, 255, 0.3);
+    --glass-border: rgba(255, 255, 255, 0.9);
   }
   
-  [data-theme="light"] {
-    --glass-backdrop: rgba(255, 255, 255, 0.9);
-    --glass-border: rgba(0, 0, 0, 0.3);
+  .card-face {
+    border: 3px solid var(--theme-primary);
   }
   
-  .category-card,
-  .quiz-card,
-  .stat-card {
-    border-width: 2px;
+  .english-word,
+  .polish-translation {
+    font-weight: var(--font-weight-extrabold);
+    text-shadow: 2px 2px 0 var(--theme-secondary);
   }
 }
 
-/* ============================================
-   REDUCED MOTION SUPPORT
-   ============================================ */
-
+/* Reduced motion theme adjustments */
 @media (prefers-reduced-motion: reduce) {
-  body,
-  .app-container,
-  .category-card,
-  .quiz-card,
-  .stat-card,
-  .flashcard,
+  :root,
+  [data-theme],
   .card-face,
-  .modal {
+  .btn,
+  .nav-btn,
+  .quiz-btn,
+  .control-btn {
     transition: none;
   }
 }
 
 /* ============================================
-   PRINT STYLES FOR THEMES
+   CUSTOM THEME SUPPORT
    ============================================ */
 
-@media print {
-  [data-theme="dark"] body,
-  [data-theme="dark"] .app-container {
-    background: white !important;
-    color: black !important;
-  }
+/* CSS Custom Properties for user themes */
+[data-theme="custom"] {
+  --theme-name: 'custom';
   
-  [data-theme="dark"] .category-card,
-  [data-theme="dark"] .quiz-card,
-  [data-theme="dark"] .flashcard,
-  [data-theme="dark"] .card-face {
-    background: white !important;
-    color: black !important;
-    border: 1px solid #ccc !important;
-  }
+  /* These can be overridden by JavaScript */
+  --theme-primary: var(--custom-primary, #1e3a8a);
+  --theme-secondary: var(--custom-secondary, #dc2626);
+  --theme-accent: var(--custom-accent, #f59e0b);
+  
+  --theme-bg-primary: linear-gradient(135deg, var(--theme-primary) 0%, var(--theme-accent) 100%);
+  --theme-bg-secondary: linear-gradient(135deg, var(--theme-secondary) 0%, var(--theme-primary) 100%);
+  --theme-bg-accent: linear-gradient(135deg, var(--theme-accent) 0%, var(--theme-primary) 100%);
+  
+  --theme-card-front: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  --theme-card-back: var(--theme-bg-primary);
 }
+
+/* Theme validation classes */
+.theme-valid {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.theme-invalid {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* Theme preview classes */
+.theme-preview {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border-radius: var(--radius-sm);
+  border: 2px solid var(--theme-primary);
+  background: var(--theme-bg-primary);
+  margin-right: var(--spacing-2);
+  vertical-align: middle;
+}
+
+/* ============================================
+   THEME DEBUG UTILITIES (DEVELOPMENT ONLY)
+   ============================================ */
+
+/* Uncomment for theme debugging */
+/*
+.debug-theme::before {
+  content: "Theme: " var(--theme-name);
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 5px 10px;
+  border-radius: 3px;
+  font-size: 12px;
+  z-index: 9999;
+  font-family: monospace;
+}
+*/

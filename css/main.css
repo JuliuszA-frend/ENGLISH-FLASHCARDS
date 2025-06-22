@@ -1,6 +1,6 @@
 /**
  * English Flashcards B1/B2 - Main Styles
- * Główne style aplikacji z nowoczesnymi rozwiązaniami CSS
+ * Główne style aplikacji z nowoczesnymi animacjami 3D
  */
 
 /* ============================================
@@ -53,6 +53,10 @@
   --gradient-success: linear-gradient(135deg, var(--success) 0%, var(--success-light) 100%);
   --gradient-card: linear-gradient(135deg, var(--white) 0%, var(--gray-50) 100%);
   --gradient-glass: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+  
+  /* Card Gradients */
+  --card-front-gradient: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  --card-back-gradient: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
   
   /* Shadows */
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
@@ -153,6 +157,9 @@
   --gradient-card: linear-gradient(135deg, var(--gray-50) 0%, var(--gray-100) 100%);
   --glass-backdrop: rgba(0, 0, 0, 0.2);
   --glass-border: rgba(255, 255, 255, 0.1);
+  
+  --card-front-gradient: linear-gradient(135deg, #374151 0%, #1f2937 100%);
+  --card-back-gradient: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
 }
 
 /* ============================================
@@ -170,20 +177,17 @@
 html {
   font-size: 16px;
   scroll-behavior: smooth;
-  -webkit-text-size-adjust: 100%;
+  height: 100%;
 }
 
 body {
   font-family: var(--font-family-sans);
-  font-size: var(--font-size-base);
-  font-weight: var(--font-weight-normal);
-  line-height: var(--line-height-normal);
-  color: var(--gray-900);
   background: var(--gradient-primary);
   min-height: 100vh;
+  color: var(--gray-900);
+  line-height: var(--line-height-normal);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeSpeed;
 }
 
 body.loading {
@@ -204,9 +208,14 @@ body.loading {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: var(--z-modal);
+  z-index: 9999;
   opacity: 1;
-  transition: opacity var(--transition-slow);
+  transition: opacity 0.3s ease;
+}
+
+.loading-screen.hidden {
+  opacity: 0;
+  pointer-events: none;
 }
 
 .loading-content {
@@ -215,16 +224,9 @@ body.loading {
 }
 
 .loading-logo {
-  font-size: var(--font-size-5xl);
-  margin-bottom: var(--spacing-4);
-  animation: pulse 2s ease-in-out infinite;
-}
-
-.loading-content h2 {
-  font-size: var(--font-size-2xl);
-  font-weight: var(--font-weight-bold);
-  margin-bottom: var(--spacing-6);
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  animation: pulse 2s infinite;
 }
 
 .loading-spinner {
@@ -233,14 +235,8 @@ body.loading {
   border: 3px solid rgba(255, 255, 255, 0.3);
   border-top: 3px solid var(--white);
   border-radius: var(--radius-full);
-  margin: var(--spacing-6) auto;
   animation: spin 1s linear infinite;
-}
-
-.loading-content p {
-  font-size: var(--font-size-lg);
-  opacity: 0.9;
-  animation: fadeInOut 2s ease-in-out infinite;
+  margin: 1.5rem auto;
 }
 
 /* ============================================
@@ -249,7 +245,6 @@ body.loading {
 
 .app-container {
   min-height: 100vh;
-  background: var(--gradient-primary);
   position: relative;
 }
 
@@ -259,12 +254,16 @@ body.loading {
   padding: 0 var(--spacing-4);
 }
 
+.main-content {
+  padding: var(--spacing-6) 0 var(--spacing-12);
+}
+
 /* ============================================
-   HEADER
+   APP HEADER
    ============================================ */
 
 .app-header {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--glass-backdrop);
   backdrop-filter: blur(var(--glass-blur));
   border-bottom: 1px solid var(--glass-border);
   padding: var(--spacing-4) 0;
@@ -336,333 +335,29 @@ body.loading {
 }
 
 /* ============================================
-   STATS PANEL
-   ============================================ */
-
-.stats-panel {
-  background: var(--glass-backdrop);
-  backdrop-filter: blur(var(--glass-blur));
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius-2xl);
-  margin: var(--spacing-6) 0;
-  padding: var(--spacing-6);
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(-10px);
-  transition: all var(--transition-normal);
-}
-
-.stats-panel.visible {
-  opacity: 1;
-  visibility: visible;
-  transform: translateY(0);
-}
-
-.stats-content h3 {
-  color: var(--white);
-  font-size: var(--font-size-xl);
-  font-weight: var(--font-weight-bold);
-  text-align: center;
-  margin-bottom: var(--spacing-6);
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-}
-
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: var(--spacing-4);
-}
-
-.stat-card {
-  background: var(--glass-backdrop);
-  backdrop-filter: blur(var(--glass-blur));
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius-xl);
-  padding: var(--spacing-5);
-  text-align: center;
-  color: var(--white);
-  position: relative;
-  overflow: hidden;
-  transition: all var(--transition-normal);
-}
-
-.stat-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-  transition: left 0.5s ease;
-}
-
-.stat-card:hover::before {
-  left: 100%;
-}
-
-.stat-card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-lg);
-}
-
-.stat-value {
-  font-size: var(--font-size-2xl);
-  font-weight: var(--font-weight-bold);
-  color: var(--warning);
-  margin-bottom: var(--spacing-2);
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-}
-
-.stat-label {
-  font-size: var(--font-size-sm);
-  opacity: 0.9;
-  font-weight: var(--font-weight-medium);
-}
-
-.stat-icon {
-  position: absolute;
-  top: var(--spacing-3);
-  right: var(--spacing-3);
-  font-size: var(--font-size-lg);
-  opacity: 0.3;
-}
-
-.stat-progress {
-  margin-top: var(--spacing-3);
-}
-
-/* ============================================
-   MAIN CONTENT
-   ============================================ */
-
-.main-content {
-  padding: var(--spacing-6) 0 var(--spacing-12);
-}
-
-/* ============================================
-   MODE SELECTOR
-   ============================================ */
-
-.mode-selector {
-  display: flex;
-  justify-content: center;
-  gap: var(--spacing-3);
-  margin-bottom: var(--spacing-8);
-  flex-wrap: wrap;
-}
-
-.mode-btn {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-2);
-  padding: var(--spacing-3) var(--spacing-6);
-  background: var(--glass-backdrop);
-  border: 2px solid var(--glass-border);
-  border-radius: var(--radius-2xl);
-  color: var(--white);
-  font-size: var(--font-size-base);
-  font-weight: var(--font-weight-semibold);
-  cursor: pointer;
-  transition: all var(--transition-normal);
-  backdrop-filter: blur(var(--glass-blur));
-  position: relative;
-  overflow: hidden;
-}
-
-.mode-btn::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-  transition: left 0.3s ease;
-}
-
-.mode-btn:hover::before {
-  left: 100%;
-}
-
-.mode-btn:hover {
-  background: rgba(255, 255, 255, 0.15);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
-}
-
-.mode-btn.active {
-  background: var(--white);
-  color: var(--primary-blue);
-  border-color: var(--white);
-  box-shadow: var(--shadow-lg);
-}
-
-.mode-btn.active::before {
-  display: none;
-}
-
-.mode-btn .icon {
-  font-size: var(--font-size-lg);
-}
-
-/* ============================================
-   CATEGORY SELECTOR
-   ============================================ */
-
-.category-selector {
-  margin-bottom: var(--spacing-8);
-}
-
-.category-search {
-  max-width: 400px;
-  margin: 0 auto var(--spacing-6);
-}
-
-.search-input {
-  width: 100%;
-  padding: var(--spacing-3) var(--spacing-4);
-  background: var(--glass-backdrop);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius-xl);
-  color: var(--white);
-  font-size: var(--font-size-base);
-  backdrop-filter: blur(var(--glass-blur));
-  transition: all var(--transition-normal);
-}
-
-.search-input::placeholder {
-  color: rgba(255, 255, 255, 0.7);
-}
-
-.search-input:focus {
-  outline: none;
-  border-color: var(--warning);
-  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
-}
-
-.category-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: var(--spacing-4);
-}
-
-.category-card {
-  background: var(--glass-backdrop);
-  backdrop-filter: blur(var(--glass-blur));
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius-2xl);
-  padding: var(--spacing-6);
-  cursor: pointer;
-  transition: all var(--transition-normal);
-  position: relative;
-  overflow: hidden;
-  color: var(--white);
-  text-align: center;
-}
-
-.category-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-  transition: left 0.5s ease;
-}
-
-.category-card:hover::before {
-  left: 100%;
-}
-
-.category-card:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-xl);
-  border-color: var(--warning);
-}
-
-.category-card.active {
-  background: rgba(245, 158, 11, 0.2);
-  border-color: var(--warning);
-  box-shadow: var(--shadow-lg);
-}
-
-.category-icon {
-  font-size: var(--font-size-3xl);
-  margin-bottom: var(--spacing-3);
-  display: block;
-}
-
-.category-name {
-  font-size: var(--font-size-lg);
-  font-weight: var(--font-weight-bold);
-  margin-bottom: var(--spacing-2);
-}
-
-.category-description {
-  font-size: var(--font-size-sm);
-  opacity: 0.8;
-  margin-bottom: var(--spacing-4);
-  line-height: var(--line-height-relaxed);
-}
-
-.category-progress {
-  margin-top: var(--spacing-4);
-}
-
-/* ============================================
-   PROGRESS BAR
-   ============================================ */
-
-.progress-bar {
-  width: 100%;
-  height: 6px;
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: var(--radius-full);
-  overflow: hidden;
-  position: relative;
-}
-
-.progress-fill {
-  height: 100%;
-  background: var(--gradient-success);
-  border-radius: var(--radius-full);
-  transition: width var(--transition-slow);
-  position: relative;
-}
-
-.progress-fill::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-  animation: shimmer 2s infinite;
-}
-
-.progress-text {
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-medium);
-  margin-top: var(--spacing-2);
-  opacity: 0.9;
-}
-
-/* ============================================
-   FLASHCARD CONTAINER
+   FLASHCARD CONTAINER - ANIMACJE 3D
    ============================================ */
 
 .flashcard-container {
-  margin-bottom: var(--spacing-8);
+  perspective: 1000px;
+  margin: 0 auto var(--spacing-8);
+  position: relative;
+  height: 400px;
+  max-width: 600px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .flashcard-wrapper {
   perspective: 1000px;
-  max-width: 600px;
-  margin: 0 auto;
-  height: 400px;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .flashcard {
@@ -672,6 +367,8 @@ body.loading {
   transform-style: preserve-3d;
   transition: transform 0.8s cubic-bezier(0.4, 0.0, 0.2, 1);
   cursor: pointer;
+  max-width: 500px;
+  min-height: 350px;
 }
 
 .flashcard.flipped {
@@ -683,6 +380,7 @@ body.loading {
   width: 100%;
   height: 100%;
   backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
   border-radius: var(--radius-2xl);
   display: flex;
   flex-direction: column;
@@ -692,8 +390,9 @@ body.loading {
   padding: var(--spacing-8);
   box-shadow: var(--shadow-2xl);
   transition: all var(--transition-normal);
-  overflow: hidden;
-  position: relative;
+  overflow-y: auto;
+  overflow-x: hidden;
+  transform-style: preserve-3d;
 }
 
 .card-face::before {
@@ -705,43 +404,57 @@ body.loading {
   bottom: 0;
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
   pointer-events: none;
+  border-radius: var(--radius-2xl);
 }
 
 .card-front {
-  background: var(--gradient-card);
+  background: var(--card-front-gradient);
   color: var(--gray-900);
   transform: rotateY(0deg);
   z-index: 2;
 }
 
 .card-back {
-  background: var(--gradient-primary);
+  background: var(--card-back-gradient);
   color: var(--white);
   transform: rotateY(180deg);
   z-index: 1;
 }
 
-/* Card Content */
+[data-theme="dark"] .card-front {
+  color: var(--gray-100);
+}
+
+/* ============================================
+   CARD CONTENT STYLES
+   ============================================ */
+
 .english-word {
-  font-size: var(--font-size-4xl);
+  font-size: clamp(2.5rem, 5vw, 3.5rem);
   font-weight: var(--font-weight-bold);
   margin-bottom: var(--spacing-4);
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   font-family: Georgia, serif;
+  line-height: var(--line-height-tight);
+  word-break: break-word;
+  hyphens: auto;
 }
 
 .polish-translation {
-  font-size: var(--font-size-2xl);
+  font-size: clamp(1.5rem, 4vw, 2rem);
   font-weight: var(--font-weight-semibold);
   margin-bottom: var(--spacing-4);
   opacity: 0.9;
+  line-height: var(--line-height-normal);
+  word-break: break-word;
 }
 
 .pronunciation {
-  font-size: var(--font-size-lg);
+  font-size: clamp(1rem, 3vw, 1.25rem);
   font-style: italic;
   margin-bottom: var(--spacing-3);
   opacity: 0.8;
+  line-height: var(--line-height-normal);
 }
 
 .phonetic {
@@ -752,6 +465,7 @@ body.loading {
   background: rgba(0, 0, 0, 0.1);
   padding: var(--spacing-2) var(--spacing-3);
   border-radius: var(--radius-md);
+  word-break: break-all;
 }
 
 .word-type {
@@ -764,6 +478,7 @@ body.loading {
   margin-bottom: var(--spacing-4);
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  flex-shrink: 0;
 }
 
 .example-sentence {
@@ -772,17 +487,183 @@ body.loading {
   background: rgba(255, 255, 255, 0.1);
   border-radius: var(--radius-lg);
   border-left: 4px solid var(--warning);
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .sentence-english {
   font-size: var(--font-size-base);
   font-style: italic;
   margin-bottom: var(--spacing-2);
+  word-break: break-word;
+  line-height: var(--line-height-relaxed);
 }
 
 .sentence-polish {
   font-size: var(--font-size-sm);
   opacity: 0.8;
+  word-break: break-word;
+  line-height: var(--line-height-relaxed);
+}
+
+/* ============================================
+   AUDIO BUTTON
+   ============================================ */
+
+.audio-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  color: var(--white);
+  padding: var(--spacing-3) var(--spacing-5);
+  border-radius: var(--radius-xl);
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  font-size: var(--font-size-base);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  margin-top: var(--spacing-4);
+  flex-shrink: 0;
+}
+
+.audio-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.audio-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.audio-btn.loading {
+  background: var(--warning);
+  color: var(--gray-900);
+}
+
+.audio-btn.error {
+  background: var(--error);
+  color: var(--white);
+}
+
+.audio-btn.success {
+  background: var(--success);
+  color: var(--white);
+}
+
+/* ============================================
+   WORD IMAGES
+   ============================================ */
+
+.word-image {
+  width: 150px;
+  height: 150px;
+  object-fit: cover;
+  border-radius: var(--radius-xl);
+  margin-bottom: var(--spacing-4);
+  box-shadow: var(--shadow-lg);
+  transition: all var(--transition-normal);
+  flex-shrink: 0;
+}
+
+.word-image:hover {
+  transform: scale(1.05);
+  box-shadow: var(--shadow-xl);
+}
+
+.image-wrapper {
+  position: relative;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.image-controls {
+  position: absolute;
+  top: var(--spacing-2);
+  right: var(--spacing-2);
+  display: flex;
+  gap: var(--spacing-1);
+  opacity: 0;
+  transition: opacity var(--transition-normal);
+}
+
+.image-wrapper:hover .image-controls {
+  opacity: 1;
+}
+
+.image-control-btn {
+  background: rgba(0, 0, 0, 0.7);
+  color: var(--white);
+  border: none;
+  border-radius: var(--radius-full);
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  font-size: var(--font-size-sm);
+  transition: all var(--transition-normal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.image-control-btn:hover {
+  background: rgba(0, 0, 0, 0.9);
+  transform: scale(1.1);
+}
+
+.add-image-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 150px;
+  height: 150px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px dashed rgba(255, 255, 255, 0.3);
+  border-radius: var(--radius-xl);
+  color: var(--white);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  margin-bottom: var(--spacing-4);
+  flex-shrink: 0;
+}
+
+.add-image-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: scale(1.02);
+}
+
+.add-image-btn .icon {
+  font-size: var(--font-size-2xl);
+  margin-bottom: var(--spacing-2);
+}
+
+/* ============================================
+   WORD STYLING BADGES
+   ============================================ */
+
+.difficulty-badge, .frequency-badge {
+  font-size: var(--font-size-xs);
+  padding: var(--spacing-1) var(--spacing-2);
+  border-radius: var(--radius-sm);
+  font-weight: var(--font-weight-bold);
+  margin: var(--spacing-1);
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.difficulty-badge {
+  background: var(--warning);
+  color: var(--gray-900);
+}
+
+.frequency-badge {
+  background: var(--info);
+  color: var(--white);
 }
 
 /* ============================================
@@ -859,6 +740,77 @@ body.loading {
 }
 
 /* ============================================
+   RESPONSIVE FLASHCARD ADJUSTMENTS
+   ============================================ */
+
+@media (max-width: 576px) {
+  .flashcard-container {
+    height: 350px;
+    padding: 0 var(--spacing-2);
+  }
+
+  .flashcard {
+    min-height: 320px;
+  }
+
+  .card-face {
+    padding: var(--spacing-4);
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  .english-word {
+    font-size: clamp(2rem, 6vw, 2.5rem);
+    margin-bottom: var(--spacing-3);
+  }
+
+  .polish-translation {
+    font-size: clamp(1.25rem, 4vw, 1.5rem);
+    margin-bottom: var(--spacing-3);
+  }
+
+  .word-image, .add-image-btn {
+    width: 120px;
+    height: 120px;
+  }
+
+  .example-sentence {
+    margin-top: var(--spacing-4);
+    padding: var(--spacing-3);
+  }
+}
+
+@media (min-width: 577px) and (max-width: 768px) {
+  .flashcard-container {
+    height: 380px;
+    max-width: 500px;
+  }
+
+  .flashcard {
+    min-height: 350px;
+  }
+
+  .card-face {
+    padding: var(--spacing-6);
+  }
+}
+
+@media (min-width: 769px) {
+  .flashcard-container {
+    height: 400px;
+    max-width: 600px;
+  }
+
+  .flashcard {
+    min-height: 380px;
+  }
+
+  .card-face {
+    padding: var(--spacing-8);
+  }
+}
+
+/* ============================================
    UTILITY CLASSES
    ============================================ */
 
@@ -917,5 +869,68 @@ textarea:focus-visible {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+  
+  .flashcard {
+    transition: none;
+  }
+  
+  .loading-spinner {
+    animation: none;
+    border: 3px solid var(--primary-blue);
+  }
+}
+
+/* ============================================
+   HIGH CONTRAST MODE
+   ============================================ */
+
+@media (prefers-contrast: high) {
+  .card-face {
+    border: 2px solid var(--gray-900);
+  }
+  
+  .english-word,
+  .polish-translation {
+    text-shadow: none;
+    font-weight: var(--font-weight-extrabold);
+  }
+  
+  [data-theme="dark"] .card-face {
+    border: 2px solid var(--white);
+  }
+}
+
+/* ============================================
+   PRINT STYLES
+   ============================================ */
+
+@media print {
+  .flashcard-container {
+    perspective: none;
+    height: auto;
+  }
+  
+  .flashcard {
+    transform: none !important;
+    position: static;
+    height: auto;
+  }
+  
+  .card-face {
+    position: static;
+    transform: none !important;
+    backface-visibility: visible;
+    box-shadow: none;
+    border: 1px solid #ccc;
+    margin-bottom: var(--spacing-4);
+    break-inside: avoid;
+    background: white !important;
+    color: black !important;
+  }
+  
+  .english-word,
+  .polish-translation {
+    color: black !important;
   }
 }
