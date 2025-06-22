@@ -1,0 +1,499 @@
+{
+  "metadata": {
+    "version": "1.0.0",
+    "level": "B1/B2",
+    "totalWords": 1600,
+    "totalCategories": 32,
+    "wordsPerCategory": 50,
+    "language": {
+      "source": "English",
+      "target": "Polish"
+    },
+    "lastUpdated": "2025-01-22"
+  },
+  "categories": {
+    "build_and_appearance": {
+      "name": "Build and Appearance",
+      "icon": "👤",
+      "description": "Opis wyglądu i budowy ciała",
+      "words": [
+        {
+          "id": 1,
+          "english": "beautiful",
+          "polish": "piękny/piękna",
+          "pronunciation": "BYOO-ti-ful",
+          "phonetic": "/ˈbjuː.tɪ.fəl/",
+          "type": "adjective",
+          "difficulty": "easy",
+          "frequency": "high",
+          "examples": {
+            "english": "She has beautiful eyes.",
+            "polish": "Ona ma piękne oczy."
+          },
+          "synonyms": ["gorgeous", "lovely", "attractive"],
+          "audio": "beautiful"
+        },
+        {
+          "id": 2,
+          "english": "handsome",
+          "polish": "przystojny",
+          "pronunciation": "HAND-sum",
+          "phonetic": "/ˈhæn.səm/",
+          "type": "adjective",
+          "difficulty": "easy",
+          "frequency": "high",
+          "examples": {
+            "english": "He is a handsome young man.",
+            "polish": "On jest przystojnym młodym mężczyzną."
+          },
+          "synonyms": ["attractive", "good-looking"],
+          "audio": "handsome"
+        },
+        {
+          "id": 3,
+          "english": "tall",
+          "polish": "wysoki",
+          "pronunciation": "TAWL",
+          "phonetic": "/tɔːl/",
+          "type": "adjective",
+          "difficulty": "easy",
+          "frequency": "high",
+          "examples": {
+            "english": "My brother is very tall.",
+            "polish": "Mój brat jest bardzo wysoki."
+          },
+          "synonyms": ["high", "towering"],
+          "antonyms": ["short", "low"],
+          "audio": "tall"
+        },
+        {
+          "id": 4,
+          "english": "short",
+          "polish": "niski/krótki",
+          "pronunciation": "SHAWRT",
+          "phonetic": "/ʃɔːrt/",
+          "type": "adjective",
+          "difficulty": "easy",
+          "frequency": "high",
+          "examples": {
+            "english": "She has short curly hair.",
+            "polish": "Ona ma krótkie kręcone włosy."
+          },
+          "synonyms": ["small", "little"],
+          "antonyms": ["tall", "long"],
+          "audio": "short"
+        },
+        {
+          "id": 5,
+          "english": "slim",
+          "polish": "szczupły",
+          "pronunciation": "SLIM",
+          "phonetic": "/slɪm/",
+          "type": "adjective",
+          "difficulty": "easy",
+          "frequency": "medium",
+          "examples": {
+            "english": "She wants to stay slim and healthy.",
+            "polish": "Chce pozostać szczupła i zdrowa."
+          },
+          "synonyms": ["thin", "slender"],
+          "antonyms": ["fat", "overweight"],
+          "audio": "slim"
+        }
+      ]
+    },
+    "personality": {
+      "name": "Personality",
+      "icon": "🧠",
+      "description": "Cechy charakteru i osobowości",
+      "words": [
+        {
+          "id": 1,
+          "english": "friendly",
+          "polish": "przyjazny",
+          "pronunciation": "FREND-lee",
+          "phonetic": "/ˈfrend.li/",
+          "type": "adjective",
+          "difficulty": "easy",
+          "frequency": "high",
+          "examples": {
+            "english": "She is very friendly and helpful.",
+            "polish": "Ona jest bardzo przyjazna i pomocna."
+          },
+          "synonyms": ["kind", "nice", "pleasant"],
+          "antonyms": ["unfriendly", "hostile"],
+          "audio": "friendly"
+        },
+        {
+          "id": 2,
+          "english": "confident",
+          "polish": "pewny siebie",
+          "pronunciation": "KON-fi-dent",
+          "phonetic": "/ˈkɒn.fɪ.dənt/",
+          "type": "adjective",
+          "difficulty": "medium",
+          "frequency": "high",
+          "examples": {
+            "english": "He feels confident about his presentation.",
+            "polish": "Czuje się pewnie co do swojej prezentacji."
+          },
+          "synonyms": ["sure", "certain", "self-assured"],
+          "antonyms": ["insecure", "uncertain"],
+          "audio": "confident"
+        },
+        {
+          "id": 3,
+          "english": "generous",
+          "polish": "hojny/szczodry",
+          "pronunciation": "JEN-er-us",
+          "phonetic": "/ˈdʒen.ər.əs/",
+          "type": "adjective",
+          "difficulty": "medium",
+          "frequency": "medium",
+          "examples": {
+            "english": "He is generous with his time and money.",
+            "polish": "Jest hojny ze swoim czasem i pieniędzmi."
+          },
+          "synonyms": ["giving", "charitable"],
+          "antonyms": ["selfish", "stingy"],
+          "audio": "generous"
+        },
+        {
+          "id": 4,
+          "english": "honest",
+          "polish": "uczciwy",
+          "pronunciation": "ON-ist",
+          "phonetic": "/ˈɒn.ɪst/",
+          "type": "adjective",
+          "difficulty": "easy",
+          "frequency": "high",
+          "examples": {
+            "english": "I appreciate your honest opinion.",
+            "polish": "Doceniam twoją szczerą opinię."
+          },
+          "synonyms": ["truthful", "sincere"],
+          "antonyms": ["dishonest", "lying"],
+          "audio": "honest"
+        },
+        {
+          "id": 5,
+          "english": "creative",
+          "polish": "kreatywny",
+          "pronunciation": "kree-AY-tiv",
+          "phonetic": "/kriˈeɪ.tɪv/",
+          "type": "adjective",
+          "difficulty": "medium",
+          "frequency": "high",
+          "examples": {
+            "english": "She has a very creative mind.",
+            "polish": "Ma bardzo kreatywny umysł."
+          },
+          "synonyms": ["imaginative", "innovative"],
+          "antonyms": ["uncreative", "conventional"],
+          "audio": "creative"
+        }
+      ]
+    },
+    "feelings_and_emotions": {
+      "name": "Feelings and Emotions",
+      "icon": "😊",
+      "description": "Uczucia i emocje",
+      "words": [
+        {
+          "id": 1,
+          "english": "happy",
+          "polish": "szczęśliwy",
+          "pronunciation": "HAP-ee",
+          "phonetic": "/ˈhæp.i/",
+          "type": "adjective",
+          "difficulty": "easy",
+          "frequency": "high",
+          "examples": {
+            "english": "I'm happy to see you again.",
+            "polish": "Cieszę się, że cię znów widzę."
+          },
+          "synonyms": ["joyful", "cheerful", "glad"],
+          "antonyms": ["sad", "unhappy"],
+          "audio": "happy"
+        },
+        {
+          "id": 2,
+          "english": "excited",
+          "polish": "podekscytowany",
+          "pronunciation": "ik-SAY-tid",
+          "phonetic": "/ɪkˈsaɪ.tɪd/",
+          "type": "adjective",
+          "difficulty": "medium",
+          "frequency": "high",
+          "examples": {
+            "english": "The children are excited about the trip.",
+            "polish": "Dzieci są podekscytowane wycieczką."
+          },
+          "synonyms": ["thrilled", "enthusiastic"],
+          "antonyms": ["bored", "calm"],
+          "audio": "excited"
+        },
+        {
+          "id": 3,
+          "english": "nervous",
+          "polish": "zdenerwowany",
+          "pronunciation": "NUR-vus",
+          "phonetic": "/ˈnɜː.vəs/",
+          "type": "adjective",
+          "difficulty": "medium",
+          "frequency": "high",
+          "examples": {
+            "english": "I feel nervous before the exam.",
+            "polish": "Czuję się zdenerwowany przed egzaminem."
+          },
+          "synonyms": ["anxious", "worried"],
+          "antonyms": ["calm", "relaxed"],
+          "audio": "nervous"
+        },
+        {
+          "id": 4,
+          "english": "disappointed",
+          "polish": "rozczarowany",
+          "pronunciation": "dis-uh-POIN-tid",
+          "phonetic": "/ˌdɪs.əˈpɔɪn.tɪd/",
+          "type": "adjective",
+          "difficulty": "medium",
+          "frequency": "medium",
+          "examples": {
+            "english": "She was disappointed with the results.",
+            "polish": "Była rozczarowana wynikami."
+          },
+          "synonyms": ["let down", "upset"],
+          "antonyms": ["satisfied", "pleased"],
+          "audio": "disappointed"
+        },
+        {
+          "id": 5,
+          "english": "embarrassed",
+          "polish": "zawstydzony",
+          "pronunciation": "im-BAR-uhst",
+          "phonetic": "/ɪmˈbær.əst/",
+          "type": "adjective",
+          "difficulty": "medium",
+          "frequency": "medium",
+          "examples": {
+            "english": "He felt embarrassed about his mistake.",
+            "polish": "Czuł się zawstydzony z powodu swojego błędu."
+          },
+          "synonyms": ["ashamed", "awkward"],
+          "antonyms": ["confident", "proud"],
+          "audio": "embarrassed"
+        }
+      ]
+    },
+    "family": {
+      "name": "Family",
+      "icon": "👨‍👩‍👧‍👦",
+      "description": "Rodzina i relacje rodzinne",
+      "words": [
+        {
+          "id": 1,
+          "english": "relatives",
+          "polish": "krewni",
+          "pronunciation": "REL-uh-tivs",
+          "phonetic": "/ˈrel.ə.tɪvz/",
+          "type": "noun",
+          "difficulty": "medium",
+          "frequency": "medium",
+          "examples": {
+            "english": "All my relatives will come to the wedding.",
+            "polish": "Wszyscy moi krewni przyjdą na ślub."
+          },
+          "synonyms": ["family members", "kin"],
+          "audio": "relatives"
+        },
+        {
+          "id": 2,
+          "english": "sibling",
+          "polish": "rodzeństwo",
+          "pronunciation": "SIB-ling",
+          "phonetic": "/ˈsɪb.lɪŋ/",
+          "type": "noun",
+          "difficulty": "medium",
+          "frequency": "medium",
+          "examples": {
+            "english": "Do you have any siblings?",
+            "polish": "Czy masz jakieś rodzeństwo?"
+          },
+          "synonyms": ["brother or sister"],
+          "audio": "sibling"
+        },
+        {
+          "id": 3,
+          "english": "stepfather",
+          "polish": "ojczym",
+          "pronunciation": "STEP-fah-ther",
+          "phonetic": "/ˈstep.fɑː.ðər/",
+          "type": "noun",
+          "difficulty": "medium",
+          "frequency": "low",
+          "examples": {
+            "english": "My stepfather is very kind to me.",
+            "polish": "Mój ojczym jest dla mnie bardzo miły."
+          },
+          "related": ["stepmother", "stepchild"],
+          "audio": "stepfather"
+        },
+        {
+          "id": 4,
+          "english": "in-laws",
+          "polish": "teściowie",
+          "pronunciation": "IN-lawz",
+          "phonetic": "/ˈɪn.lɔːz/",
+          "type": "noun",
+          "difficulty": "medium",
+          "frequency": "medium",
+          "examples": {
+            "english": "I get along well with my in-laws.",
+            "polish": "Dobrze dogaduję się z teściami."
+          },
+          "related": ["mother-in-law", "father-in-law"],
+          "audio": "in-laws"
+        },
+        {
+          "id": 5,
+          "english": "godparent",
+          "polish": "ojciec/matka chrzestna",
+          "pronunciation": "GOD-pair-ent",
+          "phonetic": "/ˈɡɒd.peə.rənt/",
+          "type": "noun",
+          "difficulty": "hard",
+          "frequency": "low",
+          "examples": {
+            "english": "Will you be the baby's godparent?",
+            "polish": "Czy zostaniesz ojcem/matką chrzestną dziecka?"
+          },
+          "related": ["godchild", "godfather", "godmother"],
+          "audio": "godparent"
+        }
+      ]
+    },
+    "education": {
+      "name": "Education",
+      "icon": "🎓",
+      "description": "Edukacja i nauka",
+      "words": [
+        {
+          "id": 1,
+          "english": "curriculum",
+          "polish": "program nauczania",
+          "pronunciation": "kuh-RIK-yuh-lum",
+          "phonetic": "/kəˈrɪk.jʊ.ləm/",
+          "type": "noun",
+          "difficulty": "hard",
+          "frequency": "medium",
+          "examples": {
+            "english": "The new curriculum includes more science subjects.",
+            "polish": "Nowy program nauczania zawiera więcej przedmiotów ścisłych."
+          },
+          "synonyms": ["syllabus", "course"],
+          "audio": "curriculum"
+        },
+        {
+          "id": 2,
+          "english": "scholarship",
+          "polish": "stypendium",
+          "pronunciation": "SKOL-er-ship",
+          "phonetic": "/ˈskɒl.ə.ʃɪp/",
+          "type": "noun",
+          "difficulty": "medium",
+          "frequency": "medium",
+          "examples": {
+            "english": "She received a scholarship to study abroad.",
+            "polish": "Otrzymała stypendium na studia za granicą."
+          },
+          "synonyms": ["grant", "award"],
+          "audio": "scholarship"
+        },
+        {
+          "id": 3,
+          "english": "assignment",
+          "polish": "zadanie",
+          "pronunciation": "uh-SAYN-ment",
+          "phonetic": "/əˈsaɪn.mənt/",
+          "type": "noun",
+          "difficulty": "medium",
+          "frequency": "high",
+          "examples": {
+            "english": "The assignment is due next Friday.",
+            "polish": "Zadanie ma być oddane w przyszły piątek."
+          },
+          "synonyms": ["task", "homework"],
+          "audio": "assignment"
+        },
+        {
+          "id": 4,
+          "english": "graduate",
+          "polish": "absolwent/ukończyć studia",
+          "pronunciation": "GRAD-yoo-it",
+          "phonetic": "/ˈɡræd.ju.ət/",
+          "type": "noun/verb",
+          "difficulty": "medium",
+          "frequency": "high",
+          "examples": {
+            "english": "I will graduate from university next year.",
+            "polish": "Ukończę uniwersytet w przyszłym roku."
+          },
+          "synonyms": ["complete", "finish"],
+          "audio": "graduate"
+        },
+        {
+          "id": 5,
+          "english": "dissertation",
+          "polish": "praca dyplomowa",
+          "pronunciation": "dis-er-TAY-shun",
+          "phonetic": "/ˌdɪs.əˈteɪ.ʃən/",
+          "type": "noun",
+          "difficulty": "hard",
+          "frequency": "low",
+          "examples": {
+            "english": "He is writing his master's dissertation.",
+            "polish": "Pisze swoją pracę magisterską."
+          },
+          "synonyms": ["thesis", "paper"],
+          "audio": "dissertation"
+        }
+      ]
+    }
+  },
+  "quizTemplates": {
+    "multipleChoice": {
+      "name": "Wybór wielokrotny",
+      "description": "Wybierz poprawną odpowiedź z 4 opcji",
+      "options": 4,
+      "timeLimit": 30
+    },
+    "textInput": {
+      "name": "Wpisz odpowiedź",
+      "description": "Wpisz poprawne tłumaczenie",
+      "timeLimit": 45
+    },
+    "sentenceTranslation": {
+      "name": "Tłumaczenie zdań",
+      "description": "Przetłumacz całe zdanie",
+      "timeLimit": 60
+    }
+  },
+  "difficultyLevels": {
+    "easy": {
+      "name": "Łatwy",
+      "color": "#4CAF50",
+      "description": "Podstawowe słownictwo"
+    },
+    "medium": {
+      "name": "Średni", 
+      "color": "#FF9800",
+      "description": "Słownictwo średnio zaawansowane"
+    },
+    "hard": {
+      "name": "Trudny",
+      "color": "#F44336", 
+      "description": "Zaawansowane słownictwo"
+    }
+  }
+}

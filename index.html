@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>English Flashcards B1/B2 - 1600+ słów w 32 kategoriach</title>
+    <meta name="description" content="Aplikacja do nauki angielskiego B1/B2 - 1600+ słów, quizy, przykłady zdań">
+    <meta name="author" content="English Learning App">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🇬🇧</text></svg>">
+    
+    <!-- Preload critical resources -->
+    <link rel="preload" href="data/vocabulary.json" as="fetch" crossorigin="anonymous">
+    <link rel="preload" href="data/categories.json" as="fetch" crossorigin="anonymous">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/themes.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    
+    <!-- PWA Support -->
+    <meta name="theme-color" content="#1e3a8a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+</head>
+<body class="loading">
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="loading-screen">
+        <div class="loading-content">
+            <div class="loading-logo">🇬🇧</div>
+            <h2>English Flashcards B1/B2</h2>
+            <div class="loading-spinner"></div>
+            <p>Ładowanie słownictwa...</p>
+        </div>
+    </div>
+
+    <!-- Main Application Container -->
+    <div id="app" class="app-container" style="display: none;">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="container">
+                <div class="header-content">
+                    <div class="logo-section">
+                        <h1>
+                            <span class="flag">🇬🇧</span>
+                            English B1/B2
+                            <span class="flag">🇺🇸</span>
+                        </h1>
+                        <p class="subtitle">1600+ słów w 32 kategoriach</p>
+                    </div>
+                    
+                    <!-- Header Controls -->
+                    <div class="header-controls">
+                        <button class="control-btn" id="theme-toggle" title="Zmień motyw">
+                            <span class="icon">🌙</span>
+                            <span class="text">Tryb ciemny</span>
+                        </button>
+                        <button class="control-btn" id="stats-toggle" title="Pokaż statystyki">
+                            <span class="icon">📊</span>
+                            <span class="text">Statystyki</span>
+                        </button>
+                        <button class="control-btn" id="settings-toggle" title="Ustawienia">
+                            <span class="icon">⚙️</span>
+                            <span class="text">Ustawienia</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Stats Panel -->
+        <div id="stats-panel" class="stats-panel">
+            <div class="container">
+                <div class="stats-content">
+                    <h3>📈 Twoje statystyki nauki</h3>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-value" id="total-studied">0</div>
+                            <div class="stat-label">Przejrzane karty</div>
+                            <div class="stat-progress">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="cards-progress"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="study-streak">0</div>
+                            <div class="stat-label">Dni z rzędu</div>
+                            <div class="stat-icon">🔥</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="quiz-score">0%</div>
+                            <div class="stat-label">Średni wynik quizów</div>
+                            <div class="stat-icon">🎯</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="favorite-category">-</div>
+                            <div class="stat-label">Ulubiona kategoria</div>
+                            <div class="stat-icon">⭐</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="total-words">1600+</div>
+                            <div class="stat-label">Dostępne słowa</div>
+                            <div class="stat-icon">📚</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="completed-categories">0/32</div>
+                            <div class="stat-label">Ukończone kategorie</div>
+                            <div class="stat-icon">✅</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="container">
+                <!-- Mode Selector -->
+                <div class="mode-selector">
+                    <button class="mode-btn active" id="flashcards-mode" data-mode="flashcards">
+                        <span class="icon">📚</span>
+                        <span class="text">Fiszki</span>
+                    </button>
+                    <button class="mode-btn" id="quiz-mode" data-mode="quiz">
+                        <span class="icon">🎯</span>
+                        <span class="text">Quizy</span>
+                    </button>
+                    <button class="mode-btn" id="sentences-mode" data-mode="sentences">
+                        <span class="icon">💬</span>
+                        <span class="text">Przykłady zdań</span>
+                    </button>
+                </div>
+
+                <!-- Category Selector -->
+                <div id="category-selector" class="category-selector">
+                    <div class="category-search">
+                        <input type="text" id="category-search" placeholder="🔍 Szukaj kategorii..." class="search-input">
+                    </div>
+                    <div id="category-grid" class="category-grid">
+                        <!-- Categories will be loaded dynamically -->
+                    </div>
+                </div>
+
+                <!-- Quiz Selector -->
+                <div id="quiz-selector" class="quiz-selector" style="display: none;">
+                    <div class="quiz-sections">
+                        <!-- Category Quizzes -->
+                        <section class="quiz-section">
+                            <h3>🎯 Quizy kategorii (15 pytań, zalicz 12)</h3>
+                            <div id="category-quiz-grid" class="quiz-grid">
+                                <!-- Category quizzes will be loaded dynamically -->
+                            </div>
+                        </section>
+
+                        <!-- Mixed Quizzes -->
+                        <section class="quiz-section">
+                            <h3>🔄 Quizy mieszane</h3>
+                            <div class="quiz-grid">
+                                <button class="quiz-card mixed-quiz" id="random-quiz-btn">
+                                    <span class="quiz-icon">🎲</span>
+                                    <span class="quiz-name">Quiz losowy</span>
+                                    <span class="quiz-description">20 losowych słów</span>
+                                    <span class="quiz-status">Zawsze dostępny</span>
+                                </button>
+                                <button class="quiz-card mixed-quiz" id="difficult-words-quiz">
+                                    <span class="quiz-icon">💪</span>
+                                    <span class="quiz-name">Trudne słowa</span>
+                                    <span class="quiz-description">Słowa z najgorszymi wynikami</span>
+                                    <span class="quiz-status">Dostępny po 5 quizach</span>
+                                </button>
+                            </div>
+                        </section>
+
+                        <!-- Final Quiz -->
+                        <section class="quiz-section">
+                            <h3>🏆 Quiz końcowy (50 pytań, zalicz 42)</h3>
+                            <div class="quiz-grid">
+                                <button class="quiz-card final-quiz" id="final-quiz-btn">
+                                    <span class="quiz-icon">🎓</span>
+                                    <span class="quiz-name">Test ze wszystkich kategorii</span>
+                                    <span class="quiz-description">50 pytań z całego materiału</span>
+                                    <span class="quiz-status" id="final-quiz-status">Niedostępny</span>
+                                </button>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+
+                <!-- Flashcard Container -->
+                <div id="flashcard-container" class="flashcard-container">
+                    <div class="flashcard-wrapper">
+                        <div class="flashcard" id="flashcard">
+                            <div class="card-face card-front" id="card-front">
+                                <!-- Front content will be inserted here -->
+                            </div>
+                            <div class="card-face card-back" id="card-back">
+                                <!-- Back content will be inserted here -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Card Controls -->
+                    <div class="card-controls">
+                        <button class="control-btn secondary" id="difficulty-btn" title="Oznacz trudność">
+                            <span class="icon">⭐</span>
+                            <span class="text">Trudność</span>
+                        </button>
+                        <button class="control-btn secondary" id="bookmark-btn" title="Dodaj do ulubionych">
+                            <span class="icon">🔖</span>
+                            <span class="text">Ulubione</span>
+                        </button>
+                        <button class="control-btn secondary" id="image-btn" title="Zarządzaj obrazkiem">
+                            <span class="icon">🖼️</span>
+                            <span class="text">Obrazek</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Quiz Container -->
+                <div id="quiz-container" class="quiz-container" style="display: none;">
+                    <div class="quiz-header">
+                        <div class="quiz-info">
+                            <h3 id="quiz-title">Quiz: Build and Appearance</h3>
+                            <div class="quiz-progress">
+                                <span class="progress-text">
+                                    Pytanie <span id="quiz-current">1</span> z <span id="quiz-total">15</span>
+                                </span>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="quiz-progress-fill"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="quiz-score">
+                            <span class="score-label">Wynik:</span>
+                            <span class="score-value" id="quiz-score-display">0/0</span>
+                        </div>
+                    </div>
+                    
+                    <div class="quiz-content">
+                        <div class="quiz-question-card">
+                            <div class="question-section">
+                                <div class="english-word" id="quiz-english-word">beautiful</div>
+                                <div class="quiz-instruction">Wybierz poprawne polskie tłumaczenie:</div>
+                            </div>
+                            
+                            <!-- Multiple Choice Quiz -->
+                            <div id="multiple-choice-section" class="answer-section">
+                                <div class="answer-options" id="answer-options">
+                                    <!-- Options will be inserted here -->
+                                </div>
+                            </div>
+                            
+                            <!-- Text Input Quiz -->
+                            <div id="text-input-section" class="answer-section" style="display: none;">
+                                <div class="input-group">
+                                    <input type="text" id="quiz-answer-input" class="quiz-input" 
+                                           placeholder="Wpisz polskie tłumaczenie..." autocomplete="off">
+                                    <button class="quiz-btn primary" id="quiz-submit-btn">Sprawdź</button>
+                                </div>
+                            </div>
+                            
+                            <!-- Sentence Quiz -->
+                            <div id="sentence-section" class="answer-section" style="display: none;">
+                                <div class="sentence-question">
+                                    <p class="instruction">Przetłumacz zdanie:</p>
+                                    <p class="sentence-text" id="sentence-to-translate"></p>
+                                </div>
+                                <div class="input-group">
+                                    <textarea id="sentence-answer" class="sentence-input" 
+                                              placeholder="Wpisz tłumaczenie zdania..." rows="3"></textarea>
+                                    <button class="quiz-btn primary" id="sentence-submit-btn">Sprawdź</button>
+                                </div>
+                            </div>
+                            
+                            <!-- Quiz Feedback -->
+                            <div id="quiz-feedback" class="quiz-feedback" style="display: none;">
+                                <div class="feedback-content">
+                                    <div class="feedback-icon" id="feedback-icon">✅</div>
+                                    <div class="feedback-text" id="feedback-text">Poprawnie!</div>
+                                    <div class="feedback-details" id="feedback-details"></div>
+                                </div>
+                                <div class="feedback-actions">
+                                    <button class="quiz-btn primary" id="quiz-next-btn">Następne pytanie</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quiz Results -->
+                <div id="quiz-results" class="quiz-results" style="display: none;">
+                    <div class="results-card">
+                        <div class="results-header">
+                            <div class="results-icon" id="results-icon">🎉</div>
+                            <h3 id="results-title">Gratulacje!</h3>
+                        </div>
+                        
+                        <div class="results-content">
+                            <div class="score-display">
+                                <div class="score-main">
+                                    <span id="results-score">12/15</span>
+                                </div>
+                                <div class="score-percentage" id="results-percentage">80%</div>
+                            </div>
+                            
+                            <div class="results-status" id="results-status">
+                                Quiz zaliczony!
+                            </div>
+                            
+                            <div class="results-details" id="results-details">
+                                <!-- Detailed results will be shown here -->
+                            </div>
+                        </div>
+                        
+                        <div class="results-actions">
+                            <button class="quiz-btn secondary" id="quiz-retry-btn">
+                                <span class="icon">🔄</span>
+                                <span class="text">Spróbuj ponownie</span>
+                            </button>
+                            <button class="quiz-btn primary" id="quiz-continue-btn">
+                                <span class="icon">➡️</span>
+                                <span class="text">Kontynuuj naukę</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Navigation Controls -->
+                <div id="navigation-controls" class="navigation-controls">
+                    <button class="nav-btn" id="prev-btn">
+                        <span class="icon">⬅️</span>
+                        <span class="text">Poprzednia</span>
+                    </button>
+                    <button class="nav-btn primary" id="flip-btn">
+                        <span class="icon">🔄</span>
+                        <span class="text">Obróć fiszkę</span>
+                    </button>
+                    <button class="nav-btn" id="next-btn">
+                        <span class="icon">➡️</span>
+                        <span class="text">Następna</span>
+                    </button>
+                </div>
+
+                <!-- Progress Display -->
+                <div id="progress-display" class="progress-display">
+                    <div class="progress-info">
+                        <span class="progress-text">
+                            Karta <span id="current-card">1</span> z <span id="total-cards">50</span>
+                        </span>
+                        <span class="category-name" id="current-category">Build and Appearance</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-fill"></div>
+                    </div>
+                    <div class="progress-actions">
+                        <button class="action-btn" id="shuffle-btn" title="Wymieszaj karty">
+                            <span class="icon">🔀</span>
+                            <span class="text">Wymieszaj</span>
+                        </button>
+                        <button class="action-btn" id="reset-btn" title="Resetuj postęp">
+                            <span class="icon">🔄</span>
+                            <span class="text">Reset</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <div id="modal-overlay" class="modal-overlay">
+        <!-- Settings Modal -->
+        <div id="settings-modal" class="modal">
+            <div class="modal-header">
+                <h3>⚙️ Ustawienia</h3>
+                <button class="modal-close" id="settings-close">×</button>
+            </div>
+            <div class="modal-content">
+                <div class="settings-grid">
+                    <div class="setting-group">
+                        <label class="setting-label">
+                            <span class="label-text">Automatyczne audio</span>
+                            <input type="checkbox" id="auto-audio" class="setting-checkbox">
+                            <span class="checkbox-custom"></span>
+                        </label>
+                    </div>
+                    <div class="setting-group">
+                        <label class="setting-label">
+                            <span class="label-text">Pokaż fonetykę</span>
+                            <input type="checkbox" id="show-phonetics" class="setting-checkbox" checked>
+                            <span class="checkbox-custom"></span>
+                        </label>
+                    </div>
+                    <div class="setting-group">
+                        <label class="setting-label">
+                            <span class="label-text">Trudność quizów</span>
+                            <select id="quiz-difficulty" class="setting-select">
+                                <option value="easy">Łatwy</option>
+                                <option value="medium" selected>Średni</option>
+                                <option value="hard">Trudny</option>
+                            </select>
+                        </label>
+                    </div>
+                    <div class="setting-group">
+                        <label class="setting-label">
+                            <span class="label-text">Język quizów</span>
+                            <select id="quiz-language" class="setting-select">
+                                <option value="pl-en" selected>Polski → Angielski</option>
+                                <option value="en-pl">Angielski → Polski</option>
+                                <option value="mixed">Mieszany</option>
+                            </select>
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button class="btn secondary" id="export-data">
+                        <span class="icon">💾</span>
+                        <span class="text">Eksportuj dane</span>
+                    </button>
+                    <button class="btn secondary" id="import-data">
+                        <span class="icon">📂</span>
+                        <span class="text">Importuj dane</span>
+                    </button>
+                    <button class="btn danger" id="reset-all-data">
+                        <span class="icon">🗑️</span>
+                        <span class="text">Resetuj wszystko</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Image Manager Modal -->
+        <div id="image-modal" class="modal">
+            <div class="modal-header">
+                <h3>🖼️ Zarządzanie obrazkami</h3>
+                <button class="modal-close" id="image-modal-close">×</button>
+            </div>
+            <div class="modal-content" id="image-modal-content">
+                <!-- Content will be inserted dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Notifications Container -->
+    <div id="notifications-container" class="notifications-container"></div>
+
+    <!-- JavaScript Modules -->
+    <script src="js/config/constants.js"></script>
+    <script src="js/utils/utils.js"></script>
+    <script src="js/utils/storage-manager.js"></script>
+    <script src="js/utils/notification-manager.js"></script>
+    <script src="js/modules/theme-manager.js"></script>
+    <script src="js/modules/data-loader.js"></script>
+    <script src="js/modules/progress-manager.js"></script>
+    <script src="js/modules/audio-manager.js"></script>
+    <script src="js/modules/image-manager.js"></script>
+    <script src="js/modules/flashcard-manager.js"></script>
+    <script src="js/modules/quiz-manager.js"></script>
+    <script src="js/app.js"></script>
+
+    <!-- Service Worker for offline support -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => console.log('SW registered'))
+                    .catch(error => console.log('SW registration failed'));
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,979 @@
+/**
+ * Responsive.css - Style responsywne dla wszystkich urządzeń
+ * Mobile-first approach z progressywnym enhancement
+ */
+
+/* ============================================
+   BASE RESPONSIVE VARIABLES
+   ============================================ */
+
+:root {
+  /* Responsive breakpoints */
+  --bp-xs: 320px;   /* Small phones */
+  --bp-sm: 576px;   /* Large phones */
+  --bp-md: 768px;   /* Tablets */
+  --bp-lg: 1024px;  /* Small laptops */
+  --bp-xl: 1200px;  /* Laptops */
+  --bp-2xl: 1400px; /* Large screens */
+  
+  /* Responsive spacing */
+  --spacing-mobile: 1rem;
+  --spacing-tablet: 1.5rem;
+  --spacing-desktop: 2rem;
+  
+  /* Responsive font sizes */
+  --text-xs-mobile: 0.7rem;
+  --text-sm-mobile: 0.8rem;
+  --text-base-mobile: 0.9rem;
+  --text-lg-mobile: 1rem;
+  --text-xl-mobile: 1.1rem;
+  --text-2xl-mobile: 1.25rem;
+  --text-3xl-mobile: 1.5rem;
+  --text-4xl-mobile: 2rem;
+}
+
+/* ============================================
+   MOBILE FIRST (BASE STYLES)
+   ============================================ */
+
+/* Container responsive */
+.container {
+  padding: 0 var(--spacing-mobile);
+  max-width: 100%;
+}
+
+/* Typography mobile */
+body {
+  font-size: var(--text-base-mobile);
+  line-height: 1.6;
+}
+
+/* Header mobile */
+.app-header {
+  padding: var(--spacing-mobile) 0;
+}
+
+.header-content {
+  flex-direction: column;
+  text-align: center;
+  gap: var(--spacing-mobile);
+}
+
+.logo-section h1 {
+  font-size: var(--text-3xl-mobile);
+  margin-bottom: var(--spacing-2);
+}
+
+.header-controls {
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--spacing-2);
+}
+
+.control-btn {
+  padding: var(--spacing-2) var(--spacing-3);
+  font-size: var(--text-sm-mobile);
+}
+
+.control-btn .text {
+  display: none; /* Hide text on mobile, show only icons */
+}
+
+/* Stats panel mobile */
+.stats-grid {
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--spacing-3);
+}
+
+.stat-card {
+  padding: var(--spacing-4);
+}
+
+.stat-value {
+  font-size: var(--text-xl-mobile);
+}
+
+.stat-label {
+  font-size: var(--text-xs-mobile);
+}
+
+/* Mode selector mobile */
+.mode-selector {
+  gap: var(--spacing-2);
+  margin-bottom: var(--spacing-6);
+}
+
+.mode-btn {
+  padding: var(--spacing-2) var(--spacing-4);
+  font-size: var(--text-sm-mobile);
+  flex: 1;
+  min-width: auto;
+}
+
+.mode-btn .text {
+  display: none; /* Only icons on mobile */
+}
+
+/* Category grid mobile */
+.category-grid {
+  grid-template-columns: 1fr;
+  gap: var(--spacing-3);
+}
+
+.category-card {
+  padding: var(--spacing-4);
+  text-align: center;
+}
+
+.category-icon {
+  font-size: var(--text-2xl-mobile);
+  margin-bottom: var(--spacing-2);
+}
+
+.category-name {
+  font-size: var(--text-base-mobile);
+  margin-bottom: var(--spacing-1);
+}
+
+.category-description {
+  font-size: var(--text-xs-mobile);
+  margin-bottom: var(--spacing-3);
+}
+
+/* Flashcard mobile */
+.flashcard-wrapper {
+  height: 300px; /* Smaller on mobile */
+  margin: 0 var(--spacing-2);
+}
+
+.card-face {
+  padding: var(--spacing-4);
+}
+
+.english-word {
+  font-size: var(--text-3xl-mobile);
+  margin-bottom: var(--spacing-3);
+}
+
+.polish-translation {
+  font-size: var(--text-xl-mobile);
+  margin-bottom: var(--spacing-3);
+}
+
+.pronunciation {
+  font-size: var(--text-base-mobile);
+  margin-bottom: var(--spacing-2);
+}
+
+.phonetic {
+  font-size: var(--text-sm-mobile);
+  margin-bottom: var(--spacing-3);
+}
+
+/* Navigation mobile */
+.navigation-controls {
+  gap: var(--spacing-2);
+  margin: var(--spacing-4) 0;
+}
+
+.nav-btn {
+  padding: var(--spacing-3) var(--spacing-4);
+  font-size: var(--text-sm-mobile);
+  min-width: auto;
+  flex: 1;
+}
+
+.nav-btn .text {
+  display: none; /* Only icons on mobile */
+}
+
+/* Progress mobile */
+.progress-display {
+  padding: var(--spacing-4);
+  margin: var(--spacing-4) 0;
+}
+
+.progress-info {
+  flex-direction: column;
+  text-align: center;
+  gap: var(--spacing-2);
+}
+
+.progress-text {
+  font-size: var(--text-base-mobile);
+}
+
+.category-name {
+  font-size: var(--text-sm-mobile);
+}
+
+.progress-actions {
+  gap: var(--spacing-2);
+  margin-top: var(--spacing-3);
+}
+
+.action-btn {
+  padding: var(--spacing-2) var(--spacing-3);
+  font-size: var(--text-xs-mobile);
+}
+
+/* Quiz mobile */
+.quiz-grid {
+  grid-template-columns: 1fr;
+  gap: var(--spacing-3);
+}
+
+.quiz-card {
+  padding: var(--spacing-4);
+}
+
+.quiz-icon {
+  font-size: var(--text-2xl-mobile);
+  margin-bottom: var(--spacing-2);
+}
+
+.quiz-name {
+  font-size: var(--text-base-mobile);
+  margin-bottom: var(--spacing-2);
+}
+
+.quiz-description, .quiz-status {
+  font-size: var(--text-xs-mobile);
+}
+
+/* Quiz interface mobile */
+.quiz-container {
+  padding: var(--spacing-4);
+  margin: 0 var(--spacing-2);
+}
+
+.quiz-header {
+  flex-direction: column;
+  text-align: center;
+  gap: var(--spacing-3);
+}
+
+.quiz-info h3 {
+  font-size: var(--text-xl-mobile);
+  margin-bottom: var(--spacing-3);
+}
+
+.quiz-question-card {
+  padding: var(--spacing-6);
+}
+
+.english-word {
+  font-size: var(--text-3xl-mobile);
+}
+
+.quiz-instruction {
+  font-size: var(--text-base-mobile);
+}
+
+/* Answer options mobile */
+.answer-options {
+  grid-template-columns: 1fr;
+  gap: var(--spacing-2);
+}
+
+.answer-option {
+  padding: var(--spacing-3) var(--spacing-4);
+  font-size: var(--text-sm-mobile);
+}
+
+.input-group {
+  flex-direction: column;
+  gap: var(--spacing-3);
+}
+
+.quiz-input, .sentence-input {
+  min-width: auto;
+  width: 100%;
+  padding: var(--spacing-3);
+  font-size: var(--text-base-mobile);
+}
+
+.quiz-btn {
+  padding: var(--spacing-3) var(--spacing-5);
+  font-size: var(--text-sm-mobile);
+  width: 100%;
+  justify-content: center;
+}
+
+/* Quiz results mobile */
+.results-card {
+  padding: var(--spacing-8) var(--spacing-4);
+  margin: 0 var(--spacing-2);
+}
+
+.results-header h3 {
+  font-size: var(--text-2xl-mobile);
+}
+
+.score-main {
+  font-size: var(--text-4xl-mobile);
+}
+
+.score-percentage {
+  font-size: var(--text-xl-mobile);
+}
+
+.results-status {
+  font-size: var(--text-base-mobile);
+  padding: var(--spacing-3) var(--spacing-4);
+}
+
+.results-actions {
+  flex-direction: column;
+  gap: var(--spacing-3);
+}
+
+/* Image components mobile */
+.word-image, .add-image-btn {
+  width: 120px;
+  height: 120px;
+  margin-bottom: var(--spacing-3);
+}
+
+/* Card controls mobile */
+.card-controls, .word-controls {
+  flex-wrap: wrap;
+  gap: var(--spacing-2);
+  margin: var(--spacing-4) 0;
+}
+
+.control-btn {
+  flex: 1;
+  min-width: auto;
+  padding: var(--spacing-2) var(--spacing-3);
+  font-size: var(--text-xs-mobile);
+}
+
+/* Audio button mobile */
+.audio-btn {
+  padding: var(--spacing-3) var(--spacing-4);
+  font-size: var(--text-sm-mobile);
+  margin-top: var(--spacing-3);
+}
+
+/* Modals mobile */
+.modal-content {
+  margin: var(--spacing-4);
+  padding: var(--spacing-6);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+/* Notifications mobile */
+.notifications-container {
+  left: var(--spacing-2) !important;
+  right: var(--spacing-2) !important;
+  max-width: none;
+}
+
+.notification {
+  margin-bottom: var(--spacing-2);
+  padding: var(--spacing-3);
+}
+
+.notification-content {
+  gap: var(--spacing-3);
+}
+
+.notification-message {
+  font-size: var(--text-sm-mobile);
+}
+
+/* ============================================
+   SMALL MOBILE (320px+)
+   ============================================ */
+
+@media (min-width: 320px) {
+  .control-btn .text {
+    display: none; /* Still hidden on small mobile */
+  }
+  
+  .flashcard-wrapper {
+    height: 280px;
+  }
+  
+  .english-word {
+    font-size: 2rem;
+  }
+  
+  .polish-translation {
+    font-size: 1.1rem;
+  }
+}
+
+/* ============================================
+   LARGE MOBILE (576px+)
+   ============================================ */
+
+@media (min-width: 576px) {
+  :root {
+    --text-base-mobile: 1rem;
+    --text-lg-mobile: 1.125rem;
+    --text-xl-mobile: 1.25rem;
+    --text-2xl-mobile: 1.5rem;
+    --text-3xl-mobile: 1.875rem;
+    --text-4xl-mobile: 2.25rem;
+  }
+
+  .container {
+    padding: 0 var(--spacing-tablet);
+  }
+
+  /* Show text on larger mobiles */
+  .mode-btn .text,
+  .nav-btn .text {
+    display: inline;
+  }
+
+  .mode-btn, .nav-btn {
+    padding: var(--spacing-3) var(--spacing-5);
+  }
+
+  /* Two columns for categories on larger mobile */
+  .category-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* Larger flashcard */
+  .flashcard-wrapper {
+    height: 350px;
+  }
+
+  /* Two columns for stats */
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* Better quiz layout */
+  .answer-options {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* Horizontal input group */
+  .input-group {
+    flex-direction: row;
+  }
+
+  .quiz-input {
+    min-width: 200px;
+  }
+
+  .quiz-btn {
+    width: auto;
+  }
+
+  /* Horizontal results actions */
+  .results-actions {
+    flex-direction: row;
+    justify-content: center;
+  }
+}
+
+/* ============================================
+   TABLET (768px+)
+   ============================================ */
+
+@media (min-width: 768px) {
+  .container {
+    max-width: 720px;
+    padding: 0 var(--spacing-tablet);
+  }
+
+  /* Header layout */
+  .header-content {
+    flex-direction: row;
+    text-align: left;
+  }
+
+  .logo-section h1 {
+    font-size: var(--font-size-3xl);
+  }
+
+  /* Three columns for categories */
+  .category-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--spacing-4);
+  }
+
+  /* Larger flashcard */
+  .flashcard-wrapper {
+    height: 400px;
+    max-width: 500px;
+  }
+
+  /* Three columns for stats */
+  .stats-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  /* Two columns for quiz grid */
+  .quiz-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* Horizontal quiz header */
+  .quiz-header {
+    flex-direction: row;
+    text-align: left;
+  }
+
+  /* Side by side navigation */
+  .navigation-controls {
+    gap: var(--spacing-4);
+  }
+
+  .nav-btn {
+    min-width: 140px;
+  }
+
+  /* Progress layout */
+  .progress-info {
+    flex-direction: row;
+    text-align: left;
+  }
+
+  /* Modal improvements */
+  .modal-content {
+    margin: var(--spacing-12);
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* Card controls */
+  .card-controls, .word-controls {
+    justify-content: center;
+    flex-wrap: nowrap;
+  }
+
+  .control-btn {
+    flex: none;
+    min-width: 120px;
+  }
+}
+
+/* ============================================
+   LAPTOP (1024px+)
+   ============================================ */
+
+@media (min-width: 1024px) {
+  .container {
+    max-width: 960px;
+    padding: 0 var(--spacing-desktop);
+  }
+
+  /* Four columns for categories */
+  .category-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  /* Full size flashcard */
+  .flashcard-wrapper {
+    max-width: 600px;
+  }
+
+  /* Four columns for stats */
+  .stats-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  /* Three columns for quiz */
+  .quiz-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  /* Larger quiz interface */
+  .quiz-container {
+    padding: var(--spacing-8);
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* Four answer options */
+  .answer-options {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-4);
+  }
+
+  /* Better spacing */
+  .main-content {
+    padding: var(--spacing-8) 0 var(--spacing-16);
+  }
+
+  /* Larger modals */
+  .modal-content {
+    max-width: 700px;
+  }
+}
+
+/* ============================================
+   DESKTOP (1200px+)
+   ============================================ */
+
+@media (min-width: 1200px) {
+  .container {
+    max-width: 1140px;
+  }
+
+  /* Five columns for categories */
+  .category-grid {
+    grid-template-columns: repeat(5, 1fr);
+  }
+
+  /* Six columns for stats */
+  .stats-grid {
+    grid-template-columns: repeat(6, 1fr);
+  }
+
+  /* Four columns for quiz */
+  .quiz-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  /* Maximum quiz width */
+  .quiz-container {
+    max-width: 900px;
+  }
+
+  /* Larger results card */
+  .results-card {
+    max-width: 700px;
+  }
+
+  /* Better navigation */
+  .navigation-controls {
+    gap: var(--spacing-6);
+  }
+
+  .nav-btn {
+    min-width: 160px;
+    padding: var(--spacing-4) var(--spacing-8);
+  }
+}
+
+/* ============================================
+   LARGE DESKTOP (1400px+)
+   ============================================ */
+
+@media (min-width: 1400px) {
+  .container {
+    max-width: 1320px;
+  }
+
+  /* Six columns for categories */
+  .category-grid {
+    grid-template-columns: repeat(6, 1fr);
+  }
+
+  /* Maximum sizes */
+  .flashcard-wrapper {
+    max-width: 700px;
+  }
+
+  .quiz-container {
+    max-width: 1000px;
+  }
+}
+
+/* ============================================
+   TOUCH DEVICE OPTIMIZATIONS
+   ============================================ */
+
+@media (hover: none) and (pointer: coarse) {
+  /* Larger touch targets */
+  .btn, .nav-btn, .quiz-btn {
+    min-height: 44px;
+    padding: var(--spacing-3) var(--spacing-5);
+  }
+
+  .answer-option {
+    min-height: 44px;
+    padding: var(--spacing-3) var(--spacing-4);
+  }
+
+  .control-btn {
+    min-height: 40px;
+    padding: var(--spacing-2) var(--spacing-4);
+  }
+
+  /* Remove hover effects */
+  .category-card:hover,
+  .quiz-card:hover,
+  .btn:hover,
+  .nav-btn:hover {
+    transform: none;
+    box-shadow: var(--shadow-md);
+  }
+
+  /* Larger flashcard for touch */
+  .flashcard-wrapper {
+    height: 350px;
+  }
+
+  /* Easier swiping area */
+  .flashcard {
+    padding: var(--spacing-4);
+  }
+
+  /* Larger modal close buttons */
+  .modal-close {
+    min-width: 44px;
+    min-height: 44px;
+    font-size: var(--font-size-lg);
+  }
+
+  /* Touch-friendly image controls */
+  .image-control-btn {
+    min-width: 36px;
+    min-height: 36px;
+  }
+}
+
+/* ============================================
+   HIGH DPI DISPLAYS
+   ============================================ */
+
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  /* Sharper text rendering */
+  body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Thinner borders on high DPI */
+  .category-card,
+  .quiz-card,
+  .btn,
+  .nav-btn {
+    border-width: 0.5px;
+  }
+
+  /* Crisper shadows */
+  .flashcard {
+    box-shadow: 0 20px 50px -12px rgba(0, 0, 0, 0.35);
+  }
+}
+
+/* ============================================
+   PRINT STYLES
+   ============================================ */
+
+@media print {
+  /* Hide interactive elements */
+  .navigation-controls,
+  .card-controls,
+  .header-controls,
+  .mode-selector,
+  .audio-btn,
+  .action-btn,
+  .quiz-grid,
+  .notifications-container {
+    display: none !important;
+  }
+
+  /* Print-friendly layout */
+  .app-container {
+    background: white !important;
+  }
+
+  .flashcard-container {
+    perspective: none;
+  }
+
+  .flashcard {
+    transform: none !important;
+    position: static;
+    display: block;
+  }
+
+  .card-face {
+    position: static;
+    box-shadow: none;
+    border: 1px solid #ccc;
+    margin-bottom: var(--spacing-4);
+    break-inside: avoid;
+  }
+
+  .card-front {
+    page-break-after: avoid;
+  }
+
+  .english-word,
+  .polish-translation {
+    color: #000 !important;
+  }
+
+  /* Better typography for print */
+  body {
+    font-size: 12pt;
+    line-height: 1.4;
+    color: #000 !important;
+  }
+
+  .category-name {
+    font-size: 14pt;
+    font-weight: bold;
+  }
+
+  /* Page breaks */
+  .category-card {
+    page-break-inside: avoid;
+  }
+
+  .quiz-question-card {
+    page-break-inside: avoid;
+  }
+}
+
+/* ============================================
+   LANDSCAPE ORIENTATION
+   ============================================ */
+
+@media (orientation: landscape) and (max-height: 600px) {
+  /* Optimize for landscape phones */
+  .flashcard-wrapper {
+    height: 250px;
+  }
+
+  .app-header {
+    padding: var(--spacing-2) 0;
+  }
+
+  .logo-section h1 {
+    font-size: var(--text-2xl-mobile);
+    margin-bottom: var(--spacing-1);
+  }
+
+  .subtitle {
+    font-size: var(--text-xs-mobile);
+  }
+
+  .main-content {
+    padding: var(--spacing-4) 0;
+  }
+
+  .navigation-controls {
+    margin: var(--spacing-3) 0;
+  }
+
+  .progress-display {
+    padding: var(--spacing-3);
+    margin: var(--spacing-3) 0;
+  }
+
+  /* Compact quiz layout */
+  .quiz-container {
+    padding: var(--spacing-4);
+  }
+
+  .quiz-question-card {
+    padding: var(--spacing-4);
+  }
+
+  .english-word {
+    font-size: var(--text-2xl-mobile);
+    margin-bottom: var(--spacing-2);
+  }
+}
+
+/* ============================================
+   REDUCED MOTION
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  /* Disable problematic animations */
+  .flashcard {
+    transition: none;
+  }
+
+  .category-card:hover,
+  .quiz-card:hover,
+  .btn:hover,
+  .nav-btn:hover {
+    transform: none;
+  }
+
+  /* Keep only essential animations */
+  .notification {
+    transition: opacity 0.2s ease;
+  }
+
+  .progress-fill {
+    transition: width 0.3s ease;
+  }
+
+  /* Disable decorative animations */
+  .card-face::before,
+  .btn::before,
+  .category-card::before {
+    display: none;
+  }
+}
+
+/* ============================================
+   HIGH CONTRAST MODE
+   ============================================ */
+
+@media (prefers-contrast: high) {
+  /* Stronger borders */
+  .category-card,
+  .quiz-card,
+  .btn,
+  .nav-btn,
+  .flashcard {
+    border-width: 2px;
+    border-style: solid;
+  }
+
+  /* More contrasted backgrounds */
+  .glass-backdrop {
+    background: rgba(0, 0, 0, 0.8);
+  }
+
+  [data-theme="dark"] .glass-backdrop {
+    background: rgba(255, 255, 255, 0.9);
+  }
+
+  /* Bold text */
+  .english-word,
+  .polish-translation,
+  .category-name,
+  .quiz-name {
+    font-weight: var(--font-weight-extrabold);
+  }
+
+  /* Remove gradients */
+  .btn,
+  .nav-btn,
+  .quiz-btn {
+    background: solid;
+    background-image: none;
+  }
+}
+
+/* ============================================
+   DARK MODE SPECIFIC RESPONSIVE
+   ============================================ */
+
+[data-theme="dark"] {
+  /* Darker backgrounds for mobile */
+  @media (max-width: 768px) {
+    .app-container {
+      background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+    }
+  }
+
+  /* Better contrast on small screens */
+  @media (max-width: 576px) {
+    .english-word,
+    .quiz-instruction {
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+    }
+  }
+}
