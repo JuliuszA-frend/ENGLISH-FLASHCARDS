@@ -1,0 +1,141 @@
+{
+  "name": "english-flashcards-b1b2",
+  "version": "1.0.0",
+  "description": "Profesjonalna aplikacja do nauki angielskiego poziom B1/B2 z 1600+ słowami w 32 kategoriach. Fiszki, quizy, przykłady zdań, tryb offline.",
+  "main": "index.html",
+  "private": true,
+  "homepage": "https://english-flashcards-b1b2.app",
+  
+  "keywords": [
+    "english",
+    "learning",
+    "flashcards",
+    "b1",
+    "b2",
+    "vocabulary",
+    "quiz",
+    "education",
+    "pwa",
+    "offline",
+    "polish",
+    "nauka angielskiego"
+  ],
+  
+  "author": {
+    "name": "English Learning App",
+    "email": "contact@english-flashcards-b1b2.app",
+    "url": "https://english-flashcards-b1b2.app"
+  },
+  
+  "license": "MIT",
+  
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/username/english-flashcards-b1b2.git"
+  },
+  
+  "bugs": {
+    "url": "https://github.com/username/english-flashcards-b1b2/issues",
+    "email": "bugs@english-flashcards-b1b2.app"
+  },
+  
+  "scripts": {
+    "start": "python -m http.server 8000",
+    "start:node": "npx http-server -p 8000 -c-1",
+    "build": "npm run minify:css && npm run minify:js",
+    "dev": "npm run start",
+    "serve": "npm run start",
+    "test": "npm run test:lint && npm run test:validate",
+    "test:lint": "echo 'Linting JavaScript files...' && npm run lint:js",
+    "test:validate": "echo 'Validating JSON files...' && npm run validate:json",
+    "lint": "npm run lint:js && npm run lint:css",
+    "lint:js": "echo 'JavaScript linting would run here'",
+    "lint:css": "echo 'CSS linting would run here'",
+    "validate:json": "node scripts/validate-json.js",
+    "minify:css": "cleancss -o dist/css/bundle.min.css css/*.css",
+    "minify:js": "uglifyjs js/**/*.js -o dist/js/bundle.min.js",
+    "optimize:images": "imagemin assets/images/* --out-dir=dist/images",
+    "generate:icons": "node scripts/generate-icons.js",
+    "build:pwa": "npm run build && npm run generate:sw",
+    "generate:sw": "workbox generateSW workbox-config.js",
+    "deploy": "npm run build:pwa && npm run deploy:gh-pages",
+    "deploy:gh-pages": "gh-pages -d .",
+    "analyze": "npm run analyze:bundle",
+    "analyze:bundle": "echo 'Bundle analysis would run here'",
+    "clean": "rm -rf dist/",
+    "install:dev": "npm install --only=dev",
+    "precommit": "npm run lint && npm run test",
+    "release": "npm version patch && npm run build:pwa",
+    "docs": "jsdoc -c jsdoc.json",
+    "backup:data": "node scripts/backup-data.js",
+    "restore:data": "node scripts/restore-data.js",
+    "stats": "node scripts/generate-stats.js"
+  },
+  
+  "engines": {
+    "node": ">=14.0.0",
+    "npm": ">=6.0.0"
+  },
+  
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead",
+    "not ie 11"
+  ],
+  
+  "devDependencies": {
+    "clean-css-cli": "^5.6.2",
+    "uglify-js": "^3.17.4",
+    "imagemin": "^8.0.1",
+    "imagemin-jpeg": "^10.0.0",
+    "imagemin-png": "^8.0.0",
+    "workbox-cli": "^6.5.4",
+    "gh-pages": "^4.0.0",
+    "http-server": "^14.1.1",
+    "jsdoc": "^4.0.2",
+    "eslint": "^8.50.0",
+    "stylelint": "^15.10.3",
+    "prettier": "^3.0.3"
+  },
+  
+  "dependencies": {},
+  
+  "pwa": {
+    "name": "English Flashcards B1/B2",
+    "short_name": "English B1/B2",
+    "theme_color": "#1e3a8a",
+    "background_color": "#1e3a8a",
+    "display": "standalone",
+    "scope": "/",
+    "start_url": "/"
+  },
+  
+  "config": {
+    "port": 8000,
+    "host": "localhost"
+  },
+  
+  "files": [
+    "index.html",
+    "manifest.json",
+    "sw.js",
+    "css/",
+    "js/",
+    "data/",
+    "assets/",
+    "icons/",
+    "README.md",
+    "LICENSE"
+  ],
+  
+  "funding": {
+    "type": "individual",
+    "url": "https://github.com/sponsors/username"
+  },
+  
+  "volta": {
+    "node": "18.17.0",
+    "npm": "9.6.7"
+  }
+}

@@ -1,0 +1,328 @@
+# ============================================
+# ENGLISH FLASHCARDS B1/B2 - .gitignore
+# ============================================
+
+# ============================================
+# DEPENDENCIES
+# ============================================
+
+# Node.js dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Package manager files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# ============================================
+# BUILD & DISTRIBUTION
+# ============================================
+
+# Build directories
+dist/
+build/
+out/
+.next/
+.nuxt/
+.output/
+
+# Generated files
+*.min.js
+*.min.css
+bundle.*
+*.bundle.*
+
+# PWA generated files
+sw.js.map
+workbox-*.js
+
+# ============================================
+# DEVELOPMENT & DEBUGGING
+# ============================================
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+
+# Debug files
+*.log
+debug.log
+error.log
+access.log
+
+# Coverage reports
+coverage/
+.nyc_output/
+*.coverage
+.coverage
+
+# ============================================
+# ENVIRONMENT & CONFIG
+# ============================================
+
+# Environment files
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+.env.staging
+
+# Local configuration
+config.local.json
+settings.local.json
+local.config.js
+
+# ============================================
+# CACHE & TEMPORARY FILES
+# ============================================
+
+# Cache directories
+.cache/
+.parcel-cache/
+.eslintcache
+.stylelintcache
+
+# Temporary files
+*.tmp
+*.temp
+.tmp/
+temp/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# ============================================
+# USER DATA & BACKUPS
+# ============================================
+
+# User generated content
+user-images/
+user-data/
+uploads/
+
+# Backup files
+*.backup
+*.bak
+*.old
+*~
+#*#
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# ============================================
+# DOCUMENTATION & REPORTS
+# ============================================
+
+# Generated documentation
+docs/generated/
+jsdoc/
+typedoc/
+
+# Reports
+reports/
+*.report.html
+*.report.json
+
+# ============================================
+# TESTING
+# ============================================
+
+# Test output
+test-results/
+e2e-results/
+screenshots/
+videos/
+
+# Jest
+jest.config.local.js
+
+# Cypress
+cypress/videos/
+cypress/screenshots/
+cypress/downloads/
+
+# ============================================
+# DEPLOYMENT
+# ============================================
+
+# Deployment files
+.deploy/
+.publish/
+
+# Firebase
+.firebase/
+firebase-debug.log
+firestore-debug.log
+
+# Netlify
+.netlify/
+
+# Vercel
+.vercel/
+
+# GitHub Pages
+.gh-pages/
+
+# ============================================
+# ANALYTICS & MONITORING
+# ============================================
+
+# Analytics files
+*.analytics
+ga-debug.log
+
+# Performance reports
+*.perf
+lighthouse-report.*
+
+# ============================================
+# SECURITY
+# ============================================
+
+# API Keys and secrets
+*.key
+*.pem
+*.p12
+api-keys.json
+secrets.json
+
+# SSL Certificates
+*.crt
+*.csr
+
+# ============================================
+# MOBILE & HYBRID
+# ============================================
+
+# Cordova/PhoneGap
+platforms/
+plugins/
+www/
+
+# React Native
+.expo/
+.expo-shared/
+
+# ============================================
+# SERVICE WORKERS & PWA
+# ============================================
+
+# Service worker cache
+sw-cache/
+sw-debug.log
+
+# Workbox
+workbox-config.local.js
+
+# ============================================
+# ASSETS & MEDIA
+# ============================================
+
+# Large media files (if not needed in repo)
+*.mp4
+*.mov
+*.avi
+*.mkv
+*.wav
+*.mp3
+*.flac
+
+# Original design files
+*.psd
+*.ai
+*.sketch
+*.fig
+*.xd
+
+# Raw images (keep optimized versions)
+/assets/images/raw/
+/assets/images/original/
+
+# ============================================
+# INTERNATIONALIZATION
+# ============================================
+
+# Translation files (if generated)
+*.pot
+*.mo
+
+# ============================================
+# DEVELOPMENT TOOLS
+# ============================================
+
+# Linters
+.eslintrc.local.js
+.stylelintrc.local.js
+
+# Prettier
+.prettierrc.local.js
+
+# Bundlers
+webpack.local.js
+rollup.local.js
+vite.local.js
+
+# ============================================
+# MISCELLANEOUS
+# ============================================
+
+# Archive files
+*.zip
+*.tar.gz
+*.rar
+*.7z
+
+# Lock files for specific versions
+*.lock
+
+# IDE specific
+*.iml
+*.ipr
+*.iws
+
+# Application specific logs
+flashcards-debug.log
+quiz-results.debug
+audio-debug.log
+
+# ============================================
+# LOCAL DEVELOPMENT
+# ============================================
+
+# Local server files
+.local-server/
+dev-server.log
+
+# Local testing
+test-data/
+mock-data/
+
+# Playground files
+playground/
+sandbox/
+experiments/
+
+# ============================================
+# END OF .gitignore
+# ============================================

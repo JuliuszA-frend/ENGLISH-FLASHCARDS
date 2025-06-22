@@ -1,0 +1,286 @@
+/**
+ * Themes.css - Motywy kolorystyczne aplikacji
+ * Obsługa jasnego/ciemnego motywu oraz automatycznego przełączania
+ */
+
+/* ============================================
+   LIGHT THEME (DEFAULT)
+   ============================================ */
+
+[data-theme="light"] {
+  /* Background colors */
+  --primary-blue: #1e3a8a;
+  --primary-blue-light: #3b82f6;
+  --primary-blue-dark: #1e40af;
+  
+  /* Text colors */
+  --white: #ffffff;
+  --gray-50: #f9fafb;
+  --gray-100: #f3f4f6;
+  --gray-200: #e5e7eb;
+  --gray-300: #d1d5db;
+  --gray-400: #9ca3af;
+  --gray-500: #6b7280;
+  --gray-600: #4b5563;
+  --gray-700: #374151;
+  --gray-800: #1f2937;
+  --gray-900: #111827;
+  
+  /* Glass morphism dla jasnego motywu */
+  --glass-backdrop: rgba(255, 255, 255, 0.1);
+  --glass-border: rgba(255, 255, 255, 0.2);
+  --glass-blur: 10px;
+  
+  /* Gradients */
+  --gradient-primary: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-light) 100%);
+  --gradient-card: linear-gradient(135deg, var(--white) 0%, var(--gray-50) 100%);
+  --gradient-glass: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+  
+  /* Background patterns */
+  --bg-pattern: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+}
+
+/* ============================================
+   DARK THEME
+   ============================================ */
+
+[data-theme="dark"] {
+  /* Inverted colors for dark theme */
+  --white: #111827;
+  --gray-50: #1f2937;
+  --gray-100: #374151;
+  --gray-200: #4b5563;
+  --gray-300: #6b7280;
+  --gray-400: #9ca3af;
+  --gray-500: #d1d5db;
+  --gray-600: #e5e7eb;
+  --gray-700: #f3f4f6;
+  --gray-800: #f9fafb;
+  --gray-900: #ffffff;
+  
+  /* Primary colors remain the same but adjusted for dark */
+  --primary-blue: #3b82f6;
+  --primary-blue-light: #60a5fa;
+  --primary-blue-dark: #2563eb;
+  
+  /* Glass morphism for dark theme */
+  --glass-backdrop: rgba(0, 0, 0, 0.3);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-blur: 15px;
+  
+  /* Dark gradients */
+  --gradient-primary: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+  --gradient-card: linear-gradient(135deg, var(--gray-50) 0%, var(--gray-100) 100%);
+  --gradient-glass: linear-gradient(135deg, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.1) 100%);
+  
+  /* Dark background patterns */
+  --bg-pattern: radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.05) 0%, transparent 50%);
+}
+
+/* ============================================
+   AUTO THEME (system preference)
+   ============================================ */
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    /* Apply dark theme variables when system prefers dark */
+    --white: #111827;
+    --gray-50: #1f2937;
+    --gray-100: #374151;
+    --gray-200: #4b5563;
+    --gray-300: #6b7280;
+    --gray-400: #9ca3af;
+    --gray-500: #d1d5db;
+    --gray-600: #e5e7eb;
+    --gray-700: #f3f4f6;
+    --gray-800: #f9fafb;
+    --gray-900: #ffffff;
+    
+    --primary-blue: #3b82f6;
+    --primary-blue-light: #60a5fa;
+    --primary-blue-dark: #2563eb;
+    
+    --glass-backdrop: rgba(0, 0, 0, 0.3);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --glass-blur: 15px;
+    
+    --gradient-primary: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+    --gradient-card: linear-gradient(135deg, #1f2937 0%, #374151 100%);
+    --gradient-glass: linear-gradient(135deg, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.1) 100%);
+    
+    --bg-pattern: radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.05) 0%, transparent 50%);
+  }
+}
+
+/* ============================================
+   THEME SPECIFIC COMPONENTS
+   ============================================ */
+
+/* Background body dla różnych motywów */
+[data-theme="light"] body {
+  background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+  color: var(--gray-900);
+}
+
+[data-theme="dark"] body {
+  background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+  color: var(--gray-100);
+}
+
+/* Card styling per theme */
+[data-theme="dark"] .category-card,
+[data-theme="dark"] .quiz-card,
+[data-theme="dark"] .stat-card {
+  background: rgba(31, 41, 55, 0.8);
+  border-color: rgba(107, 114, 128, 0.3);
+}
+
+[data-theme="dark"] .category-card:hover,
+[data-theme="dark"] .quiz-card:hover {
+  background: rgba(55, 65, 81, 0.9);
+  border-color: rgba(156, 163, 175, 0.5);
+}
+
+/* Flashcard theming */
+[data-theme="dark"] .card-front {
+  background: linear-gradient(135deg, #374151 0%, #4b5563 100%);
+  color: var(--gray-100);
+}
+
+[data-theme="dark"] .card-back {
+  background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+  color: var(--gray-100);
+}
+
+/* Input theming */
+[data-theme="dark"] .search-input,
+[data-theme="dark"] .quiz-input,
+[data-theme="dark"] .sentence-input {
+  background: rgba(31, 41, 55, 0.8);
+  border-color: rgba(107, 114, 128, 0.5);
+  color: var(--gray-100);
+}
+
+[data-theme="dark"] .search-input::placeholder,
+[data-theme="dark"] .quiz-input::placeholder,
+[data-theme="dark"] .sentence-input::placeholder {
+  color: rgba(156, 163, 175, 0.7);
+}
+
+/* Modal theming */
+[data-theme="dark"] .modal {
+  background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+  border-color: rgba(107, 114, 128, 0.3);
+}
+
+[data-theme="dark"] .modal-header {
+  border-bottom-color: rgba(107, 114, 128, 0.3);
+}
+
+/* Progress bar theming */
+[data-theme="dark"] .progress-bar {
+  background: rgba(107, 114, 128, 0.3);
+}
+
+/* Notification theming */
+[data-theme="dark"] .notification {
+  backdrop-filter: blur(20px);
+}
+
+[data-theme="dark"] .notification-success {
+  background: rgba(16, 185, 129, 0.9);
+  border-color: rgba(16, 185, 129, 0.5);
+}
+
+[data-theme="dark"] .notification-error {
+  background: rgba(239, 68, 68, 0.9);
+  border-color: rgba(239, 68, 68, 0.5);
+}
+
+[data-theme="dark"] .notification-warning {
+  background: rgba(245, 158, 11, 0.9);
+  border-color: rgba(245, 158, 11, 0.5);
+}
+
+[data-theme="dark"] .notification-info {
+  background: rgba(59, 130, 246, 0.9);
+  border-color: rgba(59, 130, 246, 0.5);
+}
+
+/* ============================================
+   THEME TRANSITION ANIMATIONS
+   ============================================ */
+
+body,
+.app-container,
+.category-card,
+.quiz-card,
+.stat-card,
+.flashcard,
+.card-face,
+.modal {
+  transition: 
+    background-color 0.3s ease,
+    border-color 0.3s ease,
+    color 0.3s ease;
+}
+
+/* ============================================
+   HIGH CONTRAST SUPPORT
+   ============================================ */
+
+@media (prefers-contrast: high) {
+  [data-theme="dark"] {
+    --glass-backdrop: rgba(0, 0, 0, 0.9);
+    --glass-border: rgba(255, 255, 255, 0.3);
+  }
+  
+  [data-theme="light"] {
+    --glass-backdrop: rgba(255, 255, 255, 0.9);
+    --glass-border: rgba(0, 0, 0, 0.3);
+  }
+  
+  .category-card,
+  .quiz-card,
+  .stat-card {
+    border-width: 2px;
+  }
+}
+
+/* ============================================
+   REDUCED MOTION SUPPORT
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  body,
+  .app-container,
+  .category-card,
+  .quiz-card,
+  .stat-card,
+  .flashcard,
+  .card-face,
+  .modal {
+    transition: none;
+  }
+}
+
+/* ============================================
+   PRINT STYLES FOR THEMES
+   ============================================ */
+
+@media print {
+  [data-theme="dark"] body,
+  [data-theme="dark"] .app-container {
+    background: white !important;
+    color: black !important;
+  }
+  
+  [data-theme="dark"] .category-card,
+  [data-theme="dark"] .quiz-card,
+  [data-theme="dark"] .flashcard,
+  [data-theme="dark"] .card-face {
+    background: white !important;
+    color: black !important;
+    border: 1px solid #ccc !important;
+  }
+}
