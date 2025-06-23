@@ -175,7 +175,6 @@ body {
 .btn.primary,
 .nav-btn.primary,
 .quiz-btn:not(.secondary):not(.success):not(.warning) {
-  background: var(--theme-bg-primary);
   color: var(--theme-primary-contrast);
 }
 

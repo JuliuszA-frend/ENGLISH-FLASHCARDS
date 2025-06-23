@@ -228,7 +228,7 @@ body {
 /* Navigation mobile */
 .navigation-controls {
   gap: var(--spacing-2);
-  margin: var(--spacing-4) 0;
+  margin-top: var(--spacing-24) !important;
   flex-wrap: nowrap;
   overflow-x: auto;
   padding: var(--spacing-2) var(--spacing-3);

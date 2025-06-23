@@ -152,7 +152,7 @@
    ============================================ */
 
 .navigation-controls {
-    display: flex;
+    display: flex !important;
     justify-content: center;
     align-items: center;
     gap: var(--spacing-4);
@@ -162,7 +162,6 @@
     backdrop-filter: blur(var(--glass-blur));
     border: 1px solid var(--glass-border);
     border-radius: var(--radius-2xl);
-    max-width: 600px;
     margin-left: auto;
     margin-right: auto;
     flex-wrap: nowrap;
@@ -224,8 +223,6 @@
 }
 
 .nav-btn.primary {
-    background: var(--gradient-primary);
-    border-color: transparent;
     box-shadow: var(--shadow-lg);
 }
 
@@ -258,7 +255,6 @@
     backdrop-filter: blur(var(--glass-blur));
     border: 1px solid var(--glass-border);
     border-radius: var(--radius-xl);
-    max-width: 500px;
     margin-left: auto;
     margin-right: auto;
     flex-wrap: wrap;

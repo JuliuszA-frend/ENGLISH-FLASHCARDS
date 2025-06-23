@@ -1404,7 +1404,6 @@ textarea:focus-visible {
   padding: var(--spacing-6);
   margin: var(--spacing-6) 0;
   color: var(--white);
-  max-width: 600px;
   margin-left: auto;
   margin-right: auto;
 }
