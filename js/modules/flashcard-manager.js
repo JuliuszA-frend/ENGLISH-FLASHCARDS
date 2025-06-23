@@ -38,10 +38,12 @@ class FlashcardManager {
     }
 
     /**
-     * Wyświetlenie słowa na karcie
-     */
+ * Wyświetlenie słowa na karcie - ZAKTUALIZOWANA WERSJA
+ */
     displayWord(word, mode = 'flashcards') {
         this.currentWord = word;
+        
+        console.log(`📱 Wyświetlam słowo: ${word.english} (${mode})`);
         
         switch (mode) {
             case 'flashcards':
@@ -53,6 +55,7 @@ class FlashcardManager {
             default:
                 this.displayFlashcard(word);
         }
+
     }
 
     /**
@@ -73,11 +76,6 @@ class FlashcardManager {
 
         // Tył karty (polski + szczegóły)
         this.buildCardBack(cardBack, word);
-
-        // Preload audio
-        if (this.audioManager && word.english) {
-            this.audioManager.preloadAudio(word.english);
-        }
     }
 
     /**
@@ -280,9 +278,6 @@ class FlashcardManager {
         }
     }
 
-    /**
-     * Dodawanie sekcji przykładu
-     */
     addExampleSection(container, examples) {
         const exampleEl = this.createElement('div', 'example-sentence');
         
@@ -291,6 +286,34 @@ class FlashcardManager {
         
         exampleEl.appendChild(englishEl);
         exampleEl.appendChild(polishEl);
+        
+        // ZAKTUALIZOWANY przycisk audio dla zdania
+        if (examples.english) {
+            const sentenceAudioBtn = this.createElement('button', 'sentence-audio-btn');
+            sentenceAudioBtn.innerHTML = `
+                <span class="icon">🎵</span>
+                <span class="text">Posłuchaj zdania</span>
+            `;
+            
+            sentenceAudioBtn.setAttribute('data-audio-text', examples.english);
+            sentenceAudioBtn.setAttribute('data-audio-type', 'sentence');
+            
+            sentenceAudioBtn.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                console.log(`🎵 Kliknięto przycisk audio dla zdania: "${examples.english}"`);
+                
+                if (this.audioManager) {
+                    // Przekaż selektor konkretnego przycisku
+                    const success = await this.audioManager.playAudio(examples.english, { rate: 0.8 }, '.sentence-audio-btn');
+                    if (!success) {
+                        console.error('❌ Nie udało się odtworzyć audio zdania');
+                    }
+                }
+            });
+            
+            exampleEl.appendChild(sentenceAudioBtn);
+        }
+        
         container.appendChild(exampleEl);
     }
 
@@ -324,23 +347,102 @@ class FlashcardManager {
     }
 
     /**
-     * Dodawanie przycisku audio
-     */
+ * Dodawanie przycisku audio - ZAKTUALIZOWANA WERSJA
+ */
+    /**
+ * Dodawanie przycisku audio - ZAKTUALIZOWANA WERSJA
+ */
     addAudioButton(container, text) {
-        const audioBtn = this.createElement('button', 'audio-btn');
+        const audioBtn = this.createElement('button', 'audio-btn word-audio-btn');
         audioBtn.innerHTML = `
             <span class="icon">🔊</span>
-            <span class="text">Posłuchaj</span>
+            <span class="text">Posłuchaj słowa</span>
         `;
+        
+        // Dodaj atrybut dla łatwiejszego debugowania
+        audioBtn.setAttribute('data-audio-text', text);
+        audioBtn.setAttribute('data-audio-type', 'word');
         
         audioBtn.addEventListener('click', async (e) => {
             e.stopPropagation();
+            console.log(`🔊 Kliknięto przycisk audio dla słowa: "${text}"`);
+            
             if (this.audioManager) {
-                await this.audioManager.playAudio(text);
+                // Przekaż selektor konkretnego przycisku
+                const success = await this.audioManager.playAudio(text, {}, '.word-audio-btn');
+                if (!success) {
+                    console.error('❌ Nie udało się odtworzyć audio słowa');
+                }
+            } else {
+                console.error('❌ AudioManager nie jest dostępny');
+                
+                // Fallback - pokazuj komunikat
+                if (window.NotificationManager) {
+                    window.NotificationManager.show('AudioManager nie jest zainicjalizowany', 'error');
+                }
             }
         });
 
         container.appendChild(audioBtn);
+    }
+
+    /**
+     * NOWA METODA: Auto-play audio jeśli włączone
+     */
+    autoPlayAudio(text) {
+        if (this.audioManager && this.audioManager.autoPlay && text) {
+            setTimeout(() => {
+                this.audioManager.playAudio(text);
+            }, 500); // Małe opóźnienie żeby karta się załadowała
+        }
+    }
+
+    /**
+     * NOWA METODA: Test audio dla bieżącego słowa
+     */
+    async testCurrentWordAudio() {
+        if (!this.currentWord || !this.audioManager) {
+            console.warn('⚠️ Brak słowa lub AudioManager do testu');
+            return false;
+        }
+
+        console.log('🧪 Testuję audio dla bieżącego słowa...');
+        
+        const success = await this.audioManager.playAudio(this.currentWord.english);
+        
+        if (success) {
+            console.log('✅ Test audio pomyślny');
+            if (window.NotificationManager) {
+                window.NotificationManager.show('Audio działa poprawnie!', 'success');
+            }
+        } else {
+            console.error('❌ Test audio nieudany');
+            if (window.NotificationManager) {
+                window.NotificationManager.show('Problem z audio. Sprawdź konsole.', 'error');
+            }
+        }
+        
+        return success;
+    }
+
+    /**
+     * NOWA METODA: Toggle auto-play
+     */
+    toggleAutoPlay() {
+        if (this.audioManager) {
+            const newState = !this.audioManager.autoPlay;
+            this.audioManager.setAutoPlay(newState);
+            
+            if (window.NotificationManager) {
+                window.NotificationManager.show(
+                    `Auto-play ${newState ? 'włączone' : 'wyłączone'}`, 
+                    'info'
+                );
+            }
+            
+            return newState;
+        }
+        return false;
     }
 
     /**

@@ -99,99 +99,1609 @@
           "synonyms": ["thin", "slender"],
           "antonyms": ["fat", "overweight"],
           "audio": "slim"
-        }
-      ]
-    },
-    "personality": {
-      "name": "Personality",
-      "icon": "🧠",
-      "description": "Cechy charakteru i osobowości",
-      "words": [
+        },
         {
-          "id": 1,
-          "english": "friendly",
-          "polish": "przyjazny",
-          "pronunciation": "FREND-lee",
-          "phonetic": "/ˈfrend.li/",
+          "id": 6,
+          "english": "fat",
+          "polish": "gruby/tłusty",
+          "pronunciation": "FAT",
+          "phonetic": "/fæt/",
           "type": "adjective",
           "difficulty": "easy",
           "frequency": "high",
           "examples": {
-            "english": "She is very friendly and helpful.",
-            "polish": "Ona jest bardzo przyjazna i pomocna."
+            "english": "The cat looks fat after eating so much.",
+            "polish": "Kot wygląda na grubego po zjedzeniu tak dużo."
           },
-          "synonyms": ["kind", "nice", "pleasant"],
-          "antonyms": ["unfriendly", "hostile"],
-          "audio": "friendly"
+          "synonyms": ["overweight", "heavy"],
+          "antonyms": ["thin", "slim"],
+          "audio": "fat"
         },
         {
-          "id": 2,
-          "english": "confident",
-          "polish": "pewny siebie",
-          "pronunciation": "KON-fi-dent",
-          "phonetic": "/ˈkɒn.fɪ.dənt/",
+          "id": 7,
+          "english": "thin",
+          "polish": "chudy",
+          "pronunciation": "THIN",
+          "phonetic": "/θɪn/",
           "type": "adjective",
-          "difficulty": "medium",
+          "difficulty": "easy",
           "frequency": "high",
           "examples": {
-            "english": "He feels confident about his presentation.",
-            "polish": "Czuje się pewnie co do swojej prezentacji."
+            "english": "He's quite thin despite eating a lot.",
+            "polish": "Jest dość chudy pomimo dużego jedzenia."
           },
-          "synonyms": ["sure", "certain", "self-assured"],
-          "antonyms": ["insecure", "uncertain"],
-          "audio": "confident"
+          "synonyms": ["skinny", "slender"],
+          "antonyms": ["fat", "thick"],
+          "audio": "thin"
         },
         {
-          "id": 3,
-          "english": "generous",
-          "polish": "hojny/szczodry",
-          "pronunciation": "JEN-er-us",
-          "phonetic": "/ˈdʒen.ər.əs/",
+          "id": 8,
+          "english": "blonde",
+          "polish": "blondyn/blondynka",
+          "pronunciation": "BLOND",
+          "phonetic": "/blɒnd/",
+          "type": "adjective/noun",
+          "difficulty": "easy",
+          "frequency": "medium",
+          "examples": {
+            "english": "She has long blonde hair.",
+            "polish": "Ona ma długie blond włosy."
+          },
+          "synonyms": ["fair-haired"],
+          "audio": "blonde"
+        },
+        {
+          "id": 9,
+          "english": "brunette",
+          "polish": "brunetka/szatyn",
+          "pronunciation": "broo-NET",
+          "phonetic": "/bruːˈnet/",
+          "type": "adjective/noun",
+          "difficulty": "easy",
+          "frequency": "medium",
+          "examples": {
+            "english": "My sister is a brunette with brown eyes.",
+            "polish": "Moja siostra to brunetka z brązowymi oczami."
+          },
+          "synonyms": ["dark-haired"],
+          "audio": "brunette"
+        },
+        {
+          "id": 10,
+          "english": "bald",
+          "polish": "łysy",
+          "pronunciation": "BAWLD",
+          "phonetic": "/bɔːld/",
+          "type": "adjective",
+          "difficulty": "easy",
+          "frequency": "medium",
+          "examples": {
+            "english": "My grandfather is completely bald.",
+            "polish": "Mój dziadek jest całkowicie łysy."
+          },
+          "synonyms": ["hairless"],
+          "antonyms": ["hairy"],
+          "audio": "bald"
+        },
+        {
+          "id": 11,
+          "english": "curly",
+          "polish": "kręcone (włosy)",
+          "pronunciation": "KUR-lee",
+          "phonetic": "/ˈkɜː.li/",
+          "type": "adjective",
+          "difficulty": "easy",
+          "frequency": "medium",
+          "examples": {
+            "english": "She has naturally curly hair.",
+            "polish": "Ona ma naturalnie kręcone włosy."
+          },
+          "synonyms": ["wavy"],
+          "antonyms": ["straight"],
+          "audio": "curly"
+        },
+        {
+          "id": 12,
+          "english": "straight",
+          "polish": "proste (włosy)",
+          "pronunciation": "STRAYT",
+          "phonetic": "/streɪt/",
+          "type": "adjective",
+          "difficulty": "easy",
+          "frequency": "high",
+          "examples": {
+            "english": "I wish I had straight hair like yours.",
+            "polish": "Chciałabym mieć proste włosy jak ty."
+          },
+          "antonyms": ["curly", "wavy"],
+          "audio": "straight"
+        },
+        {
+          "id": 13,
+          "english": "muscular",
+          "polish": "muskularny",
+          "pronunciation": "MUS-kyuh-ler",
+          "phonetic": "/ˈmʌs.kjʊ.lər/",
           "type": "adjective",
           "difficulty": "medium",
           "frequency": "medium",
           "examples": {
-            "english": "He is generous with his time and money.",
-            "polish": "Jest hojny ze swoim czasem i pieniędzmi."
+            "english": "He has a muscular build from working out.",
+            "polish": "Ma muskularną budowę od ćwiczeń."
           },
-          "synonyms": ["giving", "charitable"],
-          "antonyms": ["selfish", "stingy"],
-          "audio": "generous"
+          "synonyms": ["strong", "athletic"],
+          "antonyms": ["weak", "frail"],
+          "audio": "muscular"
         },
         {
-          "id": 4,
-          "english": "honest",
-          "polish": "uczciwy",
-          "pronunciation": "ON-ist",
-          "phonetic": "/ˈɒn.ɪst/",
-          "type": "adjective",
-          "difficulty": "easy",
-          "frequency": "high",
-          "examples": {
-            "english": "I appreciate your honest opinion.",
-            "polish": "Doceniam twoją szczerą opinię."
-          },
-          "synonyms": ["truthful", "sincere"],
-          "antonyms": ["dishonest", "lying"],
-          "audio": "honest"
-        },
-        {
-          "id": 5,
-          "english": "creative",
-          "polish": "kreatywny",
-          "pronunciation": "kree-AY-tiv",
-          "phonetic": "/kriˈeɪ.tɪv/",
+          "id": 14,
+          "english": "chubby",
+          "polish": "pucołowaty",
+          "pronunciation": "CHUB-ee",
+          "phonetic": "/ˈtʃʌb.i/",
           "type": "adjective",
           "difficulty": "medium",
-          "frequency": "high",
+          "frequency": "medium",
           "examples": {
-            "english": "She has a very creative mind.",
-            "polish": "Ma bardzo kreatywny umysł."
+            "english": "The baby has chubby cheeks.",
+            "polish": "Dziecko ma pucołowate policzki."
           },
-          "synonyms": ["imaginative", "innovative"],
-          "antonyms": ["uncreative", "conventional"],
-          "audio": "creative"
+          "synonyms": ["plump", "round"],
+          "antonyms": ["skinny", "thin"],
+          "audio": "chubby"
+        },
+        {
+          "id": 15,
+          "english": "skinny",
+          "polish": "bardzo chudy",
+          "pronunciation": "SKIN-ee",
+          "phonetic": "/ˈskɪn.i/",
+          "type": "adjective",
+          "difficulty": "easy",
+          "frequency": "medium",
+          "examples": {
+            "english": "She's too skinny and needs to eat more.",
+            "polish": "Jest za chuda i musi więcej jeść."
+          },
+          "synonyms": ["thin", "scrawny"],
+          "antonyms": ["fat", "chubby"],
+          "audio": "skinny"
+        },
+        {
+          "id": 16,
+          "english": "freckles",
+          "polish": "piegi",
+          "pronunciation": "FREK-uhls",
+          "phonetic": "/ˈfrek.əlz/",
+          "type": "noun",
+          "difficulty": "medium",
+          "frequency": "low",
+          "examples": {
+            "english": "She has cute freckles on her nose.",
+            "polish": "Ma słodkie piegi na nosie."
+          },
+          "synonyms": ["spots"],
+          "audio": "freckles"
+        },
+        {
+          "id": 17,
+          "english": "wrinkles",
+          "polish": "zmarszczki",
+          "pronunciation": "RING-kuhls",
+          "phonetic": "/ˈrɪŋ.kəlz/",
+          "type": "noun",
+          "difficulty": "medium",
+          "frequency": "medium",
+          "examples": {
+            "english": "He has wrinkles around his eyes when he smiles.",
+            "polish": "Ma zmarszczki wokół oczu, gdy się uśmiecha."
+          },
+          "synonyms": ["lines"],
+          "audio": "wrinkles"
+        },
+        {
+          "id": 18,
+          "english": "dimples",
+          "polish": "dołeczki w policzkach",
+          "pronunciation": "DIM-puhls",
+          "phonetic": "/ˈdɪm.pəlz/",
+          "type": "noun",
+          "difficulty": "medium",
+          "frequency": "low",
+          "examples": {
+            "english": "Her dimples appear when she laughs.",
+            "polish": "Jej dołeczki pojawiają się gdy się śmieje."
+          },
+          "audio": "dimples"
+        },
+        {
+          "id": 19,
+          "english": "beard",
+          "polish": "broda",
+          "pronunciation": "BEERD",
+          "phonetic": "/bɪəd/",
+          "type": "noun",
+          "difficulty": "easy",
+          "frequency": "medium",
+          "examples": {
+            "english": "My father has a thick black beard.",
+            "polish": "Mój ojciec ma gęstą czarną brodę."
+          },
+          "synonyms": ["facial hair"],
+          "audio": "beard"
+        },
+        {
+          "id": 20,
+          "english": "mustache",
+          "polish": "wąsy",
+          "pronunciation": "MUS-tash",
+          "phonetic": "/ˈmʌs.tæʃ/",
+          "type": "noun",
+          "difficulty": "medium",
+          "frequency": "low",
+          "examples": {
+            "english": "He grew a mustache last month.",
+            "polish": "Zapuścił wąsy w zeszłym miesiącu."
+          },
+          "synonyms": ["facial hair"],
+          "audio": "mustache"
+        },
+        {
+          "id": 21,
+          "english": "athletic",
+          "polish": "atletyczny",
+          "pronunciation": "ath-LET-ik",
+          "phonetic": "/æθˈlet.ɪk/",
+          "type": "adjective",
+          "difficulty": "medium",
+          "frequency": "medium",
+          "examples": {
+            "english": "She has an athletic build from playing sports.",
+            "polish": "Ma atletyczną budowę od uprawiania sportu."
+          },
+          "synonyms": ["fit", "muscular"],
+          "antonyms": ["unfit", "weak"],
+          "audio": "athletic"
+        },
+        {
+          "id": 22,
+          "english": "elegant",
+          "polish": "elegancki",
+          "pronunciation": "EL-i-guhnt",
+          "phonetic": "/ˈel.ɪ.ɡənt/",
+          "type": "adjective",
+          "difficulty": "medium",
+          "frequency": "medium",
+          "examples": {
+            "english": "She always looks elegant in her dresses.",
+            "polish": "Zawsze wygląda elegancko w swoich sukienkach."
+          },
+          "synonyms": ["sophisticated", "stylish"],
+          "antonyms": ["sloppy", "messy"],
+          "audio": "elegant"
+        },
+        {
+          "id": 23,
+          "english": "pale",
+          "polish": "blady",
+          "pronunciation": "PAYL",
+          "phonetic": "/peɪl/",
+          "type": "adjective",
+          "difficulty": "easy",
+          "frequency": "medium",
+          "examples": {
+            "english": "She has very pale skin.",
+            "polish": "Ma bardzo bladą skórę."
+          },
+          "synonyms": ["white", "light"],
+          "antonyms": ["dark", "tanned"],
+          "audio": "pale"
+        },
+        {
+          "id": 24,
+          "english": "tanned",
+          "polish": "opalony",
+          "pronunciation": "TAND",
+          "phonetic": "/tænd/",
+          "type": "adjective",
+          "difficulty": "easy",
+          "frequency": "medium",
+          "examples": {
+            "english": "He got tanned during his vacation.",
+            "polish": "Opalił się podczas wakacji."
+          },
+          "synonyms": ["bronzed"],
+          "antonyms": ["pale"],
+          "audio": "tanned"
+        },
+        {
+          "id": 25,
+          "english": "overweight",
+          "polish": "z nadwagą",
+          "pronunciation": "OH-ver-wayt",
+          "phonetic": "/ˌəʊ.vərˈweɪt/",
+          "type": "adjective",
+          "difficulty": "medium",
+          "frequency": "medium",
+          "examples": {
+            "english": "The doctor said I'm slightly overweight.",
+            "polish": "Lekarz powiedział, że mam lekką nadwagę."
+          },
+          "synonyms": ["heavy", "fat"],
+          "antonyms": ["underweight", "thin"],
+          "audio": "overweight"
+        },
+        {
+          "id": 26,
+          "english": "petite",
+          "polish": "drobna (o kobiecie)",
+          "pronunciation": "puh-TEET",
+          "phonetic": "/pəˈtiːt/",
+          "type": "adjective",
+          "difficulty": "medium",
+          "frequency": "low",
+          "examples": {
+            "english": "She's quite petite, only 5 feet tall.",
+            "polish": "Jest dość drobna, ma tylko 5 stóp wzrostu."
+          },
+          "synonyms": ["small", "tiny"],
+          "antonyms": ["large", "tall"],
+          "audio": "petite"
+        },
+        {
+          "id": 27,
+          "english": "stocky",
+          "polish": "krępy",
+          "pronunciation": "STOK-ee",
+          "phonetic": "/ˈstɒk.i/",
+          "type": "adjective",
+          "difficulty": "medium",
+          "frequency": "low",
+          "examples": {
+            "english": "He has a stocky build with broad shoulders.",
+            "polish": "Ma krępa budowę z szerokimi ramionami."
+          },
+          "synonyms": ["sturdy", "thick-set"],
+          "audio": "stocky"
+        },
+        {
+          "id": 28,
+          "english": "lanky",
+          "polish": "chudy i wysoki",
+          "pronunciation": "LANG-kee",
+          "phonetic": "/ˈlæŋ.ki/",
+          "type": "adjective",
+          "difficulty": "hard",
+          "frequency": "low",
+          "examples": {
+            "english": "The teenager is tall and lanky.",
+            "polish": "Nastolatek jest wysoki i chudy."
+          },
+          "synonyms": ["gangly", "spindly"],
+          "audio": "lanky"
+        },
+        {
+          "id": 29,
+          "english": "auburn",
+          "polish": "kasztanowy (o włosach)",
+          "pronunciation": "AW-burn",
+          "phonetic": "/ˈɔː.bən/",
+          "type": "adjective",
+          "difficulty": "hard",
+          "frequency": "low",
+          "examples": {
+            "english": "She has beautiful auburn hair.",
+            "polish": "Ma piękne kasztanowe włosy."
+          },
+          "synonyms": ["reddish-brown"],
+          "audio": "auburn"
+        },
+        {
+          "id": 30,
+          "english": "plump",
+          "polish": "pulchny",
+          "pronunciation": "PLUMP",
+          "phonetic": "/plʌmp/",
+          "type": "adjective",
+          "difficulty": "medium",
+          "frequency": "low",
+          "examples": {
+            "english": "The baby has plump little arms.",
+            "polish": "Dziecko ma pulchne małe rączki."
+          },
+          "synonyms": ["chubby", "round"],
+          "antonyms": ["thin", "skinny"],
+          "audio": "plump"
+        },
+        {
+          "id": 31,
+          "english": "sturdy",
+          "polish": "krzepki",
+          "pronunciation": "STUR-dee",
+          "phonetic": "/ˈstɜː.di/",
+          "type": "adjective",
+          "difficulty": "medium",
+          "frequency": "medium",
+          "examples": {
+            "english": "He has a sturdy frame perfect for rugby.",
+            "polish": "Ma krzepką budowę idealną do rugby."
+          },
+          "synonyms": ["strong", "robust"],
+          "antonyms": ["weak", "frail"],
+          "audio": "sturdy"
+        },
+        {
+          "id": 32,
+          "english": "scrawny",
+          "polish": "wychudzony",
+          "pronunciation": "SKRAW-nee",
+          "phonetic": "/ˈskrɔː.ni/",
+          "type": "adjective",
+          "difficulty": "medium",
+          "frequency": "low",
+          "examples": {
+            "english": "The stray cat was scrawny and hungry.",
+            "polish": "Bezdomny kot był wychudzony i głodny."
+          },
+          "synonyms": ["skinny", "bony"],
+          "antonyms": ["plump", "chubby"],
+          "audio": "scrawny"
+        },
+        {
+          "id": 33,
+          "english": "gorgeous",
+          "polish": "wspaniały/przepiękny",
+          "pronunciation": "GOR-jus",
+          "phonetic": "/ˈɡɔː.dʒəs/",
+          "type": "adjective",
+          "difficulty": "medium",
+          "frequency": "medium",
+          "examples": {
+            "english": "You look absolutely gorgeous tonight.",
+            "polish": "Wyglądasz przepięknie dziś wieczorem."
+          },
+          "synonyms": ["beautiful", "stunning"],
+          "antonyms": ["ugly", "hideous"],
+          "audio": "gorgeous"
+        },
+        {
+          "id": 34,
+          "english": "plain",
+          "polish": "zwyczajny/przeciętny",
+          "pronunciation": "PLAYN",
+          "phonetic": "/pleɪn/",
+          "type": "adjective",
+          "difficulty": "easy",
+          "frequency": "medium",
+          "examples": {
+            "english": "She's not ugly, just rather plain.",
+            "polish": "Nie jest brzydka, po prostu dość przeciętna."
+          },
+          "synonyms": ["ordinary", "average"],
+          "antonyms": ["beautiful", "attractive"],
+          "audio": "plain"
+        },
+        {
+          "id": 35,
+          "english": "stunning",
+          "polish": "oszałamiający",
+          "pronunciation": "STUN-ing",
+          "phonetic": "/ˈstʌn.ɪŋ/",
+          "type": "adjective",
+          "difficulty": "medium",
+          "frequency": "medium",
+          "examples": {
+            "english": "She wore a stunning red dress.",
+            "polish": "Miała na sobie oszałamiającą czerwoną sukienkę."
+          },
+          "synonyms": ["breathtaking", "gorgeous"],
+          "antonyms": ["plain", "ugly"],
+          "audio": "stunning"
+        },
+        {
+          "id": 36,
+          "english": "gaunt",
+          "polish": "wychudzony/zapadnięty",
+          "pronunciation": "GAWNT",
+          "phonetic": "/ɡɔːnt/",
+          "type": "adjective",
+          "difficulty": "hard",
+          "frequency": "low",
+          "examples": {
+            "english": "He looked gaunt after his illness.",
+            "polish": "Wyglądał na wychudzonego po chorobie."
+          },
+          "synonyms": ["emaciated", "haggard"],
+          "antonyms": ["plump", "healthy"],
+          "audio": "gaunt"
+        },
+        {
+          "id": 37,
+          "english": "svelte",
+          "polish": "smukły/zgrabny",
+          "pronunciation": "SVELT",
+          "phonetic": "/svelt/",
+          "type": "adjective",
+          "difficulty": "hard",
+          "frequency": "low",
+          "examples": {
+            "english": "The model has a svelte figure.",
+            "polish": "Modelka ma smukłą figurę."
+          },
+          "synonyms": ["slender", "graceful"],
+          "audio": "svelte"
+        },
+        {
+          "id": 38,
+          "english": "burly",
+          "polish": "barczysty",
+          "pronunciation": "BUR-lee",
+          "phonetic": "/ˈbɜː.li/",
+          "type": "adjective",
+          "difficulty": "hard",
+          "frequency": "low",
+          "examples": {
+            "english": "The burly bouncer stood at the door.",
+            "polish": "Barczysty bramkarz stał przy drzwiach."
+          },
+          "synonyms": ["hefty", "robust"],
+          "antonyms": ["slight", "delicate"],
+          "audio": "burly"
+        },
+        {
+          "id": 39,
+          "english": "radiant",
+          "polish": "promienny",
+          "pronunciation": "RAY-dee-uhnt",
+          "phonetic": "/ˈreɪ.di.ənt/",
+          "type": "adjective",
+          "difficulty": "medium",
+          "frequency": "low",
+          "examples": {
+            "english": "The bride looked radiant on her wedding day.",
+            "polish": "Panna młoda wyglądała promiennie w dniu ślubu."
+          },
+          "synonyms": ["glowing", "bright"],
+          "antonyms": ["dull", "lifeless"],
+          "audio": "radiant"
+        },
+        {
+          "id": 40,
+          "english": "frail",
+          "polish": "słaby/kruchy",
+          "pronunciation": "FRAYL",
+          "phonetic": "/freɪl/",
+          "type": "adjective",
+          "difficulty": "medium",
+          "frequency": "medium",
+          "examples": {
+            "english": "My grandmother is getting quite frail.",
+            "polish": "Moja babcia staje się dość słaba."
+          },
+          "synonyms": ["weak", "delicate"],
+          "antonyms": ["strong", "robust"],
+          "audio": "frail"
+        },
+        {
+          "id": 41,
+          "english": "robust",
+          "polish": "krzepki/silny",
+          "pronunciation": "roh-BUST",
+          "phonetic": "/rəʊˈbʌst/",
+          "type": "adjective",
+          "difficulty": "medium",
+          "frequency": "medium",
+          "examples": {
+            "english": "He has a robust constitution.",
+            "polish": "Ma krzepką konstytucję."
+          },
+          "synonyms": ["strong", "sturdy"],
+          "antonyms": ["weak", "frail"],
+          "audio": "robust"
+        },
+        {
+          "id": 42,
+          "english": "dapper",
+          "polish": "elegancki/schludny",
+          "pronunciation": "DAP-er",
+          "phonetic": "/ˈdæp.ər/",
+          "type": "adjective",
+          "difficulty": "hard",
+          "frequency": "low",
+          "examples": {
+            "english": "He looked dapper in his new suit.",
+            "polish": "Wyglądał elegancko w swoim nowym garniturze."
+          },
+          "synonyms": ["smart", "stylish"],
+          "antonyms": ["scruffy", "untidy"],
+          "audio": "dapper"
+        },
+        {
+          "id": 43,
+          "english": "portly",
+          "polish": "tęgi/postawny",
+          "pronunciation": "PORT-lee",
+          "phonetic": "/ˈpɔːt.li/",
+          "type": "adjective",
+          "difficulty": "hard",
+          "frequency": "low",
+          "examples": {
+            "english": "The portly gentleman entered the room.",
+            "polish": "Tęgi dżentelmen wszedł do pokoju."
+          },
+          "synonyms": ["stout", "corpulent"],
+          "antonyms": ["slim", "thin"],
+          "audio": "portly"
+        },
+        {
+          "id": 44,
+          "english": "willowy",
+          "polish": "smukły jak wierzba",
+          "pronunciation": "WIL-oh-ee",
+          "phonetic": "/ˈwɪl.əʊ.i/",
+          "type": "adjective",
+          "difficulty": "hard",
+          "frequency": "low",
+          "examples": {
+            "english": "She has a willowy figure like a dancer.",
+            "polish": "Ma smukłą figurę jak tancerka."
+          },
+          "synonyms": ["slender", "graceful"],
+          "audio": "willowy"
+        },
+        {
+          "id": 45,
+          "english": "distinguished",
+          "polish": "dystyngowany",
+          "pronunciation": "dis-TING-gwisht",
+          "phonetic": "/dɪˈstɪŋ.ɡwɪʃt/",
+          "type": "adjective",
+          "difficulty": "medium",
+          "frequency": "low",
+          "examples": {
+            "english": "He has a distinguished appearance with gray hair.",
+            "polish": "Ma dystyngowany wygląd z siwymi włosami."
+          },
+          "synonyms": ["refined", "noble"],
+          "audio": "distinguished"
+        },
+        {
+          "id": 46,
+          "english": "hazel",
+          "polish": "piwny (o oczach)",
+          "pronunciation": "HAY-zuhl",
+          "phonetic": "/ˈheɪ.zəl/",
+          "type": "adjective",
+          "difficulty": "medium",
+          "frequency": "low",
+          "examples": {
+            "english": "She has beautiful hazel eyes.",
+            "polish": "Ma piękne piwne oczy."
+          },
+          "audio": "hazel"
+        },
+        {
+          "id": 47,
+          "english": "redhead",
+          "polish": "rudzielec",
+          "pronunciation": "RED-hed",
+          "phonetic": "/ˈred.hed/",
+          "type": "noun",
+          "difficulty": "easy",
+          "frequency": "low",
+          "examples": {
+            "english": "My friend is a natural redhead.",
+            "polish": "Moja przyjaciółka to naturalna rudzielka."
+          },
+          "synonyms": ["ginger"],
+          "audio": "redhead"
+        },
+        {
+          "id": 48,
+          "english": "broad-shouldered",
+          "polish": "szeroki w ramionach",
+          "pronunciation": "brawd-SHOHL-derd",
+          "phonetic": "/brɔːd ˈʃəʊl.dəd/",
+          "type": "adjective",
+          "difficulty": "medium",
+          "frequency": "low",
+          "examples": {
+            "english": "The swimmer is broad-shouldered and strong.",
+            "polish": "Pływak jest szeroki w ramionach i silny."
+          },
+          "synonyms": ["wide-shouldered"],
+          "audio": "broad-shouldered"
+        },
+        {
+          "id": 49,
+          "english": "baby-faced",
+          "polish": "z dziecięcą twarzą",
+          "pronunciation": "BAY-bee-fayst",
+          "phonetic": "/ˈbeɪ.bi feɪst/",
+          "type": "adjective",
+          "difficulty": "medium",
+          "frequency": "low",
+          "examples": {
+            "english": "Despite being 30, he still looks baby-faced.",
+            "polish": "Pomimo 30 lat, nadal wygląda młodzieńczo."
+          },
+          "synonyms": ["youthful"],
+          "audio": "baby-faced"
+        },
+        {
+          "id": 50,
+          "english": "well-groomed",
+          "polish": "zadbany",
+          "pronunciation": "wel-GROOMD",
+          "phonetic": "/wel ɡruːmd/",
+          "type": "adjective",
+          "difficulty": "medium",
+          "frequency": "medium",
+          "examples": {
+            "english": "He always appears well-groomed at work.",
+            "polish": "Zawsze wygląda zadbanie w pracy."
+          },
+          "synonyms": ["neat", "tidy"],
+          "antonyms": ["scruffy", "unkempt"],
+          "audio": "well-groomed"
         }
+      ]
+    },
+    "personality": {
+    "name": "Personality",
+    "icon": "🧠",
+    "description": "Cechy charakteru i osobowości",
+    "words": [
+      {
+        "id": 1,
+        "english": "friendly",
+        "polish": "przyjazny",
+        "pronunciation": "FREND-lee",
+        "phonetic": "/ˈfrend.li/",
+        "type": "adjective",
+        "difficulty": "easy",
+        "frequency": "high",
+        "examples": {
+          "english": "She is very friendly and helpful.",
+          "polish": "Ona jest bardzo przyjazna i pomocna."
+        },
+        "synonyms": ["kind", "nice", "pleasant"],
+        "antonyms": ["unfriendly", "hostile"],
+        "audio": "friendly"
+      },
+      {
+        "id": 2,
+        "english": "confident",
+        "polish": "pewny siebie",
+        "pronunciation": "KON-fi-dent",
+        "phonetic": "/ˈkɒn.fɪ.dənt/",
+        "type": "adjective",
+        "difficulty": "medium",
+        "frequency": "high",
+        "examples": {
+          "english": "He feels confident about his presentation.",
+          "polish": "Czuje się pewnie co do swojej prezentacji."
+        },
+        "synonyms": ["sure", "certain", "self-assured"],
+        "antonyms": ["insecure", "uncertain"],
+        "audio": "confident"
+      },
+      {
+        "id": 3,
+        "english": "generous",
+        "polish": "hojny/szczodry",
+        "pronunciation": "JEN-er-us",
+        "phonetic": "/ˈdʒen.ər.əs/",
+        "type": "adjective",
+        "difficulty": "medium",
+        "frequency": "medium",
+        "examples": {
+          "english": "He is generous with his time and money.",
+          "polish": "Jest hojny ze swoim czasem i pieniędzmi."
+        },
+        "synonyms": ["giving", "charitable"],
+        "antonyms": ["selfish", "stingy"],
+        "audio": "generous"
+      },
+      {
+        "id": 4,
+        "english": "honest",
+        "polish": "uczciwy",
+        "pronunciation": "ON-ist",
+        "phonetic": "/ˈɒn.ɪst/",
+        "type": "adjective",
+        "difficulty": "easy",
+        "frequency": "high",
+        "examples": {
+          "english": "I appreciate your honest opinion.",
+          "polish": "Doceniam twoją szczerą opinię."
+        },
+        "synonyms": ["truthful", "sincere"],
+        "antonyms": ["dishonest", "lying"],
+        "audio": "honest"
+      },
+      {
+        "id": 5,
+        "english": "creative",
+        "polish": "kreatywny",
+        "pronunciation": "kree-AY-tiv",
+        "phonetic": "/kriˈeɪ.tɪv/",
+        "type": "adjective",
+        "difficulty": "medium",
+        "frequency": "high",
+        "examples": {
+          "english": "She has a very creative mind.",
+          "polish": "Ma bardzo kreatywny umysł."
+        },
+        "synonyms": ["imaginative", "innovative"],
+        "antonyms": ["uncreative", "conventional"],
+        "audio": "creative"
+      },
+      {
+        "id": 6,
+        "english": "selfish",
+        "polish": "samolubny/egoistyczny",
+        "pronunciation": "SEL-fish",
+        "phonetic": "/ˈsel.fɪʃ/",
+        "type": "adjective",
+        "difficulty": "easy",
+        "frequency": "high",
+        "examples": {
+          "english": "Don't be so selfish - share with others.",
+          "polish": "Nie bądź taki samolubny - podziel się z innymi."
+        },
+        "synonyms": ["self-centered", "greedy"],
+        "antonyms": ["generous", "selfless"],
+        "audio": "selfish"
+      },
+      {
+        "id": 7,
+        "english": "patient",
+        "polish": "cierpliwy",
+        "pronunciation": "PAY-shuhnt",
+        "phonetic": "/ˈpeɪ.ʃənt/",
+        "type": "adjective",
+        "difficulty": "easy",
+        "frequency": "high",
+        "examples": {
+          "english": "Teachers need to be very patient with children.",
+          "polish": "Nauczyciele muszą być bardzo cierpliwi z dziećmi."
+        },
+        "synonyms": ["tolerant", "calm"],
+        "antonyms": ["impatient", "restless"],
+        "audio": "patient"
+      },
+      {
+        "id": 8,
+        "english": "impatient",
+        "polish": "niecierpliwy",
+        "pronunciation": "im-PAY-shuhnt",
+        "phonetic": "/ɪmˈpeɪ.ʃənt/",
+        "type": "adjective",
+        "difficulty": "easy",
+        "frequency": "high",
+        "examples": {
+          "english": "He gets impatient when he has to wait.",
+          "polish": "Staje się niecierpliwy, gdy musi czekać."
+        },
+        "synonyms": ["restless", "eager"],
+        "antonyms": ["patient", "calm"],
+        "audio": "impatient"
+      },
+      {
+        "id": 9,
+        "english": "ambitious",
+        "polish": "ambitny",
+        "pronunciation": "am-BISH-us",
+        "phonetic": "/æmˈbɪʃ.əs/",
+        "type": "adjective",
+        "difficulty": "medium",
+        "frequency": "high",
+        "examples": {
+          "english": "She's very ambitious and wants to be a CEO.",
+          "polish": "Jest bardzo ambitna i chce zostać dyrektorem generalnym."
+        },
+        "synonyms": ["determined", "driven"],
+        "antonyms": ["lazy", "unambitious"],
+        "audio": "ambitious"
+      },
+      {
+        "id": 10,
+        "english": "lazy",
+        "polish": "leniwy",
+        "pronunciation": "LAY-zee",
+        "phonetic": "/ˈleɪ.zi/",
+        "type": "adjective",
+        "difficulty": "easy",
+        "frequency": "high",
+        "examples": {
+          "english": "I feel too lazy to clean the house today.",
+          "polish": "Czuję się zbyt leniwy, żeby dziś sprzątać dom."
+        },
+        "synonyms": ["idle", "inactive"],
+        "antonyms": ["hardworking", "diligent"],
+        "audio": "lazy"
+      },
+      {
+        "id": 11,
+        "english": "hardworking",
+        "polish": "pracowity",
+        "pronunciation": "HARD-wur-king",
+        "phonetic": "/ˈhɑːd.wɜː.kɪŋ/",
+        "type": "adjective",
+        "difficulty": "easy",
+        "frequency": "high",
+        "examples": {
+          "english": "She is a hardworking student who studies every day.",
+          "polish": "Jest pracowita studentką, która studiuje codziennie."
+        },
+        "synonyms": ["diligent", "industrious"],
+        "antonyms": ["lazy", "idle"],
+        "audio": "hardworking"
+      },
+      {
+        "id": 12,
+        "english": "stubborn",
+        "polish": "uparty",
+        "pronunciation": "STUB-urn",
+        "phonetic": "/ˈstʌb.ən/",
+        "type": "adjective",
+        "difficulty": "medium",
+        "frequency": "medium",
+        "examples": {
+          "english": "He's too stubborn to admit he was wrong.",
+          "polish": "Jest zbyt uparty, żeby przyznać, że się mylił."
+        },
+        "synonyms": ["obstinate", "headstrong"],
+        "antonyms": ["flexible", "adaptable"],
+        "audio": "stubborn"
+      },
+      {
+        "id": 13,
+        "english": "flexible",
+        "polish": "elastyczny/przystosowujący się",
+        "pronunciation": "FLEK-suh-buhl",
+        "phonetic": "/ˈflek.sə.bəl/",
+        "type": "adjective",
+        "difficulty": "medium",
+        "frequency": "medium",
+        "examples": {
+          "english": "She's very flexible and adapts to any situation.",
+          "polish": "Jest bardzo elastyczna i przystosowuje się do każdej sytuacji."
+        },
+        "synonyms": ["adaptable", "accommodating"],
+        "antonyms": ["rigid", "stubborn"],
+        "audio": "flexible"
+      },
+      {
+        "id": 14,
+        "english": "reliable",
+        "polish": "niezawodny",
+        "pronunciation": "ri-LAY-uh-buhl",
+        "phonetic": "/rɪˈlaɪ.ə.bəl/",
+        "type": "adjective",
+        "difficulty": "medium",
+        "frequency": "high",
+        "examples": {
+          "english": "John is very reliable - you can always count on him.",
+          "polish": "Jan jest bardzo niezawodny - zawsze można na nim polegać."
+        },
+        "synonyms": ["dependable", "trustworthy"],
+        "antonyms": ["unreliable", "undependable"],
+        "audio": "reliable"
+      },
+      {
+        "id": 15,
+        "english": "unreliable",
+        "polish": "niewiarygodny/nieniezawodny",
+        "pronunciation": "un-ri-LAY-uh-buhl",
+        "phonetic": "/ʌn.rɪˈlaɪ.ə.bəl/",
+        "type": "adjective",
+        "difficulty": "medium",
+        "frequency": "medium",
+        "examples": {
+          "english": "He's unreliable and often forgets his promises.",
+          "polish": "Jest nieniezawodny i często zapomina o swoich obietnicach."
+        },
+        "synonyms": ["undependable", "untrustworthy"],
+        "antonyms": ["reliable", "dependable"],
+        "audio": "unreliable"
+      },
+      {
+        "id": 16,
+        "english": "shy",
+        "polish": "nieśmiały",
+        "pronunciation": "SHAHY",
+        "phonetic": "/ʃaɪ/",
+        "type": "adjective",
+        "difficulty": "easy",
+        "frequency": "high",
+        "examples": {
+          "english": "She was too shy to speak in public.",
+          "polish": "Była zbyt nieśmiała, żeby mówić publicznie."
+        },
+        "synonyms": ["timid", "bashful"],
+        "antonyms": ["outgoing", "bold"],
+        "audio": "shy"
+      },
+      {
+        "id": 17,
+        "english": "outgoing",
+        "polish": "towarzyski",
+        "pronunciation": "OUT-goh-ing",
+        "phonetic": "/ˈaʊt.ɡəʊ.ɪŋ/",
+        "type": "adjective",
+        "difficulty": "medium",
+        "frequency": "medium",
+        "examples": {
+          "english": "She's very outgoing and loves meeting new people.",
+          "polish": "Jest bardzo towarzyska i uwielbia poznawać nowych ludzi."
+        },
+        "synonyms": ["sociable", "extroverted"],
+        "antonyms": ["shy", "introverted"],
+        "audio": "outgoing"
+      },
+      {
+        "id": 18,
+        "english": "cheerful",
+        "polish": "pogodny/radosny",
+        "pronunciation": "CHEER-fuhl",
+        "phonetic": "/ˈtʃɪə.fəl/",
+        "type": "adjective",
+        "difficulty": "easy",
+        "frequency": "medium",
+        "examples": {
+          "english": "Despite the rain, she remained cheerful.",
+          "polish": "Pomimo deszczu, pozostała pogodna."
+        },
+        "synonyms": ["happy", "optimistic"],
+        "antonyms": ["gloomy", "pessimistic"],
+        "audio": "cheerful"
+      },
+      {
+        "id": 19,
+        "english": "pessimistic",
+        "polish": "pesymistyczny",
+        "pronunciation": "pes-uh-MIS-tik",
+        "phonetic": "/ˌpes.ɪˈmɪs.tɪk/",
+        "type": "adjective",
+        "difficulty": "medium",
+        "frequency": "medium",
+        "examples": {
+          "english": "He has a pessimistic view of the future.",
+          "polish": "Ma pesymistyczne spojrzenie na przyszłość."
+        },
+        "synonyms": ["negative", "gloomy"],
+        "antonyms": ["optimistic", "positive"],
+        "audio": "pessimistic"
+      },
+      {
+        "id": 20,
+        "english": "optimistic",
+        "polish": "optymistyczny",
+        "pronunciation": "op-tuh-MIS-tik",
+        "phonetic": "/ˌɒp.tɪˈmɪs.tɪk/",
+        "type": "adjective",
+        "difficulty": "medium",
+        "frequency": "medium",
+        "examples": {
+          "english": "I'm optimistic about our chances of success.",
+          "polish": "Jestem optymistyczny co do naszych szans na sukces."
+        },
+        "synonyms": ["positive", "hopeful"],
+        "antonyms": ["pessimistic", "negative"],
+        "audio": "optimistic"
+      },
+      {
+        "id": 21,
+        "english": "arrogant",
+        "polish": "arogancki",
+        "pronunciation": "AR-uh-guhnt",
+        "phonetic": "/ˈær.ə.ɡənt/",
+        "type": "adjective",
+        "difficulty": "medium",
+        "frequency": "medium",
+        "examples": {
+          "english": "His arrogant behavior annoyed everyone.",
+          "polish": "Jego aroganckie zachowanie denerwowało wszystkich."
+        },
+        "synonyms": ["conceited", "pompous"],
+        "antonyms": ["humble", "modest"],
+        "audio": "arrogant"
+      },
+      {
+        "id": 22,
+        "english": "humble",
+        "polish": "skromny",
+        "pronunciation": "HUM-buhl",
+        "phonetic": "/ˈhʌm.bəl/",
+        "type": "adjective",
+        "difficulty": "medium",
+        "frequency": "medium",
+        "examples": {
+          "english": "Despite his success, he remains humble.",
+          "polish": "Pomimo sukcesu, pozostaje skromny."
+        },
+        "synonyms": ["modest", "unassuming"],
+        "antonyms": ["arrogant", "proud"],
+        "audio": "humble"
+      },
+      {
+        "id": 23,
+        "english": "jealous",
+        "polish": "zazdrosny",
+        "pronunciation": "JEL-us",
+        "phonetic": "/ˈdʒel.əs/",
+        "type": "adjective",
+        "difficulty": "easy",
+        "frequency": "high",
+        "examples": {
+          "english": "She felt jealous of her sister's success.",
+          "polish": "Czuła się zazdrosna o sukces swojej siostry."
+        },
+        "synonyms": ["envious", "resentful"],
+        "antonyms": ["generous", "supportive"],
+        "audio": "jealous"
+      },
+      {
+        "id": 24,
+        "english": "supportive",
+        "polish": "wspierający",
+        "pronunciation": "suh-PAWR-tiv",
+        "phonetic": "/səˈpɔː.tɪv/",
+        "type": "adjective",
+        "difficulty": "medium",
+        "frequency": "high",
+        "examples": {
+          "english": "My family is very supportive of my career choices.",
+          "polish": "Moja rodzina bardzo wspiera moje wybory zawodowe."
+        },
+        "synonyms": ["encouraging", "helpful"],
+        "antonyms": ["unsupportive", "discouraging"],
+        "audio": "supportive"
+      },
+      {
+        "id": 25,
+        "english": "independent",
+        "polish": "niezależny",
+        "pronunciation": "in-di-PEN-duhnt",
+        "phonetic": "/ˌɪn.dɪˈpen.dənt/",
+        "type": "adjective",
+        "difficulty": "medium",
+        "frequency": "high",
+        "examples": {
+          "english": "She's very independent and doesn't need help.",
+          "polish": "Jest bardzo niezależna i nie potrzebuje pomocy."
+        },
+        "synonyms": ["self-reliant", "autonomous"],
+        "antonyms": ["dependent", "reliant"],
+        "audio": "independent"
+      },
+      {
+        "id": 26,
+        "english": "dependent",
+        "polish": "zależny",
+        "pronunciation": "dih-PEN-duhnt",
+        "phonetic": "/dɪˈpen.dənt/",
+        "type": "adjective",
+        "difficulty": "medium",
+        "frequency": "medium",
+        "examples": {
+          "english": "He's still dependent on his parents financially.",
+          "polish": "Nadal jest finansowo zależny od rodziców."
+        },
+        "synonyms": ["reliant", "needy"],
+        "antonyms": ["independent", "self-sufficient"],
+        "audio": "dependent"
+      },
+      {
+        "id": 27,
+        "english": "mature",
+        "polish": "dojrzały",
+        "pronunciation": "muh-TOOR",
+        "phonetic": "/məˈtʃʊər/",
+        "type": "adjective",
+        "difficulty": "medium",
+        "frequency": "high",
+        "examples": {
+          "english": "She's very mature for her age.",
+          "polish": "Jest bardzo dojrzała jak na swój wiek."
+        },
+        "synonyms": ["grown-up", "responsible"],
+        "antonyms": ["immature", "childish"],
+        "audio": "mature"
+      },
+      {
+        "id": 28,
+        "english": "immature",
+        "polish": "niedojrzały",
+        "pronunciation": "im-uh-TOOR",
+        "phonetic": "/ˌɪm.əˈtʃʊər/",
+        "type": "adjective",
+        "difficulty": "medium",
+        "frequency": "medium",
+        "examples": {
+          "english": "His immature behavior caused problems at work.",
+          "polish": "Jego niedojrzałe zachowanie sprawiało problemy w pracy."
+        },
+        "synonyms": ["childish", "juvenile"],
+        "antonyms": ["mature", "responsible"],
+        "audio": "immature"
+      },
+      {
+        "id": 29,
+        "english": "responsible",
+        "polish": "odpowiedzialny",
+        "pronunciation": "ri-SPON-suh-buhl",
+        "phonetic": "/rɪˈspɒn.sə.bəl/",
+        "type": "adjective",
+        "difficulty": "medium",
+        "frequency": "high",
+        "examples": {
+          "english": "She's a responsible employee who never misses deadlines.",
+          "polish": "Jest odpowiedzialną pracownicą, która nigdy nie przekracza terminów."
+        },
+        "synonyms": ["reliable", "accountable"],
+        "antonyms": ["irresponsible", "careless"],
+        "audio": "responsible"
+      },
+      {
+        "id": 30,
+        "english": "irresponsible",
+        "polish": "nieodpowiedzialny",
+        "pronunciation": "ir-i-SPON-suh-buhl",
+        "phonetic": "/ˌɪr.ɪˈspɒn.sə.bəl/",
+        "type": "adjective",
+        "difficulty": "medium",
+        "frequency": "medium",
+        "examples": {
+          "english": "It was irresponsible to leave the children alone.",
+          "polish": "To było nieodpowiedzialne zostawić dzieci same."
+        },
+        "synonyms": ["careless", "reckless"],
+        "antonyms": ["responsible", "careful"],
+        "audio": "irresponsible"
+      },
+      {
+        "id": 31,
+        "english": "aggressive",
+        "polish": "agresywny",
+        "pronunciation": "uh-GRES-iv",
+        "phonetic": "/əˈɡres.ɪv/",
+        "type": "adjective",
+        "difficulty": "medium",
+        "frequency": "medium",
+        "examples": {
+          "english": "His aggressive attitude scared the other children.",
+          "polish": "Jego agresywna postawa przestraszyła inne dzieci."
+        },
+        "synonyms": ["hostile", "violent"],
+        "antonyms": ["peaceful", "gentle"],
+        "audio": "aggressive"
+      },
+      {
+        "id": 32,
+        "english": "gentle",
+        "polish": "łagodny/delikatny",
+        "pronunciation": "JEN-tl",
+        "phonetic": "/ˈdʒen.təl/",
+        "type": "adjective",
+        "difficulty": "easy",
+        "frequency": "medium",
+        "examples": {
+          "english": "She has a gentle voice and kind manner.",
+          "polish": "Ma łagodny głos i miły sposób bycia."
+        },
+        "synonyms": ["mild", "tender"],
+        "antonyms": ["harsh", "aggressive"],
+        "audio": "gentle"
+      },
+      {
+        "id": 33,
+        "english": "sensitive",
+        "polish": "wrażliwy",
+        "pronunciation": "SEN-si-tiv",
+        "phonetic": "/ˈsen.sɪ.tɪv/",
+        "type": "adjective",
+        "difficulty": "medium",
+        "frequency": "high",
+        "examples": {
+          "english": "He's very sensitive and gets upset easily.",
+          "polish": "Jest bardzo wrażliwy i łatwo się denerwuje."
+        },
+        "synonyms": ["emotional", "delicate"],
+        "antonyms": ["insensitive", "thick-skinned"],
+        "audio": "sensitive"
+      },
+      {
+        "id": 34,
+        "english": "insensitive",
+        "polish": "niewrażliwy",
+        "pronunciation": "in-SEN-si-tiv",
+        "phonetic": "/ɪnˈsen.sɪ.tɪv/",
+        "type": "adjective",
+        "difficulty": "medium",
+        "frequency": "medium",
+        "examples": {
+          "english": "That was an insensitive comment about her appearance.",
+          "polish": "To był niewrażliwy komentarz na temat jej wyglądu."
+        },
+        "synonyms": ["thoughtless", "tactless"],
+        "antonyms": ["sensitive", "considerate"],
+        "audio": "insensitive"
+      },
+      {
+        "id": 35,
+        "english": "considerate",
+        "polish": "uważny/taktowny",
+        "pronunciation": "kuhn-SID-er-it",
+        "phonetic": "/kənˈsɪd.ər.ət/",
+        "type": "adjective",
+        "difficulty": "medium",
+        "frequency": "medium",
+        "examples": {
+          "english": "She's always considerate of other people's feelings.",
+          "polish": "Zawsze jest uważna na uczucia innych ludzi."
+        },
+        "synonyms": ["thoughtful", "caring"],
+        "antonyms": ["inconsiderate", "selfish"],
+        "audio": "considerate"
+      },
+      {
+        "id": 36,
+        "english": "adventurous",
+        "polish": "żądny przygód",
+        "pronunciation": "ad-VEN-cher-us",
+        "phonetic": "/ədˈven.tʃər.əs/",
+        "type": "adjective",
+        "difficulty": "medium",
+        "frequency": "medium",
+        "examples": {
+          "english": "She's adventurous and loves trying new things.",
+          "polish": "Jest żądna przygód i uwielbia próbować nowych rzeczy."
+        },
+        "synonyms": ["daring", "bold"],
+        "antonyms": ["cautious", "timid"],
+        "audio": "adventurous"
+      },
+      {
+        "id": 37,
+        "english": "cautious",
+        "polish": "ostrożny",
+        "pronunciation": "KAW-shus",
+        "phonetic": "/ˈkɔː.ʃəs/",
+        "type": "adjective",
+        "difficulty": "medium",
+        "frequency": "medium",
+        "examples": {
+          "english": "He's very cautious when driving in the rain.",
+          "polish": "Jest bardzo ostrożny podczas jazdy w deszczu."
+        },
+        "synonyms": ["careful", "prudent"],
+        "antonyms": ["reckless", "careless"],
+        "audio": "cautious"
+      },
+      {
+        "id": 38,
+        "english": "charming",
+        "polish": "czarujący",
+        "pronunciation": "CHAR-ming",
+        "phonetic": "/ˈtʃɑː.mɪŋ/",
+        "type": "adjective",
+        "difficulty": "medium",
+        "frequency": "medium",
+        "examples": {
+          "english": "He has a charming personality that attracts people.",
+          "polish": "Ma czarującą osobowość, która przyciąga ludzi."
+        },
+        "synonyms": ["attractive", "appealing"],
+        "antonyms": ["repulsive", "unappealing"],
+        "audio": "charming"
+      },
+      {
+        "id": 39,
+        "english": "boring",
+        "polish": "nudny",
+        "pronunciation": "BAWR-ing",
+        "phonetic": "/ˈbɔː.rɪŋ/",
+        "type": "adjective",
+        "difficulty": "easy",
+        "frequency": "high",
+        "examples": {
+          "english": "The lecture was so boring that I fell asleep.",
+          "polish": "Wykład był tak nudny, że zasnąłem."
+        },
+        "synonyms": ["dull", "tedious"],
+        "antonyms": ["interesting", "exciting"],
+        "audio": "boring"
+      },
+      {
+        "id": 40,
+        "english": "interesting",
+        "polish": "interesujący",
+        "pronunciation": "IN-ter-es-ting",
+        "phonetic": "/ˈɪn.tər.es.tɪŋ/",
+        "type": "adjective",
+        "difficulty": "easy",
+        "frequency": "high",
+        "examples": {
+          "english": "She told us an interesting story about her travels.",
+          "polish": "Opowiedziała nam interesującą historię o swoich podróżach."
+        },
+        "synonyms": ["fascinating", "engaging"],
+        "antonyms": ["boring", "dull"],
+        "audio": "interesting"
+      },
+      {
+        "id": 41,
+        "english": "witty",
+        "polish": "dowcipny",
+        "pronunciation": "WIT-ee",
+        "phonetic": "/ˈwɪt.i/",
+        "type": "adjective",
+        "difficulty": "medium",
+        "frequency": "low",
+        "examples": {
+          "english": "His witty comments made everyone laugh.",
+          "polish": "Jego dowcipne komentarze rozśmieszyły wszystkich."
+        },
+        "synonyms": ["clever", "humorous"],
+        "antonyms": ["dull", "serious"],
+        "audio": "witty"
+      },
+      {
+        "id": 42,
+        "english": "serious",
+        "polish": "poważny",
+        "pronunciation": "SEER-ee-us",
+        "phonetic": "/ˈsɪə.ri.əs/",
+        "type": "adjective",
+        "difficulty": "easy",
+        "frequency": "high",
+        "examples": {
+          "english": "He has a serious expression when he's concentrating.",
+          "polish": "Ma poważną minę, gdy się koncentruje."
+        },
+        "synonyms": ["solemn", "grave"],
+        "antonyms": ["playful", "lighthearted"],
+        "audio": "serious"
+      },
+      {
+        "id": 43,
+        "english": "playful",
+        "polish": "figlarny/żartobliwy",
+        "pronunciation": "PLAY-fuhl",
+        "phonetic": "/ˈpleɪ.fəl/",
+        "type": "adjective",
+        "difficulty": "easy",
+        "frequency": "medium",
+        "examples": {
+          "english": "The cat is very playful and loves toys.",
+          "polish": "Kot jest bardzo figlarny i uwielbia zabawki."
+        },
+        "synonyms": ["frisky", "mischievous"],
+        "antonyms": ["serious", "solemn"],
+        "audio": "playful"
+      },
+      {
+        "id": 44,
+        "english": "loyal",
+        "polish": "lojalny/wierny",
+        "pronunciation": "LOY-uhl",
+        "phonetic": "/ˈlɔɪ.əl/",
+        "type": "adjective",
+        "difficulty": "medium",
+        "frequency": "medium",
+        "examples": {
+          "english": "She's a loyal friend who never betrays secrets.",
+          "polish": "Jest lojalną przyjaciółką, która nigdy nie zdradza sekretów."
+        },
+        "synonyms": ["faithful", "devoted"],
+        "antonyms": ["disloyal", "unfaithful"],
+        "audio": "loyal"
+      },
+      {
+        "id": 45,
+        "english": "disloyal",
+        "polish": "nielojalny",
+        "pronunciation": "dis-LOY-uhl",
+        "phonetic": "/dɪsˈlɔɪ.əl/",
+        "type": "adjective",
+        "difficulty": "medium",
+        "frequency": "low",
+        "examples": {
+          "english": "He was disloyal to his team and joined the competition.",
+          "polish": "Był nielojalny wobec swojego zespołu i dołączył do konkurencji."
+        },
+        "synonyms": ["unfaithful", "treacherous"],
+        "antonyms": ["loyal", "faithful"],
+        "audio": "disloyal"
+      },
+      {
+        "id": 46,
+        "english": "competitive",
+        "polish": "rywalizujący/konkurencyjny",
+        "pronunciation": "kuhm-PET-i-tiv",
+        "phonetic": "/kəmˈpet.ɪ.tɪv/",
+        "type": "adjective",
+        "difficulty": "medium",
+        "frequency": "medium",
+        "examples": {
+          "english": "He's very competitive and hates to lose.",
+          "polish": "Jest bardzo rywalizujący i nienawidzi przegrywać."
+        },
+        "synonyms": ["ambitious", "driven"],
+        "antonyms": ["cooperative", "collaborative"],
+        "audio": "competitive"
+      },
+      {
+        "id": 47,
+        "english": "cooperative",
+        "polish": "współpracujący",
+        "pronunciation": "koh-OP-er-uh-tiv",
+        "phonetic": "/kəʊˈɒp.ər.ə.tɪv/",
+        "type": "adjective",
+        "difficulty": "medium",
+        "frequency": "medium",
+        "examples": {
+          "english": "She's very cooperative and works well in teams.",
+          "polish": "Jest bardzo współpracująca i dobrze pracuje w zespołach."
+        },
+        "synonyms": ["helpful", "collaborative"],
+        "antonyms": ["uncooperative", "competitive"],
+        "audio": "cooperative"
+      },
+      {
+        "id": 48,
+        "english": "sophisticated",
+        "polish": "wyrafinowany",
+        "pronunciation": "suh-FIS-ti-kay-tid",
+        "phonetic": "/səˈfɪs.tɪ.keɪ.tɪd/",
+        "type": "adjective",
+        "difficulty": "hard",
+        "frequency": "low",
+        "examples": {
+          "english": "She has sophisticated taste in art and music.",
+          "polish": "Ma wyrafinowany gust w sztuce i muzyce."
+        },
+        "synonyms": ["refined", "cultured"],
+        "antonyms": ["simple", "unsophisticated"],
+        "audio": "sophisticated"
+      },
+      {
+        "id": 49,
+        "english": "naive",
+        "polish": "naiwny",
+        "pronunciation": "nah-EEV",
+        "phonetic": "/naɪˈiːv/",
+        "type": "adjective",
+        "difficulty": "medium",
+        "frequency": "medium",
+        "examples": {
+          "english": "She was naive to believe his obvious lies.",
+          "polish": "Była naiwna, wierząc w jego oczywiste kłamstwa."
+        },
+        "synonyms": ["innocent", "gullible"],
+        "antonyms": ["sophisticated", "worldly"],
+        "audio": "naive"
+      },
+      {
+        "id": 50,
+        "english": "eccentric",
+        "polish": "ekscentryczny",
+        "pronunciation": "ik-SEN-trik",
+        "phonetic": "/ɪkˈsen.trɪk/",
+        "type": "adjective",
+        "difficulty": "hard",
+        "frequency": "low",
+        "examples": {
+          "english": "The professor is known for his eccentric behavior.",
+          "polish": "Profesor jest znany ze swojego ekscentrycznego zachowania."
+        },
+        "synonyms": ["odd", "quirky"],
+        "antonyms": ["conventional", "normal"],
+        "audio": "eccentric"
+      }
       ]
     },
     "feelings_and_emotions": {

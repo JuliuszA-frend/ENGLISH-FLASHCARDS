@@ -16,7 +16,7 @@ class EnglishFlashcardsApp {
             isLoading: true,
             vocabulary: null,
             categories: null,
-            settings: this.loadSettings()
+            settings: null
         };
 
         this.managers = {};
@@ -33,6 +33,7 @@ class EnglishFlashcardsApp {
             this.showLoadingScreen(true);
             await this.initializeManagers();
             await this.loadData();
+            this.state.settings = this.loadSettings();
             this.setupEventListeners();
             this.initializeUI();
             this.showLoadingScreen(false);
@@ -63,14 +64,32 @@ class EnglishFlashcardsApp {
         // Menedżer postępu
         this.managers.progress = new ProgressManager();
         
-        // Menedżer audio
+        // AUDIO MANAGER - WAŻNE: inicjalizuj przed FlashcardManager
+        console.log('🔊 Inicjalizuję AudioManager...');
         this.managers.audio = new AudioManager();
+
+        // Test audio po inicjalizacji
+        setTimeout(async () => {
+            const testResults = await this.managers.audio.testAudio();
+            console.log('🧪 Wyniki testów audio:', testResults);
+            
+            const workingMethods = Object.entries(testResults)
+                .filter(([_, works]) => works)
+                .map(([method, _]) => method);
+                
+            if (workingMethods.length > 0) {
+                console.log(`✅ Działające metody audio: ${workingMethods.join(', ')}`);
+            } else {
+                console.warn('⚠️ Żadna metoda audio nie działa - sprawdź ustawienia przeglądarki');
+            }
+        }, 2000);
         
         // Menedżer obrazków
         this.managers.image = new ImageManager();
         
         // Menedżer fiszek
         this.managers.flashcard = new FlashcardManager();
+        this.managers.flashcard.setManagers(this.managers.image, this.managers.audio);
         
         // Menedżer quizów
         this.managers.quiz = new QuizManager();
@@ -168,6 +187,8 @@ class EnglishFlashcardsApp {
             ['import-data', 'click', () => this.importData()],
             ['reset-all-data', 'click', () => this.resetAllData()]
         ]);
+
+        this.setupAudioListeners();
     }
 
     /**
@@ -610,14 +631,24 @@ class EnglishFlashcardsApp {
      * Obsługa klawiatury
      */
     handleKeyboard(e) {
-        // Sprawdzenie czy focus jest na input/textarea
+    // Sprawdzenie czy focus jest na input/textarea
         if (['INPUT', 'TEXTAREA'].includes(e.target.tagName)) return;
 
         switch (e.key) {
             case ' ':
                 e.preventDefault();
                 if (this.state.currentMode === 'flashcards') {
-                    this.flipCard();
+                    // ✅ DODAJ: Sprawdź czy Shift jest wciśnięty
+                    if (e.shiftKey) {
+                        this.playCurrentSentenceAudio();
+                    } else {
+                        // Jeśli zwykła spacja, sprawdź czy to flip czy audio
+                        if (this.state.isFlipped) {
+                            this.playCurrentWordAudio();
+                        } else {
+                            this.flipCard();
+                        }
+                    }
                 }
                 break;
             case 'ArrowLeft':
@@ -639,6 +670,17 @@ class EnglishFlashcardsApp {
                     const modalType = visibleModal.id.replace('-modal', '');
                     this.closeModal(modalType);
                 }
+                break;
+            // ✅ DODAJ: Nowe skróty klawiszowe
+            case 'KeyA':
+                if (e.ctrlKey || e.metaKey) return; // Nie przeszkadzaj Ctrl+A
+                e.preventDefault();
+                this.playCurrentWordAudio();
+                break;
+            case 'KeyS':
+                if (e.ctrlKey || e.metaKey) return; // Nie przeszkadzaj Ctrl+S
+                e.preventDefault();
+                this.playCurrentSentenceAudio();
                 break;
         }
     }
@@ -672,68 +714,234 @@ class EnglishFlashcardsApp {
     }
 
     /**
-     * Ładowanie ustawień
+ * Zastosowanie ustawień do menedżerów - BEZPIECZNA WERSJA
+ */
+    applySettings(settings) {
+        console.log('🔧 Stosowanie ustawień...', settings);
+
+        // ZABEZPIECZENIE: Sprawdź czy managers istnieje
+        if (!this.managers) {
+            console.warn('⚠️ Menedżery nie są jeszcze zainicjalizowane - pomijam zastosowanie ustawień');
+            return;
+        }
+
+        // ✅ DODAJ: Zaktualizuj state.settings
+        if (settings) {
+            this.state.settings = { ...this.state.settings, ...settings };
+        }
+
+        // Ustawienia motywu
+        if (this.managers.theme && typeof this.managers.theme.setTheme === 'function') {
+            try {
+                this.managers.theme.setTheme(settings.theme);
+                console.log(`🎨 Zastosowano motyw: ${settings.theme}`);
+            } catch (error) {
+                console.warn('⚠️ Błąd zastosowania motywu:', error);
+            }
+        } else {
+            console.log('⏭️ ThemeManager nie jest dostępny - pomijam ustawienia motywu');
+        }
+
+        // Ustawienia audio
+        if (this.managers.audio && this.managers.audio.setAutoPlay) {
+            try {
+                this.managers.audio.setAutoPlay(settings.audioAutoPlay);
+                this.managers.audio.setVolume(settings.audioVolume);
+                this.managers.audio.setRate(settings.audioRate);
+                
+                console.log(`🔊 Zastosowane ustawienia audio: autoPlay=${settings.audioAutoPlay}, volume=${settings.audioVolume}, rate=${settings.audioRate}`);
+            } catch (error) {
+                console.warn('⚠️ Błąd zastosowania ustawień audio:', error);
+            }
+        } else {
+            console.log('⏭️ AudioManager nie jest dostępny - pomijam ustawienia audio');
+        }
+
+        // Ustawienia fiszek
+        if (this.managers.flashcard && typeof this.managers.flashcard.setShowPhonetics === 'function') {
+            try {
+                this.managers.flashcard.setShowPhonetics(settings.showPhonetics);
+                console.log(`📖 Zastosowano pokazywanie fonetyki: ${settings.showPhonetics}`);
+            } catch (error) {
+                console.warn('⚠️ Błąd zastosowania ustawień fiszek:', error);
+            }
+        } else {
+            console.log('⏭️ FlashcardManager nie jest dostępny - pomijam ustawienia fiszek');
+        }
+
+        // Ustawienia quizów
+        if (this.managers.quiz) {
+            try {
+                if (typeof this.managers.quiz.setDifficulty === 'function') {
+                    this.managers.quiz.setDifficulty(settings.quizDifficulty);
+                }
+                if (typeof this.managers.quiz.setLanguage === 'function') {
+                    this.managers.quiz.setLanguage(settings.quizLanguage);
+                }
+                console.log(`🎯 Zastosowano ustawienia quizów: difficulty=${settings.quizDifficulty}, language=${settings.quizLanguage}`);
+            } catch (error) {
+                console.warn('⚠️ Błąd zastosowania ustawień quizów:', error);
+            }
+        } else {
+            console.log('⏭️ QuizManager nie jest dostępny - pomijam ustawienia quizów');
+        }
+
+        // Zapisz skonsolidowane ustawienia - tylko jeśli wszystko poszło OK
+        try {
+            this.saveSettings(settings);
+        } catch (error) {
+            console.warn('⚠️ Błąd zapisywania ustawień:', error);
+        }
+    }
+
+    /**
+     * Zapisywanie ustawień - BEZPIECZNA WERSJA
+     */
+    saveSettings(settings) {
+        if (!settings) {
+            console.warn('⚠️ Brak ustawień do zapisania');
+            return;
+        }
+
+        try {
+            // Zapisz główne ustawienia
+            localStorage.setItem('english-flashcards-settings', JSON.stringify(settings));
+            
+            // Zachowaj kompatybilność z poprzednią wersją - zapisz również osobno
+            localStorage.setItem('audioAutoPlay', settings.audioAutoPlay.toString());
+            localStorage.setItem('audioVolume', settings.audioVolume.toString());
+            localStorage.setItem('audioRate', settings.audioRate.toString());
+            localStorage.setItem('english-flashcards-theme', settings.theme);
+            
+            console.log('💾 Ustawienia zapisane pomyślnie');
+        } catch (error) {
+            console.error('❌ Błąd zapisywania ustawień:', error);
+            
+            // Fallback - spróbuj zapisać przynajmniej podstawowe ustawienia
+            try {
+                localStorage.setItem('audioAutoPlay', settings.audioAutoPlay.toString());
+                localStorage.setItem('english-flashcards-theme', settings.theme);
+                console.log('💾 Zapisano podstawowe ustawienia jako fallback');
+            } catch (fallbackError) {
+                console.error('💥 Krytyczny błąd zapisu ustawień:', fallbackError);
+            }
+        }
+    }
+
+    /**
+     * Ładowanie ustawień - ZAKTUALIZOWANA BEZPIECZNA WERSJA
      */
     loadSettings() {
+        console.log('⚙️ Ładuję ustawienia...');
+        
+        // Domyślne ustawienia
         const defaultSettings = {
             autoAudio: false,
             showPhonetics: true,
             quizDifficulty: 'medium',
             quizLanguage: 'en-pl',
-            theme: 'auto'
+            theme: 'auto',
+            // Nowe ustawienia audio
+            audioAutoPlay: false,
+            audioVolume: 1.0,
+            audioRate: 1.0
         };
 
+        let settings = { ...defaultSettings }; // Shallow copy
+
         try {
-            const saved = localStorage.getItem('english-flashcards-settings');
-            return saved ? { ...defaultSettings, ...JSON.parse(saved) } : defaultSettings;
+            // Załaduj główne ustawienia z localStorage
+            const savedSettings = localStorage.getItem('english-flashcards-settings');
+            if (savedSettings) {
+                const parsed = JSON.parse(savedSettings);
+                settings = { ...defaultSettings, ...parsed };
+                console.log('📋 Załadowano główne ustawienia z localStorage');
+            }
+
+            // Załaduj dodatkowe ustawienia audio (dla kompatybilności wstecznej)
+            const audioAutoPlay = localStorage.getItem('audioAutoPlay');
+            const audioVolume = localStorage.getItem('audioVolume');
+            const audioRate = localStorage.getItem('audioRate');
+
+            if (audioAutoPlay !== null) {
+                settings.audioAutoPlay = audioAutoPlay === 'true';
+            }
+            if (audioVolume !== null) {
+                const volume = parseFloat(audioVolume);
+                if (!isNaN(volume) && volume >= 0 && volume <= 1) {
+                    settings.audioVolume = volume;
+                }
+            }
+            if (audioRate !== null) {
+                const rate = parseFloat(audioRate);
+                if (!isNaN(rate) && rate >= 0.1 && rate <= 2.0) {
+                    settings.audioRate = rate;
+                }
+            }
+
         } catch (error) {
-            console.warn('Błąd ładowania ustawień:', error);
-            return defaultSettings;
+            console.warn('⚠️ Błąd ładowania ustawień, używam domyślnych:', error);
+            settings = { ...defaultSettings };
         }
+
+        // Zastosuj ustawienia do menedżerów (z zabezpieczeniami)
+        this.applySettings(settings);
+
+        // Zwróć ustawienia (opcjonalne - jeśli inne części kodu ich potrzebują)
+        return settings;
     }
 
     /**
-     * Zapisywanie ustawień
-     */
-    saveSettings() {
-        try {
-            localStorage.setItem('english-flashcards-settings', JSON.stringify(this.state.settings));
-        } catch (error) {
-            console.error('Błąd zapisywania ustawień:', error);
-        }
-    }
-
-    /**
-     * Aktualizacja ustawienia
+     * Aktualizacja pojedynczego ustawienia
      */
     updateSetting(key, value) {
-        this.state.settings[key] = value;
-        this.saveSettings();
-        this.applySettings();
+        console.log(`🔧 Aktualizuję ustawienie: ${key} = ${value}`);
         
-        NotificationManager.show('Ustawienie zostało zaktualizowane', 'success');
+        try {
+            // ✅ POPRAWKA: Zaktualizuj state.settings bezpośrednio
+            if (!this.state.settings) {
+                this.state.settings = this.loadSettings();
+            }
+            
+            this.state.settings[key] = value;
+            
+            // Zastosuj i zapisz
+            this.applySettings(this.state.settings);
+            
+            return true;
+        } catch (error) {
+            console.error(`❌ Błąd aktualizacji ustawienia ${key}:`, error);
+            return false;
+        }
     }
 
     /**
-     * Zastosowanie ustawień
+     * Reset ustawień do domyślnych
      */
-    applySettings() {
-        // Zastosowanie ustawień do UI
-        const settings = this.state.settings;
-
-        // Checkboxy
-        this.setCheckboxValue('auto-audio', settings.autoAudio);
-        this.setCheckboxValue('show-phonetics', settings.showPhonetics);
-
-        // Selecty
-        this.setSelectValue('quiz-difficulty', settings.quizDifficulty);
-        this.setSelectValue('quiz-language', settings.quizLanguage);
-
-        // Zastosowanie do menedżerów
-        this.managers.audio.setAutoPlay(settings.autoAudio);
-        this.managers.flashcard.setShowPhonetics(settings.showPhonetics);
-        this.managers.quiz.setDifficulty(settings.quizDifficulty);
-        this.managers.quiz.setLanguage(settings.quizLanguage);
+    resetSettings() {
+        console.log('🔄 Resetuję ustawienia do domyślnych...');
+        
+        try {
+            // Usuń wszystkie ustawienia z localStorage
+            localStorage.removeItem('english-flashcards-settings');
+            localStorage.removeItem('audioAutoPlay');
+            localStorage.removeItem('audioVolume');
+            localStorage.removeItem('audioRate');
+            localStorage.removeItem('english-flashcards-theme');
+            
+            // Załaduj i zastosuj domyślne ustawienia
+            const defaultSettings = this.loadSettings();
+            this.applySettings(defaultSettings);
+            
+            if (this.managers.notification) {
+                this.managers.notification.show('Ustawienia zresetowane do domyślnych', 'info');
+            }
+            
+            return true;
+        } catch (error) {
+            console.error('❌ Błąd resetowania ustawień:', error);
+            return false;
+        }
     }
 
     /**
@@ -1008,6 +1216,160 @@ class EnglishFlashcardsApp {
             }
         });
     }
+
+    // 3. NOWA METODA: setupAudioListeners()
+    setupAudioListeners() {
+        console.log('🔊 Konfigurowanie audio listenerów...');
+
+        // Global audio test button (dodaj w dev tools)
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            this.addAudioTestButton();
+        }
+
+        // Audio settings listeners
+        document.addEventListener('audioSettingsChanged', (e) => {
+            if (this.managers.audio) {
+                const { volume, rate, autoPlay } = e.detail;
+                
+                if (volume !== undefined) this.managers.audio.setVolume(volume);
+                if (rate !== undefined) this.managers.audio.setRate(rate);
+                if (autoPlay !== undefined) this.managers.audio.setAutoPlay(autoPlay);
+            }
+        });
+
+        // Keyboard shortcut dla audio (spacja)
+        document.addEventListener('keydown', (e) => {
+            // Spacja = odtwórz audio bieżącego słowa
+            if (e.code === 'Space' && !e.target.matches('input, textarea, button')) {
+                e.preventDefault();
+                this.playCurrentWordAudio();
+            }
+            
+            // Shift + Spacja = odtwórz zdanie przykładowe
+            if (e.code === 'Space' && e.shiftKey && !e.target.matches('input, textarea, button')) {
+                e.preventDefault();
+                this.playCurrentSentenceAudio();
+            }
+        });
+    }
+
+    // 4. NOWA METODA: playCurrentWordAudio()
+    async playCurrentWordAudio() {
+        // ✅ POPRAWKA: użyj this.state.currentMode zamiast this.currentMode
+        if (this.state.currentMode === 'flashcards' && this.managers.flashcard && this.managers.flashcard.currentWord) {
+            const word = this.managers.flashcard.currentWord;
+            console.log(`⌨️ Keyboard shortcut: odtwarzam "${word.english}"`);
+            
+            if (this.managers.audio) {
+                await this.managers.audio.playAudio(word.english);
+            }
+        }
+    }
+
+    // 5. NOWA METODA: playCurrentSentenceAudio()
+    async playCurrentSentenceAudio() {
+    // ✅ POPRAWKA: użyj this.state.currentMode
+        if (this.state.currentMode === 'flashcards' && this.managers.flashcard && this.managers.flashcard.currentWord) {
+            const word = this.managers.flashcard.currentWord;
+            
+            if (word.examples && word.examples.english) {
+                console.log(`⌨️ Keyboard shortcut: odtwarzam zdanie "${word.examples.english}"`);
+                
+                if (this.managers.audio) {
+                    await this.managers.audio.playSentence(word.examples.english, word.examples.polish);
+                }
+            } else {
+                console.log('⚠️ Brak zdania przykładowego dla tego słowa');
+                if (NotificationManager) {  // ✅ POPRAWKA: użyj NotificationManager zamiast this.managers.notification
+                    NotificationManager.show('To słowo nie ma zdania przykładowego', 'info');
+                }
+            }
+        }
+    }
+
+    // 6. NOWA METODA: addAudioTestButton() - tylko dla developmentu
+    addAudioTestButton() {
+        const testBtn = document.createElement('button');
+        testBtn.innerHTML = '🧪 Test Audio';
+        testBtn.style.cssText = `
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            z-index: 9999;
+            padding: 10px;
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+        `;
+        
+        testBtn.addEventListener('click', async () => {
+            if (this.managers.audio) {
+                console.log('🧪 Rozpoczynam test audio...');
+                await this.managers.audio.testAudio();
+            }
+        });
+        
+        document.body.appendChild(testBtn);
+        console.log('🧪 Przycisk test audio dodany (dev mode)');
+    }
+
+    displayWord(word) {
+        if (!word) return;
+
+        // ✅ POPRAWKA: Dodaj currentWord do state
+        this.state.currentWord = word;  
+        console.log(`📱 Wyświetlam słowo: ${word.english}`);
+
+        // Wyświetl słowo
+        if (this.managers.flashcard) {
+            this.managers.flashcard.displayWord(word, this.state.currentMode);  // ✅ POPRAWKA: użyj this.state.currentMode
+            
+            // NOWE: Auto-play jeśli włączone
+            if (this.managers.audio && this.managers.audio.autoPlay) {
+                setTimeout(() => {
+                    this.managers.audio.playAudio(word.english);
+                }, 800); // Opóźnienie żeby karta się załadowała
+            }
+        }
+
+        // Zapisz postęp
+        if (this.managers.progress && this.state.currentCategory && this.state.currentWordIndex !== -1) {  // ✅ POPRAWKA: użyj this.state
+            this.managers.progress.markWordAsStudied(
+                this.state.currentCategory, 
+                this.state.currentWordIndex, 
+                word.id
+            );
+        }
+
+        // Aktualizuj progress display
+        this.updateProgress();  // ✅ POPRAWKA: użyj updateProgress() zamiast updateProgressDisplay()
+    }
+
+    // 8. NOWA METODA: toggleAutoPlay() - dla ustawień
+    toggleAutoPlay() {
+        if (this.managers.audio) {
+            const newState = !this.managers.audio.autoPlay;
+            
+            // ✅ POPRAWKA: Użyj updateSetting zamiast bezpośredniego zapisu
+            this.updateSetting('audioAutoPlay', newState);
+            
+            console.log(`🔄 Auto-play ${newState ? 'włączony' : 'wyłączony'}`);
+            
+            if (NotificationManager) {  // ✅ POPRAWKA: użyj NotificationManager
+                NotificationManager.show(
+                    `Auto-play ${newState ? 'włączony' : 'wyłączony'}`, 
+                    'info'
+                );
+            }
+            
+            return newState;
+        }
+        return false;
+    }
+
 }
 
 // Inicjalizacja aplikacji po załadowaniu DOM
