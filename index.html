@@ -73,6 +73,14 @@
                             <span class="icon">🌙</span>
                             <span class="text">Tryb ciemny</span>
                         </button>
+                        
+                        <!-- ✨ NOWY PRZYCISK ULUBIONYCH -->
+                        <button class="control-btn" id="bookmarks-toggle" title="Pokaż ulubione słowa">
+                            <span class="icon">🔖</span>
+                            <span class="text">Ulubione</span>
+                            <span class="count-badge" style="display: none;">0</span>
+                        </button>
+                        
                         <button class="control-btn" id="stats-toggle" title="Pokaż statystyki">
                             <span class="icon">📊</span>
                             <span class="text">Statystyki</span>
@@ -126,6 +134,23 @@
                             <div class="stat-label">Ukończone kategorie</div>
                             <div class="stat-icon">✅</div>
                         </div>
+
+                        <!-- ✨ NOWA KARTA: Ulubione słowa -->
+                        <div class="stat-card bookmark-stat-card">
+                            <div class="stat-value" id="total-bookmarks-stat">0</div>
+                            <div class="stat-label">Ulubione słowa</div>
+                            <div class="stat-icon">🔖</div>
+                            <button class="stat-action-btn" id="bookmarks-stats-btn" title="Otwórz ulubione">
+                                <span>Zobacz wszystkie</span>
+                            </button>
+                        </div>
+                        
+                        <!-- ✨ NOWA KARTA: Najczęściej ulubiona kategoria -->
+                        <div class="stat-card">
+                            <div class="stat-value" id="top-bookmark-category">-</div>
+                            <div class="stat-label">Najczęściej ulubiona</div>
+                            <div class="stat-icon">🏆</div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -149,6 +174,45 @@
                         <span class="text">Przykłady zdań</span>
                     </button>
                 </div>
+                
+                <div id="quick-access-panel" class="quick-access-panel">
+                <h3>🚀 Szybki dostęp</h3>
+                <div class="quick-access-grid">
+                    
+                    <!-- ✨ Przycisk nauki tylko ulubionych -->
+                    <button class="quick-access-btn bookmarks-study-btn" id="study-bookmarks-quick" 
+                            title="Ucz się tylko ulubionych słów">
+                        <div class="quick-btn-icon">🔖</div>
+                        <div class="quick-btn-content">
+                            <div class="quick-btn-title">Ucz się ulubionych</div>
+                            <div class="quick-btn-subtitle">
+                                <span id="bookmarks-count-quick">0</span> słów
+                            </div>
+                        </div>
+                    </button>
+                    
+                    <!-- ✨ Przycisk przeglądania ulubionych -->
+                    <button class="quick-access-btn" id="browse-bookmarks-quick" 
+                            title="Przeglądaj wszystkie ulubione słowa">
+                        <div class="quick-btn-icon">📚</div>
+                        <div class="quick-btn-content">
+                            <div class="quick-btn-title">Przeglądaj ulubione</div>
+                            <div class="quick-btn-subtitle">Zarządzaj listą</div>
+                        </div>
+                    </button>
+                    
+                    <!-- ✨ Przycisk losowego quizu z ulubionych -->
+                    <button class="quick-access-btn" id="quiz-bookmarks-quick" 
+                            title="Quiz z ulubionych słów">
+                        <div class="quick-btn-icon">🎯</div>
+                        <div class="quick-btn-content">
+                            <div class="quick-btn-title">Quiz ulubionych</div>
+                            <div class="quick-btn-subtitle">Test wiedzy</div>
+                        </div>
+                    </button>
+                    
+                </div>
+            </div>
 
                 <!-- Category Selector -->
                 <div id="category-selector" class="category-selector">
@@ -350,6 +414,12 @@
                         <span class="icon">⬅️</span>
                         <span class="text">Poprzednia</span>
                     </button>
+                    <!-- ✨ NOWY PRZYCISK: Tryb ulubionych -->
+                    <button class="nav-btn bookmarks-mode-btn" id="bookmarks-mode-toggle" 
+                            title="Przełącz tryb nauki tylko ulubionych">
+                        <span class="icon">🔖</span>
+                        <span class="text">Tryb ulubionych</span>
+                    </button>
                     <button class="nav-btn primary" id="flip-btn">
                         <span class="icon">🔄</span>
                         <span class="text">Obróć fiszkę</span>
@@ -395,6 +465,103 @@
         <span class="text">Aplikacja działa offline</span>
     </div>
 
+    <!-- 🔖 Modal Ulubionych Słów -->
+    <div id="bookmarks-modal" class="modal-overlay" style="display: none;">
+        <div class="modal bookmarks-modal">
+            <!-- 📋 Nagłówek modala -->
+            <div class="modal-header">
+                <div class="modal-title">
+                    <span class="icon">🔖</span>
+                    <h3>Ulubione słowa</h3>
+                    <span id="bookmarks-count" class="count-badge">0</span>
+                </div>
+                <button class="modal-close" id="bookmarks-modal-close" aria-label="Zamknij">×</button>
+            </div>
+
+            <!-- 📊 Statystyki i kontrolki -->
+            <div class="modal-controls">
+                <div class="bookmark-stats">
+                    <div class="stat-item">
+                        <span class="label">Łącznie:</span>
+                        <span id="total-bookmarks" class="value">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="label">Kategorie:</span>
+                        <span id="bookmark-categories" class="value">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="label">Ostatnio dodane:</span>
+                        <span id="recent-bookmark" class="value">-</span>
+                    </div>
+                </div>
+
+                <!-- 🔧 Kontrolki akcji -->
+                <div class="bookmark-actions">
+                    <button id="study-bookmarks-btn" class="btn primary" title="Ucz się tylko ulubionych słów">
+                        <span class="icon">📚</span>
+                        <span class="text">Ucz się ulubionych</span>
+                    </button>
+                    <button id="export-bookmarks-btn" class="btn secondary" title="Eksportuj ulubione do pliku">
+                        <span class="icon">💾</span>
+                        <span class="text">Eksportuj</span>
+                    </button>
+                    <button id="clear-bookmarks-btn" class="btn danger" title="Usuń wszystkie ulubione">
+                        <span class="icon">🗑️</span>
+                        <span class="text">Wyczyść</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 🔍 Wyszukiwanie i filtrowanie -->
+            <div class="modal-filters">
+                <div class="search-group">
+                    <input 
+                        type="text" 
+                        id="bookmarks-search" 
+                        class="search-input" 
+                        placeholder="🔍 Szukaj w ulubionych..."
+                        autocomplete="off"
+                    >
+                </div>
+                <div class="filter-group">
+                    <select id="bookmarks-category-filter" class="filter-select">
+                        <option value="">Wszystkie kategorie</option>
+                    </select>
+                    <select id="bookmarks-sort" class="filter-select">
+                        <option value="recent">Ostatnio dodane</option>
+                        <option value="alphabetical">Alfabetycznie</option>
+                        <option value="category">Według kategorii</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- 📚 Lista ulubionych słów -->
+            <div class="modal-content bookmarks-content">
+                <!-- 🎯 Placeholder gdy brak ulubionych -->
+                <div id="no-bookmarks-placeholder" class="placeholder">
+                    <div class="placeholder-icon">🔖</div>
+                    <h4>Brak ulubionych słów</h4>
+                    <p>Dodaj słowa do ulubionych klikając przycisk 🔖 na fiszce</p>
+                    <button class="btn primary" onclick="closeBookmarksModal()">
+                        <span class="text">Zacznij naukę</span>
+                    </button>
+                </div>
+
+                <!-- 📋 Lista słów -->
+                <div id="bookmarks-list" class="bookmarks-list">
+                    <!-- Słowa będą dodawane dynamicznie przez JavaScript -->
+                </div>
+            </div>
+
+            <!-- 📄 Paginacja (jeśli dużo słów) -->
+            <div id="bookmarks-pagination" class="modal-pagination" style="display: none;">
+                <button id="prev-page" class="pagination-btn">‹ Poprzednie</button>
+                <span id="page-info" class="page-info">Strona 1 z 1</span>
+                <button id="next-page" class="pagination-btn">Następne ›</button>
+            </div>
+        </div>
+    </div>
+
     <!-- JavaScript Modules - POPRAWIONA KOLEJNOŚĆ BEZ CYKLICZNYCH ZALEŻNOŚCI -->
     <script>
         // Critical error handling
@@ -420,11 +587,113 @@
         console.log('🚀 Rozpoczynam ładowanie aplikacji English Flashcards...');
     </script>
     
+    <script>
+    // ✨ Event listeners dla nowych przycisków bookmarks
+    // Dodaj ten kod na końcu app.js lub w osobnym pliku
+
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('🔖 Konfigurowanie dodatkowych event listeners dla bookmarks...');
+        
+        // Quick access buttons
+        const studyBookmarksQuick = document.getElementById('study-bookmarks-quick');
+        const browseBookmarksQuick = document.getElementById('browse-bookmarks-quick');
+        const quizBookmarksQuick = document.getElementById('quiz-bookmarks-quick');
+        const bookmarksModeToggle = document.getElementById('bookmarks-mode-toggle');
+        
+        // Study bookmarks quick
+        if (studyBookmarksQuick) {
+            studyBookmarksQuick.addEventListener('click', () => {
+                if (window.englishFlashcardsApp) {
+                    window.englishFlashcardsApp.startBookmarksOnlyMode();
+                }
+            });
+        }
+        
+        // Browse bookmarks quick  
+        if (browseBookmarksQuick) {
+            browseBookmarksQuick.addEventListener('click', () => {
+                if (window.englishFlashcardsApp) {
+                    window.englishFlashcardsApp.openBookmarks();
+                }
+            });
+        }
+        
+        // Quiz bookmarks quick
+        if (quizBookmarksQuick) {
+            quizBookmarksQuick.addEventListener('click', () => {
+                // TODO: Implement bookmarks quiz
+                if (window.NotificationManager) {
+                    window.NotificationManager.show('Quiz z ulubionych - wkrótce!', 'info');
+                }
+            });
+        }
+        
+        // Bookmarks mode toggle in navigation
+        if (bookmarksModeToggle) {
+            bookmarksModeToggle.addEventListener('click', () => {
+                if (window.englishFlashcardsApp) {
+                    if (window.englishFlashcardsApp.state.bookmarksOnlyMode) {
+                        window.englishFlashcardsApp.exitBookmarksOnlyMode();
+                    } else {
+                        window.englishFlashcardsApp.startBookmarksOnlyMode();
+                    }
+                }
+            });
+        }
+        
+        console.log('✅ Event listeners dla bookmarks skonfigurowane');
+    });
+
+    // ✨ Funkcja aktualizacji UI na podstawie liczby ulubionych
+    function updateBookmarksUI() {
+        if (!window.englishFlashcardsApp || !window.englishFlashcardsApp.managers.progress) {
+            return;
+        }
+        
+        const stats = window.englishFlashcardsApp.managers.progress.getBookmarkStats();
+        const hasBookmarks = stats.totalBookmarks > 0;
+        
+        // Aktywuj/dezaktywuj przyciski w zależności od liczby ulubionych
+        const studyBtn = document.getElementById('study-bookmarks-quick');
+        const quizBtn = document.getElementById('quiz-bookmarks-quick');
+        const countQuick = document.getElementById('bookmarks-count-quick');
+        
+        if (studyBtn) {
+            studyBtn.disabled = !hasBookmarks;
+        }
+        
+        if (quizBtn) {
+            quizBtn.disabled = !hasBookmarks;
+        }
+        
+        if (countQuick) {
+            countQuick.textContent = stats.totalBookmarks;
+        }
+        
+        // Aktualizuj wskaźnik trybu ulubionych w navigation
+        const navigationControls = document.getElementById('navigation-controls');
+        const bookmarksModeBtn = document.getElementById('bookmarks-mode-toggle');
+        
+        if (navigationControls && bookmarksModeBtn) {
+            const isBookmarksMode = window.englishFlashcardsApp.state.bookmarksOnlyMode;
+            navigationControls.classList.toggle('bookmarks-mode', isBookmarksMode);
+            
+            // Zaktualizuj tekst przycisku
+            const btnText = bookmarksModeBtn.querySelector('.text');
+            if (btnText) {
+                btnText.textContent = isBookmarksMode ? 'Wyjdź z trybu' : 'Tryb ulubionych';
+            }
+        }
+    }
+
+
+    </script>
+
     <!-- 1. CORE MODULES - Podstawowe narzędzia (BEZ ZALEŻNOŚCI) -->
     <script src="js/config/constants.js"></script>
     <script src="js/utils/utils.js"></script>
     <script src="js/utils/storage-manager.js"></script>
-    
+    <script src="js/modules/bookmarks-controller.js"></script>
     <!-- 2. THEME MANAGER - PRZENIESIONY PRZED NOTIFICATION MANAGER! -->
     <script src="js/modules/theme-manager.js"></script>
     

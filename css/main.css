@@ -135,7 +135,12 @@
   --glass-backdrop: rgba(255, 255, 255, 0.1);
   --glass-border: rgba(255, 255, 255, 0.2);
   --glass-blur: 10px;
+
+  /* Bookmark gradient */
+  --gradient-accent: linear-gradient(90deg, #f59e0b, #fbbf24);
 }
+
+
 
 /* ============================================
    DARK MODE VARIABLES

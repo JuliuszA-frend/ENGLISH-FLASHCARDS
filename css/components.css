@@ -866,3 +866,864 @@
     color: #dc2626 !important;
     border-color: rgba(239, 68, 68, 0.4) !important;
 }
+
+.completed-badge {
+    margin-left: 8px;
+    font-size: 1.2rem;
+    animation: bounce 0.5s ease;
+}
+
+.no-words-warning {
+    color: #ef4444;
+    font-size: 0.75rem;
+    text-align: center;
+    margin-top: 8px;
+    font-weight: 500;
+}
+
+.category-progress .progress-bar {
+    transition: all 0.3s ease;
+}
+
+.category-progress .progress-fill {
+    transition: width 0.5s ease, background-color 0.3s ease;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+}
+
+.category-card:hover .progress-fill {
+    filter: brightness(1.1);
+}
+
+/* 🎨 Style dla modala ulubionych */
+.bookmarks-modal {
+    max-width: 800px;
+    max-height: 90vh;
+    width: 95%;
+}
+
+.modal-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.count-badge {
+    background: var(--gradient-primary);
+    color: white;
+    padding: 4px 12px;
+    border-radius: var(--radius-full);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-bold);
+}
+
+/* 📊 Style dla statystyk */
+.modal-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-4);
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: var(--radius-lg);
+    margin-bottom: var(--spacing-4);
+    flex-wrap: wrap;
+    gap: var(--spacing-3);
+}
+
+.bookmark-stats {
+    display: flex;
+    gap: var(--spacing-4);
+    flex-wrap: wrap;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.stat-item .label {
+    font-size: var(--font-size-xs);
+    color: rgba(255, 255, 255, 0.7);
+    font-weight: var(--font-weight-medium);
+}
+
+.stat-item .value {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-bold);
+    color: var(--white);
+}
+
+.bookmark-actions {
+    display: flex;
+    gap: var(--spacing-2);
+    flex-wrap: wrap;
+}
+
+/* 🔍 Style dla filtrów */
+.modal-filters {
+    display: flex;
+    gap: var(--spacing-3);
+    margin-bottom: var(--spacing-4);
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.search-group {
+    flex: 1;
+    min-width: 200px;
+}
+
+.filter-group {
+    display: flex;
+    gap: var(--spacing-2);
+    flex-wrap: wrap;
+}
+
+.filter-select {
+    padding: var(--spacing-2) var(--spacing-3);
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: var(--radius-lg);
+    color: var(--white);
+    font-size: var(--font-size-sm);
+    min-width: 120px;
+}
+
+.filter-select option {
+    background: var(--gray-800);
+    color: var(--white);
+}
+
+/* 📚 Style dla listy słów */
+.bookmarks-content {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.bookmarks-list {
+    display: grid;
+    gap: var(--spacing-3);
+}
+
+.bookmark-item {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-4);
+    transition: all var(--transition-normal);
+    cursor: pointer;
+    position: relative;
+}
+
+.bookmark-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.bookmark-word {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: var(--spacing-2);
+}
+
+.word-main {
+    flex: 1;
+}
+
+.word-english {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-bold);
+    color: var(--white);
+    margin-bottom: 4px;
+}
+
+.word-polish {
+    font-size: var(--font-size-base);
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.bookmark-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: var(--spacing-3);
+    font-size: var(--font-size-xs);
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.category-tag {
+    background: var(--gradient-accent);
+    color: var(--gray-900);
+    padding: 2px 8px;
+    border-radius: var(--radius-sm);
+    font-weight: var(--font-weight-medium);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.bookmark-date {
+    font-style: italic;
+}
+
+.bookmark-actions-item {
+    position: absolute;
+    top: var(--spacing-2);
+    right: var(--spacing-2);
+    display: flex;
+    gap: var(--spacing-1);
+    opacity: 0;
+    transition: opacity var(--transition-normal);
+}
+
+.bookmark-item:hover .bookmark-actions-item {
+    opacity: 1;
+}
+
+.bookmark-action-btn {
+    background: rgba(0, 0, 0, 0.7);
+    border: none;
+    color: var(--white);
+    padding: 4px 8px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: var(--font-size-xs);
+    transition: all var(--transition-fast);
+}
+
+.bookmark-action-btn:hover {
+    background: rgba(0, 0, 0, 0.9);
+    transform: scale(1.1);
+}
+
+/* 🎯 Style dla placeholder */
+.placeholder {
+    text-align: center;
+    padding: var(--spacing-12) var(--spacing-6);
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.placeholder-icon {
+    font-size: 4rem;
+    margin-bottom: var(--spacing-4);
+    opacity: 0.5;
+}
+
+.placeholder h4 {
+    font-size: var(--font-size-xl);
+    margin-bottom: var(--spacing-3);
+    color: var(--white);
+}
+
+.placeholder p {
+    font-size: var(--font-size-base);
+    margin-bottom: var(--spacing-6);
+    line-height: var(--line-height-relaxed);
+}
+
+/* 📄 Style dla paginacji */
+.modal-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: var(--spacing-4);
+    padding: var(--spacing-4);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.pagination-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: var(--white);
+    padding: var(--spacing-2) var(--spacing-4);
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    transition: all var(--transition-normal);
+}
+
+.pagination-btn:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.pagination-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.page-info {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: var(--font-size-sm);
+}
+
+/* 📱 Responsive design */
+@media (max-width: 768px) {
+    .modal-controls {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .bookmark-stats {
+        justify-content: center;
+    }
+    
+    .modal-filters {
+        flex-direction: column;
+    }
+    
+    .filter-group {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .bookmark-actions-item {
+        opacity: 1; /* Zawsze widoczne na mobile */
+    }
+}
+
+.mode-indicator {
+    position: fixed;
+    top: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--gradient-accent);
+    color: var(--gray-900);
+    padding: var(--spacing-2) var(--spacing-4);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-lg);
+    z-index: var(--z-sticky);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    animation: slideInDown 0.3s ease-out;
+}
+
+.mode-indicator .close-btn {
+    background: rgba(0, 0, 0, 0.2);
+    border: none;
+    color: inherit;
+    border-radius: var(--radius-sm);
+    padding: 2px 6px;
+    cursor: pointer;
+    font-size: var(--font-size-sm);
+    margin-left: var(--spacing-2);
+}
+
+.mode-indicator .close-btn:hover {
+    background: rgba(0, 0, 0, 0.3);
+}
+
+/* 🎨 Style dla przycisków bookmarks */
+
+/* Badge z liczbą ulubionych w header */
+.count-badge {
+    background: var(--gradient-accent);
+    color: var(--gray-900);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-bold);
+    padding: 2px 6px;
+    border-radius: var(--radius-full);
+    margin-left: var(--spacing-1);
+    min-width: 18px;
+    text-align: center;
+    animation: pulse 0.3s ease-out;
+}
+
+/* Panel szybkiego dostępu */
+.quick-access-panel {
+    background: var(--glass-backdrop);
+    backdrop-filter: blur(var(--glass-blur));
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-2xl);
+    padding: var(--spacing-6);
+    margin: 0 auto var(--spacing-8);
+    max-width: 800px;
+    color: var(--white);
+}
+
+.quick-access-panel h3 {
+    text-align: center;
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-bold);
+    margin-bottom: var(--spacing-6);
+    color: var(--white);
+}
+
+.quick-access-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--spacing-4);
+}
+
+.quick-access-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: var(--radius-xl);
+    padding: var(--spacing-5);
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-4);
+    text-align: left;
+    color: var(--white);
+    position: relative;
+    overflow: hidden;
+}
+
+.quick-access-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transition: left 0.3s ease;
+}
+
+.quick-access-btn:hover::before {
+    left: 100%;
+}
+
+.quick-access-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.quick-btn-icon {
+    font-size: var(--font-size-3xl);
+    flex-shrink: 0;
+}
+
+.quick-btn-content {
+    flex: 1;
+}
+
+.quick-btn-title {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
+    margin-bottom: var(--spacing-1);
+}
+
+.quick-btn-subtitle {
+    font-size: var(--font-size-sm);
+    color: rgba(255, 255, 255, 0.8);
+}
+
+/* Style dla przycisku trybu ulubionych w navigation */
+.bookmarks-mode-btn {
+    background: var(--gradient-accent) !important;
+    color: var(--gray-900) !important;
+}
+
+.bookmarks-mode-btn:hover {
+    filter: brightness(1.1);
+}
+
+/* Style dla karty statystyk bookmarks */
+.bookmark-stat-card {
+    background: linear-gradient(135deg, rgba(251, 191, 36, 0.1) 0%, rgba(245, 158, 11, 0.1) 100%);
+    border-color: rgba(251, 191, 36, 0.3);
+}
+
+.stat-action-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: var(--white);
+    padding: var(--spacing-1) var(--spacing-3);
+    border-radius: var(--radius-lg);
+    font-size: var(--font-size-xs);
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    margin-top: var(--spacing-2);
+}
+
+.stat-action-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-1px);
+}
+
+/* Disable stylu gdy brak ulubionych */
+.quick-access-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+.quick-access-btn:disabled:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .quick-access-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .quick-access-btn {
+        padding: var(--spacing-4);
+        gap: var(--spacing-3);
+    }
+    
+    .quick-btn-icon {
+        font-size: var(--font-size-2xl);
+    }
+}
+
+@media (max-width: 576px) {
+    .count-badge {
+        display: none; /* Ukryj na małych ekranach */
+    }
+    
+    .quick-access-panel {
+        padding: var(--spacing-4);
+        margin-bottom: var(--spacing-6);
+    }
+}
+
+/* Animacje */
+@keyframes bookmarkAdded {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+.bookmark-btn.bookmarked .icon {
+    animation: bookmarkAdded 0.3s ease-out;
+}
+
+/* Wskaźnik aktywnego trybu ulubionych */
+.navigation-controls.bookmarks-mode .bookmarks-mode-btn {
+    background: var(--gradient-success) !important;
+    box-shadow: var(--shadow-lg);
+}
+
+.navigation-controls.bookmarks-mode .bookmarks-mode-btn .text::after {
+    content: " (aktywny)";
+    font-size: var(--font-size-xs);
+    opacity: 0.8;
+}
+
+/**
+ * 🔖 STYLE CSS DLA TRYBU ULUBIONYCH
+ * Dodaj do pliku css/main.css lub css/components.css
+ */
+
+/* ============================================
+   WSKAŹNIK TRYBU ULUBIONYCH
+   ============================================ */
+
+.bookmarks-mode-indicator,
+.mode-indicator {
+    position: relative;
+    background: linear-gradient(135deg, #f59e0b, #fbbf24);
+    color: #111827;
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    margin: 0.5rem 0;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    animation: slideInDown 0.3s ease-out;
+}
+
+.indicator-content {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-weight: 600;
+}
+
+.indicator-content .icon {
+    font-size: 1.25rem;
+}
+
+.indicator-content .text {
+    flex: 1;
+    font-size: 1rem;
+}
+
+.indicator-content .count {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.875rem;
+    font-weight: 700;
+}
+
+.indicator-content .close-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: #111827;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    font-weight: bold;
+    transition: all 0.2s ease;
+}
+
+.indicator-content .close-btn:hover {
+    background: rgba(255, 255, 255, 0.4);
+    transform: scale(1.1);
+}
+
+/* ============================================
+   ANIMACJE WSKAŹNIKA
+   ============================================ */
+
+@keyframes slideInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideOutUp {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+}
+
+/* ============================================
+   TRYB ULUBIONYCH - BODY CLASS
+   ============================================ */
+
+body.bookmarks-only-mode {
+    /* Subtelna zmiana tła gdy w trybie ulubionych */
+    --theme-bg-primary: linear-gradient(135deg, #f59e0b 0%, #fbbf24 50%, #1e3a8a 100%);
+}
+
+body.bookmarks-only-mode .progress-display {
+    /* Specjalne stylowanie progress bara */
+    border: 2px solid #f59e0b;
+    background: rgba(245, 158, 11, 0.1);
+}
+
+body.bookmarks-only-mode .flashcard-container {
+    /* Subtelna ramka wokół fiszek */
+    border: 2px solid rgba(245, 158, 11, 0.3);
+    border-radius: 1rem;
+    box-shadow: 0 0 20px rgba(245, 158, 11, 0.2);
+}
+
+/* ============================================
+   NAVIGATION CONTROLS W TRYBIE ULUBIONYCH
+   ============================================ */
+
+.navigation-controls.bookmarks-mode {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(251, 191, 36, 0.1));
+    border: 2px solid rgba(245, 158, 11, 0.3);
+    border-radius: 1rem;
+    padding: 1rem;
+}
+
+.navigation-controls.bookmarks-mode::before {
+    content: "🔖 Tryb ulubionych";
+    position: absolute;
+    top: -0.75rem;
+    left: 1rem;
+    background: #f59e0b;
+    color: #111827;
+    padding: 0.25rem 0.75rem;
+    border-radius: 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    z-index: 1;
+}
+
+/* ============================================
+   PRZYCISK TOGGLE TRYBU ULUBIONYCH
+   ============================================ */
+
+#bookmarks-mode-toggle {
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+#bookmarks-mode-toggle.active {
+    background: linear-gradient(135deg, #f59e0b, #fbbf24);
+    color: #111827;
+    border-color: #f59e0b;
+    box-shadow: 0 0 15px rgba(245, 158, 11, 0.4);
+}
+
+#bookmarks-mode-toggle.active::after {
+    content: "";
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    width: 8px;
+    height: 8px;
+    background: #22c55e;
+    border-radius: 50%;
+    border: 2px solid white;
+    animation: pulse 2s infinite;
+}
+
+/* ============================================
+   PROGRESS BAR W TRYBIE ULUBIONYCH
+   ============================================ */
+
+.bookmarks-only-mode .progress-fill {
+    background: linear-gradient(90deg, #f59e0b, #fbbf24) !important;
+    box-shadow: 0 2px 4px rgba(245, 158, 11, 0.3);
+}
+
+.bookmarks-only-mode .progress-bar {
+    background: rgba(245, 158, 11, 0.1);
+    border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+/* ============================================
+   QUICK ACCESS BUTTONS
+   ============================================ */
+
+.quick-access-btn.bookmarks-study-btn {
+    background: linear-gradient(135deg, #f59e0b, #fbbf24);
+    color: #111827;
+    border-color: #f59e0b;
+}
+
+.quick-access-btn.bookmarks-study-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(245, 158, 11, 0.3);
+}
+
+.quick-access-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+.quick-access-btn:disabled:hover {
+    box-shadow: var(--shadow-md);
+}
+
+/* ============================================
+   MOBILE RESPONSIVE
+   ============================================ */
+
+@media (max-width: 768px) {
+    .mode-indicator {
+        margin: 0.25rem 0;
+        padding: 0.5rem 0.75rem;
+    }
+    
+    .indicator-content {
+        gap: 0.5rem;
+    }
+    
+    .indicator-content .text {
+        font-size: 0.875rem;
+    }
+    
+    .indicator-content .count {
+        font-size: 0.75rem;
+        padding: 0.125rem 0.375rem;
+    }
+    
+    .navigation-controls.bookmarks-mode::before {
+        font-size: 0.625rem;
+        padding: 0.125rem 0.5rem;
+        top: -0.5rem;
+    }
+}
+
+/* ============================================
+   DARK MODE SUPPORT
+   ============================================ */
+
+[data-theme="dark"] .mode-indicator {
+    background: linear-gradient(135deg, #d97706, #f59e0b);
+    color: #1f2937;
+}
+
+[data-theme="dark"] .indicator-content .close-btn {
+    color: #1f2937;
+}
+
+[data-theme="dark"] .indicator-content .close-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+[data-theme="dark"] body.bookmarks-only-mode {
+    --theme-bg-primary: linear-gradient(135deg, #d97706 0%, #f59e0b 50%, #1e40af 100%);
+}
+
+/* ============================================
+   PULSE ANIMATION
+   ============================================ */
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.7;
+        transform: scale(1.2);
+    }
+}
+
+/* ============================================
+   TRYB ULUBIONYCH - BODY CLASS
+   ============================================ */
+
+body.bookmarks-only-mode .flashcard-container {
+    /* Subtelna ramka wokół fiszek */
+    border: 3px solid #f59e0b;
+    border-radius: var(--radius-2xl);
+    box-shadow: 0 0 25px rgba(245, 158, 11, 0.3);
+    padding: 5px; /* Dodatkowy padding, aby ramka nie nachodziła na treść */
+}
+
+/* ============================================
+   NAVIGATION CONTROLS W TRYBIE ULUBIONYCH
+   ============================================ */
+
+.navigation-controls.bookmarks-mode {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(251, 191, 36, 0.2));
+    border: 2px solid rgba(245, 158, 11, 0.4);
+}
+
+#bookmarks-mode-toggle.active {
+    background: linear-gradient(135deg, #f59e0b, #fbbf24);
+    color: #111827;
+    border-color: #f59e0b;
+    box-shadow: 0 0 15px rgba(245, 158, 11, 0.4);
+    transform: scale(1.05);
+}
+
+/* ============================================
+   PROGRESS BAR W TRYBIE ULUBIONYCH
+   ============================================ */
+
+   
+.bookmarks-only-mode .progress-fill {
+    background: var(--gradient-accent) !important;
+}

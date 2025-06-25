@@ -451,7 +451,7 @@ class FlashcardManager {
     addWordControls(container, word) {
         const controlsEl = this.createElement('div', 'word-controls');
 
-        // Przycisk trudności
+        // Przycisk trudności (bez zmian)
         const difficultyBtn = this.createElement('button', 'control-btn difficulty-btn');
         difficultyBtn.innerHTML = `
             <span class="icon">⭐</span>
@@ -462,22 +462,79 @@ class FlashcardManager {
             this.toggleDifficulty(word);
         });
 
-        // Przycisk ulubionych
+        // ✅ NAPRAWIONY przycisk ulubionych
         const bookmarkBtn = this.createElement('button', 'control-btn bookmark-btn');
+        
+        // 📊 Sprawdź aktualny stan bookmark
         const isBookmarked = this.isWordBookmarked(word);
-        bookmarkBtn.innerHTML = `
-            <span class="icon">${isBookmarked ? '🔖' : '🔖'}</span>
-            <span class="text">${isBookmarked ? 'Usuń z ulubionych' : 'Dodaj do ulubionych'}</span>
-        `;
-        bookmarkBtn.classList.toggle('active', isBookmarked);
+        
+        // 🎨 Uaktualnij ikonę i tekst na podstawie stanu
+        this.updateBookmarkButton(bookmarkBtn, isBookmarked);
+        
+        // 🔧 NAPRAWIONY event listener
         bookmarkBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            this.toggleBookmark(word);
+            e.stopPropagation(); // Zatrzymaj propagację by nie obracać karty
+            console.log(`🔖 Kliknięto bookmark dla słowa: ${word.english}`);
+            
+            // 📝 Toggle bookmark i otrzymaj nowy stan
+            const newState = this.toggleBookmark(word);
+            
+            // 🎨 Natychmiast zaktualizuj wizualnie przycisk
+            this.updateBookmarkButton(bookmarkBtn, newState);
+            
+            // 📢 Pokaż powiadomienie użytkownikowi
+            this.showBookmarkNotification(word, newState);
+            
+            // 📊 Zaktualizuj statystyki w aplikacji
+            if (window.englishFlashcardsApp) {
+                window.englishFlashcardsApp.updateStats();
+            }
+            
+            console.log(`✅ Bookmark ${newState ? 'dodany' : 'usunięty'} dla słowa: ${word.english}`);
         });
 
+        // 📎 Dodaj przyciski do kontenera
         controlsEl.appendChild(difficultyBtn);
         controlsEl.appendChild(bookmarkBtn);
         container.appendChild(controlsEl);
+    }
+
+    updateBookmarkButton(button, isBookmarked) {
+        // 🎨 Różne ikony dla różnych stanów
+        const icon = isBookmarked ? '🔖' : '⚪'; // Wypełniona vs pusta ikona
+        const text = isBookmarked ? 'Usuń z ulubionych' : 'Dodaj do ulubionych';
+        const className = isBookmarked ? 'bookmarked' : 'not-bookmarked';
+        
+        // 📝 Aktualizuj zawartość przycisku
+        button.innerHTML = `
+            <span class="icon">${icon}</span>
+            <span class="text">${text}</span>
+        `;
+        
+        // 🎭 Dodaj/usuń klasę CSS dla stylowania
+        button.classList.toggle('active', isBookmarked);
+        button.classList.toggle('bookmarked', isBookmarked);
+        
+        // ♿ Accessibility - screen readers
+        button.setAttribute('aria-pressed', isBookmarked);
+        button.setAttribute('title', text);
+    }
+
+    /**
+     * ✨ NOWA METODA: Powiadomienia o zmianie stanu bookmark
+     */
+    showBookmarkNotification(word, isBookmarked) {
+        // 📢 Sprawdź czy NotificationManager jest dostępny
+        if (window.NotificationManager) {
+            const message = isBookmarked 
+                ? `"${word.english}" dodane do ulubionych 🔖`
+                : `"${word.english}" usunięte z ulubionych ⚪`;
+            
+            const type = isBookmarked ? 'success' : 'info';
+            
+            // 🎯 Pokaż powiadomienie przez 3 sekundy
+            window.NotificationManager.show(message, type, 3000);
+        }
     }
 
     /**
@@ -580,17 +637,58 @@ class FlashcardManager {
     }
 
     toggleBookmark(word) {
-        // Implementacja w ProgressManager
-        if (window.englishFlashcardsApp && window.englishFlashcardsApp.managers.progress) {
-            window.englishFlashcardsApp.managers.progress.toggleWordBookmark(word);
+        // 🛡️ Sprawdź czy ProgressManager jest dostępny
+        if (!window.englishFlashcardsApp || !window.englishFlashcardsApp.managers.progress) {
+            console.error('❌ ProgressManager nie jest dostępny');
+            if (window.NotificationManager) {
+                window.NotificationManager.show('Błąd: Nie można zapisać ulubionego', 'error');
+            }
+            return false;
+        }
+        
+        try {
+            // 📝 Wywołaj toggle w ProgressManager
+            const newState = window.englishFlashcardsApp.managers.progress.toggleWordBookmark(word);
+            
+            console.log(`🔄 Toggle bookmark: ${word.english} → ${newState ? 'dodany' : 'usunięty'}`);
+            return newState;
+            
+        } catch (error) {
+            console.error('❌ Błąd podczas toggle bookmark:', error);
+            
+            if (window.NotificationManager) {
+                window.NotificationManager.show('Błąd podczas zapisywania ulubionego', 'error');
+            }
+            
+            return false;
         }
     }
 
+
     isWordBookmarked(word) {
-        if (window.englishFlashcardsApp && window.englishFlashcardsApp.managers.progress) {
-            return window.englishFlashcardsApp.managers.progress.isWordBookmarked(word);
+        // 🛡️ Sprawdź czy ProgressManager jest dostępny
+        if (!window.englishFlashcardsApp || !window.englishFlashcardsApp.managers.progress) {
+            console.warn('⚠️ ProgressManager nie jest dostępny');
+            return false;
         }
-        return false;
+        
+        try {
+            const isBookmarked = window.englishFlashcardsApp.managers.progress.isWordBookmarked(word);
+            console.log(`🔍 Sprawdzam bookmark dla ${word.english}: ${isBookmarked}`);
+            return isBookmarked;
+            
+        } catch (error) {
+            console.error('❌ Błąd podczas sprawdzania bookmark:', error);
+            return false;
+        }
+    }
+
+    refreshBookmarkState(word) {
+        const bookmarkBtn = document.querySelector('.bookmark-btn');
+        if (bookmarkBtn && word) {
+            const isBookmarked = this.isWordBookmarked(word);
+            this.updateBookmarkButton(bookmarkBtn, isBookmarked);
+        }
     }
 
     openImageManager(wordId, word) {

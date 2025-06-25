@@ -16,7 +16,11 @@ class EnglishFlashcardsApp {
             isLoading: true,
             vocabulary: null,
             categories: null,
-            settings: null
+            settings: null,
+            bookmarksOnlyMode: false, // ✨ NOWE: Stan trybu ulubionych
+            bookmarkedWordsQueue: [], // ✨ NOWE: Kolejka ulubionych słów do nauki
+            bookmarksQueueIndex: 0,   // ✨ NOWE: Indeks w kolejce ulubionych
+            bookmarksController: null
         };
 
         this.managers = {};
@@ -94,7 +98,18 @@ class EnglishFlashcardsApp {
         // Menedżer quizów
         this.managers.quiz = new QuizManager();
         
+        console.log('🔖 Inicjalizuję BookmarksController...');
+
+        // Sprawdź czy BookmarksController jest dostępny
+        if (typeof BookmarksController !== 'undefined') {
+            this.bookmarksController = new BookmarksController(this);
+            console.log('✅ BookmarksController zainicjalizowany');
+        } else {
+            console.warn('⚠️ BookmarksController nie jest dostępny');
+        }
         console.log('✅ Wszystkie menedżery zainicjalizowane');
+
+        
     }
 
     /**
@@ -178,8 +193,23 @@ class EnglishFlashcardsApp {
         // Card interactions
         this.addEventListener('flashcard', 'click', (e) => this.handleCardClick(e));
 
+        this.addEventListener('bookmarks-toggle', 'click', () => this.openBookmarks());
+
         // Quiz events
         this.setupQuizEventListeners();
+
+        this.setupBookmarksEventListeners();
+
+        const bookmarksModeToggle = document.getElementById('bookmarks-mode-toggle');
+        if (bookmarksModeToggle) {
+            bookmarksModeToggle.addEventListener('click', () => {
+                if (this.state.bookmarksOnlyMode) {
+                    this.exitBookmarksOnlyMode();
+                } else {
+                    this.startBookmarksOnlyMode();
+                }
+            });
+        }
 
         // Settings actions
         this.addEventListeners([
@@ -242,6 +272,29 @@ class EnglishFlashcardsApp {
         }
     }
 
+    setupBookmarksEventListeners() {
+        console.log('🔖 Konfigurowanie event listeners dla bookmarks...');
+        
+        // 📝 Przycisk otwierania modala ulubionych w header
+        this.addEventListener('bookmarks-toggle', 'click', () => this.openBookmarks());
+        
+        // 📝 Przycisk "Ulubione" w statystykach
+        this.addEventListener('bookmarks-stats-btn', 'click', () => this.openBookmarks());
+        
+        // 🔄 Event listener dla aktualizacji bookmarks
+        document.addEventListener('bookmarkChanged', (e) => {
+            console.log('🔄 Bookmark changed event:', e.detail);
+            this.handleBookmarkChange(e.detail);
+        });
+        
+        // 📊 Event listener dla odświeżenia statystyk po zmianie bookmarks
+        document.addEventListener('bookmarksUpdated', () => {
+            console.log('📊 Bookmarks updated - odświeżam statystyki');
+            this.updateStats();
+            this.updateBookmarksCount();
+        });
+    }
+
     /**
      * Dodawanie wielu nasłuchiwaczy
      */
@@ -262,6 +315,45 @@ class EnglishFlashcardsApp {
         this.updateProgress();
         this.updateStats();
         this.applySettings();
+        this.initializeBookmarksUI();
+    }
+
+    /**
+     * ✨ NOWA METODA: Inicjalizacja UI bookmarks
+     */
+    initializeBookmarksUI() {
+        console.log('🔖 Inicjalizuję UI bookmarks...');
+        
+        // 📊 Aktualizuj licznik bookmarks
+        this.updateBookmarksCount();
+        
+        // 🎨 Dodaj wskaźnik trybu ulubionych jeśli aktywny
+        if (this.state.bookmarksOnlyMode) {
+            this.showBookmarksOnlyModeIndicator();
+        }
+        
+        console.log('✅ UI bookmarks zainicjalizowane');
+    }
+
+    /**
+     * 🎯 Pokazanie wskaźnika trybu ulubionych
+     */
+    showBookmarksOnlyModeIndicator() {
+        // 📝 Dodaj wskaźnik do UI że jesteśmy w trybie ulubionych
+        const indicator = document.createElement('div');
+        indicator.id = 'bookmarks-mode-indicator';
+        indicator.className = 'mode-indicator';
+        indicator.innerHTML = `
+            <span class="icon">🔖</span>
+            <span class="text">Tryb ulubionych</span>
+            <button class="close-btn" onclick="window.englishFlashcardsApp.exitBookmarksOnlyMode()">&times;</button>
+        `;
+        
+        // 📍 Wstaw na górze aplikacji
+        const header = document.querySelector('.app-header');
+        if (header) {
+            header.appendChild(indicator);
+        }
     }
 
     /**
@@ -275,21 +367,36 @@ class EnglishFlashcardsApp {
         let html = '';
 
         Object.entries(categories).forEach(([key, category]) => {
+            // ✅ POPRAWKA: Używaj managers.progress zamiast bezpośredniego dostępu
             const progress = this.managers.progress.getCategoryProgress(key);
             const progressPercent = Math.round((progress.studied / progress.total) * 100);
             
+            // ✅ NOWE: Sprawdzenie czy kategoria ma słowa
+            const hasWords = category.words && Array.isArray(category.words) && category.words.length > 0;
+            const wordCount = hasWords ? category.words.length : 0;
+            
+            // ✅ NOWE: Logowanie dla debugowania
+            console.log(`🎯 Renderuję kategorię ${key}:`, {
+                name: category.name,
+                wordCount: wordCount,
+                progress: progress,
+                progressPercent: progressPercent
+            });
+            
             html += `
                 <div class="category-card ${this.state.currentCategory === key ? 'active' : ''}" 
-                     data-category="${key}">
-                    <div class="category-icon">${category.icon}</div>
+                    data-category="${key}">
+                    <div class="category-icon">${category.icon || '📚'}</div>
                     <div class="category-name">${category.name}</div>
-                    <div class="category-description">${category.description}</div>
+                    <div class="category-description">${category.description || 'Brak opisu'}</div>
                     <div class="category-progress">
                         <div class="progress-bar">
-                            <div class="progress-fill" style="width: ${progressPercent}%"></div>
+                            <div class="progress-fill" style="width: ${progressPercent}%; background: ${progressPercent === 100 ? '#22c55e' : '#3b82f6'}; transition: width 0.3s ease;"></div>
                         </div>
                         <span class="progress-text">${progress.studied}/${progress.total}</span>
+                        ${progressPercent === 100 ? '<span class="completed-badge">✅</span>' : ''}
                     </div>
+                    ${!hasWords ? '<div class="no-words-warning">⚠️ Brak słów</div>' : ''}
                 </div>
             `;
         });
@@ -303,6 +410,9 @@ class EnglishFlashcardsApp {
                 this.switchCategory(category);
             });
         });
+        
+        // ✅ NOWE: Aktualizuj statystyki po renderowaniu
+        this.updateCategoryStatistics();
     }
 
     /**
@@ -412,15 +522,51 @@ class EnglishFlashcardsApp {
      * Aktualizacja karty
      */
     updateCard() {
-        if (!this.state.currentCategory || !this.state.vocabulary) return;
+        if (!this.state.vocabulary) return;
 
-        const category = this.state.vocabulary.categories[this.state.currentCategory];
-        const word = category.words[this.state.currentWordIndex];
+        let word = null;
+        
+        // 🔖 Sprawdź czy jesteśmy w trybie ulubionych
+        if (this.state.bookmarksOnlyMode && this.state.bookmarkedWordsQueue && this.state.bookmarkedWordsQueue.length > 0) {
+            // Pobierz słowo z kolejki ulubionych
+            const bookmarkedWord = this.state.bookmarkedWordsQueue[this.state.bookmarksQueueIndex];
+            
+            if (bookmarkedWord) {
+                word = bookmarkedWord;
+                // Znajdź oryginalne słowo w słowniku, aby mieć pełne dane (jeśli to konieczne)
+                // W tym przypadku `getAllBookmarkedWords` zwraca już pełny obiekt, więc jest OK.
+                console.log(`🔖 Tryb ulubionych: wyświetlam słowo ${this.state.bookmarksQueueIndex + 1}/${this.state.bookmarkedWordsQueue.length}: ${word.english}`);
+            } else {
+                // Jeśli z jakiegoś powodu słowa nie ma, wyjdź z trybu
+                console.warn('⚠️ Nie znaleziono słowa w kolejce ulubionych. Wychodzę z trybu.');
+                this.exitBookmarksOnlyMode();
+                return;
+            }
+        } else {
+            // Standardowy tryb - pobierz z kategorii
+            if (!this.state.currentCategory) return;
+            
+            const category = this.state.vocabulary.categories[this.state.currentCategory];
+            if (!category || !category.words || category.words.length === 0) {
+                console.warn(`⚠️ Kategoria ${this.state.currentCategory} nie ma słów.`);
+                // Można tu wyświetlić jakąś informację na karcie
+                return;
+            }
+            
+            word = category.words[this.state.currentWordIndex];
+        }
 
-        if (!word) return;
+        if (!word) {
+            console.warn('⚠️ Nie można znaleźć słowa do wyświetlenia');
+            return;
+        }
 
+        // Wyświetl słowo
         this.managers.flashcard.displayWord(word, this.state.currentMode);
         this.resetCardFlip();
+        
+        // Zaktualizuj wskaźniki postępu
+        this.updateProgress();
     }
 
     /**
@@ -447,11 +593,16 @@ class EnglishFlashcardsApp {
 
         // Oznaczenie jako przejrzane gdy karta zostanie obrócona
         if (this.state.isFlipped) {
-            this.managers.progress.markWordAsStudied(
+            const wasStudied = this.managers.progress.markWordAsStudied(
                 this.state.currentCategory, 
                 this.state.currentWordIndex
             );
-            this.updateStats();
+            
+            // ✅ NOWE: Odśwież progress tylko jeśli słowo było nowe
+            if (wasStudied) {
+                this.refreshCategoryProgress(this.state.currentCategory);
+                this.updateStats();
+            }
         }
 
         // Automatyczne audio jeśli włączone
@@ -465,31 +616,209 @@ class EnglishFlashcardsApp {
     }
 
     /**
-     * Poprzednia karta
+     * ✅ NOWA METODA: Aktualizacja statystyk kategorii
      */
-    previousCard() {
-        if (this.state.currentWordIndex > 0) {
-            this.state.currentWordIndex--;
-            this.updateCard();
-            this.updateProgress();
-            this.saveState();
-        } else {
-            NotificationManager.show('To jest pierwsza karta w kategorii', 'info');
+    updateCategoryStatistics() {
+        if (!this.managers.progress || !this.state.vocabulary) return;
+        
+        // Aktualizuj wszystkie statystyki kategorii
+        this.managers.progress.updateAllCategoryStats();
+        
+        console.log('📊 Statystyki kategorii zaktualizowane');
+    }
+
+    /**
+     * ✅ NOWA METODA: Odświeżenie pojedynczej kategorii
+     */
+    refreshCategoryProgress(categoryKey) {
+        if (!this.managers.progress) return;
+        
+        const progress = this.managers.progress.getCategoryProgress(categoryKey);
+        const categoryCard = document.querySelector(`[data-category="${categoryKey}"]`);
+        
+        if (categoryCard) {
+            const progressFill = categoryCard.querySelector('.progress-fill');
+            const progressText = categoryCard.querySelector('.progress-text');
+            const progressPercent = Math.round((progress.studied / progress.total) * 100);
+            
+            if (progressFill) {
+                progressFill.style.width = `${progressPercent}%`;
+                progressFill.style.background = progressPercent === 100 ? '#22c55e' : '#3b82f6';
+            }
+            
+            if (progressText) {
+                progressText.textContent = `${progress.studied}/${progress.total}`;
+            }
+            
+            // Dodaj badge dla ukończonych kategorii
+            const existingBadge = categoryCard.querySelector('.completed-badge');
+            if (progressPercent === 100 && !existingBadge) {
+                const badge = document.createElement('span');
+                badge.className = 'completed-badge';
+                badge.textContent = '✅';
+                categoryCard.querySelector('.category-progress').appendChild(badge);
+            } else if (progressPercent < 100 && existingBadge) {
+                existingBadge.remove();
+            }
+            
+            console.log(`🔄 Odświeżono progress kategorii ${categoryKey}: ${progress.studied}/${progress.total}`);
         }
     }
 
     /**
      * Następna karta
      */
+    /**
+ * 🔖 POPRAWKI DLA TRYBU ULUBIONYCH - Dodaj do app.js
+ * Te metody zastąpią istniejące w Twojej aplikacji
+ */
+
+    /**
+     * ✅ POPRAWIONA METODA: updateCard() z obsługą trybu ulubionych
+     */
+    updateCard() {
+        if (!this.state.vocabulary) return;
+
+        let word = null;
+        
+        // 🔖 Sprawdź czy jesteśmy w trybie ulubionych
+        if (this.state.bookmarksOnlyMode && this.state.bookmarkedWordsQueue) {
+            // Pobierz słowo z kolejki ulubionych
+            const currentBookmarkIndex = this.state.bookmarksQueueIndex || 0;
+            const bookmarkedWord = this.state.bookmarkedWordsQueue[currentBookmarkIndex];
+            
+            if (bookmarkedWord) {
+                word = bookmarkedWord;
+                console.log(`🔖 Tryb ulubionych: wyświetlam słowo ${currentBookmarkIndex + 1}/${this.state.bookmarkedWordsQueue.length}: ${word.english}`);
+            }
+        } else {
+            // Standardowy tryb - pobierz z kategorii
+            if (!this.state.currentCategory) return;
+            
+            const category = this.state.vocabulary.categories[this.state.currentCategory];
+            if (!category || !category.words) return;
+            
+            word = category.words[this.state.currentWordIndex];
+        }
+
+        if (!word) {
+            console.warn('⚠️ Nie można znaleźć słowa do wyświetlenia');
+            return;
+        }
+
+        // Wyświetl słowo
+        this.managers.flashcard.displayWord(word, this.state.currentMode);
+        this.resetCardFlip();
+        
+        // Odśwież progress tylko w trybie standardowym
+        if (!this.state.bookmarksOnlyMode) {
+            this.refreshCategoryProgress(this.state.currentCategory);
+        }
+        
+        // Zaktualizuj wskaźniki postępu
+        this.updateProgress();
+    }
+
+    /**
+     * ✅ POPRAWIONA METODA: updateProgress() z obsługą trybu ulubionych
+     */
+    updateProgress() {
+        let currentIndex, totalCount, categoryName;
+        
+        // 🔖 Tryb ulubionych
+        if (this.state.bookmarksOnlyMode && this.state.bookmarkedWordsQueue) {
+            currentIndex = (this.state.bookmarksQueueIndex || 0) + 1;
+            totalCount = this.state.bookmarkedWordsQueue.length;
+            categoryName = `Ulubione słowa (${totalCount})`;
+            
+            console.log(`📊 Progress w trybie ulubionych: ${currentIndex}/${totalCount}`);
+        } else {
+            // Standardowy tryb
+            const category = this.state.vocabulary?.categories[this.state.currentCategory];
+            if (!category) return;
+            
+            currentIndex = this.state.currentWordIndex + 1;
+            totalCount = category.words.length;
+            categoryName = category.name;
+        }
+
+        // Aktualizuj elementy UI
+        const currentCardEl = document.getElementById('current-card');
+        const totalCardsEl = document.getElementById('total-cards');
+        const progressFillEl = document.getElementById('progress-fill');
+        const currentCategoryEl = document.getElementById('current-category');
+
+        if (currentCardEl) currentCardEl.textContent = currentIndex;
+        if (totalCardsEl) totalCardsEl.textContent = totalCount;
+        if (currentCategoryEl) currentCategoryEl.textContent = categoryName;
+
+        if (progressFillEl) {
+            const progressPercent = (currentIndex / totalCount) * 100;
+            progressFillEl.style.width = `${progressPercent}%`;
+            
+            // 🔖 Różne kolory dla trybu ulubionych
+            if (this.state.bookmarksOnlyMode) {
+                progressFillEl.style.background = 'linear-gradient(90deg, #f59e0b, #fbbf24)'; // Złoty
+            } else {
+                progressFillEl.style.background = ''; // Domyślny
+            }
+        }
+    }
+
+/**
+ * ✅ POPRAWIONA METODA: nextCard() z lepszą obsługą ulubionych
+ */
     nextCard() {
+        // 🔖 Sprawdź tryb ulubionych
+        if (this.state.bookmarksOnlyMode) {
+            if (this.state.bookmarksQueueIndex < this.state.bookmarkedWordsQueue.length - 1) {
+                this.state.bookmarksQueueIndex++;
+                this.updateCard();
+            } else {
+                NotificationManager.show('To ostatnie ulubione słowo!', 'info');
+                if (confirm('Przejrzałeś wszystkie ulubione. Chcesz zacząć od nowa?')) {
+                    this.state.bookmarksQueueIndex = 0;
+                    this.updateCard();
+                } else {
+                    this.exitBookmarksOnlyMode();
+                }
+            }
+            return;
+        }
+        
+        // Standardowa logika
         const category = this.state.vocabulary.categories[this.state.currentCategory];
         if (this.state.currentWordIndex < category.words.length - 1) {
             this.state.currentWordIndex++;
             this.updateCard();
-            this.updateProgress();
             this.saveState();
         } else {
             NotificationManager.show('To jest ostatnia karta w kategorii', 'info');
+        }
+    }
+
+    /**
+     * ✅ POPRAWIONA METODA: previousCard() z obsługą ulubionych
+     */
+    previousCard() {
+        // 🔖 Sprawdź tryb ulubionych
+        if (this.state.bookmarksOnlyMode) {
+            if (this.state.bookmarksQueueIndex > 0) {
+                this.state.bookmarksQueueIndex--;
+                this.updateCard();
+            } else {
+                NotificationManager.show('To pierwsze ulubione słowo!', 'info');
+            }
+            return;
+        }
+        
+        // Standardowa logika
+        if (this.state.currentWordIndex > 0) {
+            this.state.currentWordIndex--;
+            this.updateCard();
+            this.saveState();
+        } else {
+            NotificationManager.show('To jest pierwsza karta w kategorii', 'info');
         }
     }
 
@@ -522,26 +851,361 @@ class EnglishFlashcardsApp {
     }
 
     /**
+     * 🔖 Otwarcie modala ulubionych
+     */
+    openBookmarks() {
+        console.log('🔖 Otwieranie ulubionych słów...');
+        
+        if (!this.bookmarksController) {
+            // 🔧 Inicjalizuj jeśli jeszcze nie istnieje
+            if (typeof BookmarksController !== 'undefined') {
+                this.bookmarksController = new BookmarksController(this);
+            } else {
+                console.error('❌ BookmarksController nie jest dostępny');
+                NotificationManager.show('Nie można otworzyć ulubionych - brak modułu', 'error');
+                return;
+            }
+        }
+        
+        // 📂 Otwórz modal
+        this.bookmarksController.openModal();
+        
+        // 📊 Zapisz w statystykach że użytkownik otworzył ulubione
+        this.trackBookmarksUsage();
+    }
+
+    /**
+     * 🔄 Aktualizacja licznika ulubionych w statystykach
+     */
+     updateBookmarksInStats() {
+         if (this.managers.progress) {
+             const stats = this.managers.progress.getBookmarkStats();
+             const bookmarksCountEl = document.getElementById('total-bookmarks-stat');
+             if (bookmarksCountEl) {
+                 bookmarksCountEl.textContent = stats.totalBookmarks;
+             }
+         }
+     }
+
+    updateBookmarksModeUI(isActive) {
+        const navigationControls = document.getElementById('navigation-controls');
+        const toggleButton = document.getElementById('bookmarks-mode-toggle');
+        const body = document.body;
+
+        if (isActive) {
+            navigationControls.classList.add('bookmarks-mode');
+            toggleButton.classList.add('active');
+            toggleButton.querySelector('.text').textContent = 'Wyjdź z trybu';
+            toggleButton.querySelector('.icon').textContent = '❌';
+            body.classList.add('bookmarks-only-mode');
+        } else {
+            navigationControls.classList.remove('bookmarks-mode');
+            toggleButton.classList.remove('active');
+            toggleButton.querySelector('.text').textContent = 'Tryb ulubionych';
+            toggleButton.querySelector('.icon').textContent = '🔖';
+            body.classList.remove('bookmarks-only-mode');
+        }
+    }
+
+    updateBookmarksCount() {
+        if (!this.managers.progress) return;
+        
+        try {
+            const stats = this.managers.progress.getBookmarkStats();
+            
+            // 🏷️ Aktualizuj licznik w header (jeśli istnieje)
+            const headerBadge = document.querySelector('#bookmarks-toggle .count-badge');
+            if (headerBadge) {
+                headerBadge.textContent = stats.totalBookmarks;
+                headerBadge.style.display = stats.totalBookmarks > 0 ? 'inline' : 'none';
+            }
+            
+            // 📊 Aktualizuj w statystykach
+            const statElement = document.getElementById('total-bookmarks-stat');
+            if (statElement) {
+                statElement.textContent = stats.totalBookmarks;
+            }
+            
+            console.log(`📊 Zaktualizowano licznik bookmarks: ${stats.totalBookmarks}`);
+            
+        } catch (error) {
+            console.error('❌ Błąd aktualizacji licznika bookmarks:', error);
+        }
+    }
+
+    handleBookmarkChange(detail) {
+        const { word, isBookmarked, wordKey } = detail;
+        
+        console.log(`🔄 Handling bookmark change: ${wordKey} → ${isBookmarked ? 'added' : 'removed'}`);
+        
+        // 🎨 Aktualizuj wizualny stan przycisku bookmark na bieżącej karcie
+        if (this.managers.flashcard && this.managers.flashcard.currentWord === word) {
+            this.managers.flashcard.refreshBookmarkState(word);
+        }
+        
+        // 📊 Aktualizuj liczniki
+        this.updateBookmarksCount();
+        
+        // 🔄 Odśwież modal bookmarks jeśli jest otwarty
+        if (this.bookmarksController && this.bookmarksController.isModalOpen()) {
+            this.bookmarksController.loadBookmarksData();
+        }
+    }
+
+    /**
+     * 📊 Śledzenie użycia bookmarks (analytics)
+     */
+    trackBookmarksUsage() {
+        try {
+            // 📈 Zapisz że użytkownik otworzył ulubione
+            const usage = JSON.parse(localStorage.getItem('bookmarks-usage') || '{}');
+            usage.modalOpened = (usage.modalOpened || 0) + 1;
+            usage.lastOpened = new Date().toISOString();
+            localStorage.setItem('bookmarks-usage', JSON.stringify(usage));
+            
+            console.log('📈 Zarejestrowano użycie modala bookmarks');
+        } catch (error) {
+            console.warn('⚠️ Błąd śledzenia użycia bookmarks:', error);
+        }
+    }
+
+    /**
+     * 🎯 Tryb nauki tylko ulubionych słów
+     */
+    /**
+     * 🎯 Rozpoczęcie nauki tylko ulubionych słów
+     */
+    startBookmarksOnlyMode() {
+        console.log('🎯 Rozpoczynam tryb nauki tylko ulubionych...');
+        
+        if (!this.managers.progress) {
+            NotificationManager.show('Nie można uruchomić trybu ulubionych', 'error');
+            return false;
+        }
+        
+        const bookmarkedWords = this.managers.progress.getAllBookmarkedWords();
+        
+        if (bookmarkedWords.length === 0) {
+            NotificationManager.show('Brak ulubionych słów do nauki', 'info');
+            return false;
+        }
+        
+        // 🎲 Wymieszaj ulubione słowa dla lepszego efektu nauki
+        const shuffledBookmarks = Utils.shuffle(bookmarkedWords);
+        
+        // 💾 Zapisz stan trybu ulubionych
+        this.state.bookmarksOnlyMode = true;
+        this.state.bookmarkedWordsQueue = shuffledBookmarks;
+        this.state.bookmarksQueueIndex = 0;
+        
+        // 🎯 Przejdź do pierwszego ulubionego słowa
+        this.updateCard();
+        
+        // 🎨 Zaktualizuj UI
+        this.updateBookmarksModeUI(true);
+        
+        NotificationManager.show(
+            `🔖 Tryb ulubionych: ${bookmarkedWords.length} słów`, 
+            'success', 
+            4000
+        );
+        
+        console.log(`✅ Uruchomiono tryb ulubionych z ${bookmarkedWords.length} słowami`);
+        this.closeModal('bookmarks'); // Zamknij modal, jeśli był otwarty
+        return true;
+    }
+
+
+    /**
+     * 🔄 Wyjście z trybu nauki tylko ulubionych
+     */
+    
+    /**
+     * 🔄 Wyjście z trybu nauki tylko ulubionych
+     */
+    exitBookmarksOnlyMode() {
+        console.log('🔄 Wychodzę z trybu nauki ulubionych...');
+        
+        // 🗑️ Wyczyść stan trybu ulubionych
+        this.state.bookmarksOnlyMode = false;
+        this.state.bookmarkedWordsQueue = null;
+        this.state.bookmarksQueueIndex = 0;
+        
+        // 🎨 Zaktualizuj UI
+        this.updateBookmarksModeUI(false);
+        
+        // 🔄 Odśwież kartę (wróci do normalnego trybu)
+        this.updateCard();
+        
+        NotificationManager.show('Zakończono tryb ulubionych', 'info');
+    }
+
+    /**
+     * ➡️ Następne słowo w trybie ulubionych
+     */
+    nextBookmarkedWord() {
+        if (!this.state.bookmarksOnlyMode || !this.state.bookmarkedWordsQueue) {
+            console.warn('⚠️ Nie jesteśmy w trybie ulubionych');
+            return;
+        }
+        
+        // Przejdź do następnego słowa
+        this.state.bookmarksQueueIndex++;
+        
+        if (this.state.bookmarksQueueIndex >= this.state.bookmarkedWordsQueue.length) {
+            // 🔄 Koniec listy - zaproponuj powtórkę
+            if (confirm('Przejrzałeś wszystkie ulubione słowa! Czy chcesz rozpocząć od nowa?')) {
+                this.state.bookmarksQueueIndex = 0;
+            } else {
+                this.exitBookmarksOnlyMode();
+                return;
+            }
+        }
+        
+        // 🔄 Aktualizuj kartę
+        this.updateCard();
+        
+        // 📊 Pokaż progress
+        const remaining = this.state.bookmarkedWordsQueue.length - this.state.bookmarksQueueIndex - 1;
+        console.log(`📖 Ulubione: pozostało ${remaining} słów`);
+    }
+
+    /**
+     * ⬅️ Poprzednie słowo w trybie ulubionych
+     */
+    previousBookmarkedWord() {
+        if (!this.state.bookmarksOnlyMode || !this.state.bookmarkedWordsQueue) {
+            console.warn('⚠️ Nie jesteśmy w trybie ulubionych');
+            return;
+        }
+        
+        if (this.state.bookmarksQueueIndex > 0) {
+            this.state.bookmarksQueueIndex--;
+            this.updateCard();
+        } else {
+            if (window.NotificationManager) {
+                window.NotificationManager.show('To pierwsze ulubione słowo', 'info');
+            }
+        }
+    }
+
+    updateBookmarksModeUI() {
+        // 🎨 Aktualizuj przycisk toggle w navigation
+        const bookmarksModeBtn = document.getElementById('bookmarks-mode-toggle');
+        if (bookmarksModeBtn) {
+            const btnText = bookmarksModeBtn.querySelector('.text');
+            const btnIcon = bookmarksModeBtn.querySelector('.icon');
+            
+            if (this.state.bookmarksOnlyMode) {
+                if (btnText) btnText.textContent = 'Wyjdź z trybu';
+                if (btnIcon) btnIcon.textContent = '🔙';
+                bookmarksModeBtn.classList.add('active');
+                bookmarksModeBtn.title = 'Wyjdź z trybu ulubionych';
+            } else {
+                if (btnText) btnText.textContent = 'Tryb ulubionych';
+                if (btnIcon) btnIcon.textContent = '🔖';
+                bookmarksModeBtn.classList.remove('active');
+                bookmarksModeBtn.title = 'Przełącz na tryb ulubionych';
+            }
+        }
+        
+        // 🎨 Aktualizuj navigation controls
+        const navigationControls = document.getElementById('navigation-controls');
+        if (navigationControls) {
+            navigationControls.classList.toggle('bookmarks-mode', this.state.bookmarksOnlyMode);
+        }
+        
+        // 🎨 Dodaj/usuń klasę z body dla stylowania
+        document.body.classList.toggle('bookmarks-only-mode', this.state.bookmarksOnlyMode);
+    }
+
+    /**
+     * ✅ NOWA METODA: Pokazanie wskaźnika trybu ulubionych
+    */
+    showBookmarksOnlyModeIndicator() {
+        // Usuń poprzedni wskaźnik jeśli istnieje
+        this.hideBookmarksOnlyModeIndicator();
+        
+        const indicator = document.createElement('div');
+        indicator.id = 'bookmarks-mode-indicator';
+        indicator.className = 'mode-indicator bookmarks-indicator';
+        indicator.innerHTML = `
+            <div class="indicator-content">
+                <span class="icon">🔖</span>
+                <span class="text">Tryb ulubionych</span>
+                <span class="count">${this.state.bookmarkedWordsQueue?.length || 0} słów</span>
+                <button class="close-btn" onclick="window.englishFlashcardsApp.exitBookmarksOnlyMode()" title="Wyjdź z trybu">×</button>
+            </div>
+        `;
+        
+        // Dodaj na górze aplikacji
+        const header = document.querySelector('.app-header');
+        if (header) {
+            header.appendChild(indicator);
+        }
+    }
+
+    /**
+     * ✅ NOWA METODA: Ukrycie wskaźnika trybu ulubionych  
+     */
+    hideBookmarksOnlyModeIndicator() {
+        const indicator = document.getElementById('bookmarks-mode-indicator');
+        if (indicator) {
+            indicator.remove();
+        }
+    }
+
+    /**
+     * ✅ POMOCNICZA METODA: Mieszanie tablicy
+     */
+    shuffleArray(array) {
+        const newArray = [...array];
+        for (let i = newArray.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+        }
+        return newArray;
+    }
+
+    /**
      * Aktualizacja postępu
      */
     updateProgress() {
-        const category = this.state.vocabulary.categories[this.state.currentCategory];
-        if (!category) return;
+        let currentIndex, totalCount, categoryName, progressPercent;
 
-        const currentCardEl = document.getElementById('current-card');
-        const totalCardsEl = document.getElementById('total-cards');
+        // 🔖 Tryb ulubionych
+        if (this.state.bookmarksOnlyMode && this.state.bookmarkedWordsQueue) {
+            currentIndex = this.state.bookmarksQueueIndex + 1;
+            totalCount = this.state.bookmarkedWordsQueue.length;
+            categoryName = `🔖 Tryb ulubionych`;
+        } else {
+            // Standardowy tryb
+            const category = this.state.vocabulary?.categories[this.state.currentCategory];
+            if (!category || !category.words || category.words.length === 0) return;
+            
+            currentIndex = this.state.currentWordIndex + 1;
+            totalCount = category.words.length;
+            categoryName = category.name;
+        }
+
+        progressPercent = totalCount > 0 ? (currentIndex / totalCount) * 100 : 0;
+
+        // Aktualizuj elementy UI
+        document.getElementById('current-card').textContent = currentIndex;
+        document.getElementById('total-cards').textContent = totalCount;
+        document.getElementById('current-category').textContent = categoryName;
+
         const progressFillEl = document.getElementById('progress-fill');
-        const currentCategoryEl = document.getElementById('current-category');
+        progressFillEl.style.width = `${progressPercent}%`;
 
-        if (currentCardEl) currentCardEl.textContent = this.state.currentWordIndex + 1;
-        if (totalCardsEl) totalCardsEl.textContent = category.words.length;
-        if (currentCategoryEl) currentCategoryEl.textContent = category.name;
-
-        if (progressFillEl) {
-            const progressPercent = ((this.state.currentWordIndex + 1) / category.words.length) * 100;
-            progressFillEl.style.width = `${progressPercent}%`;
+        // 🔖 Różne kolory dla trybu ulubionych
+        if (this.state.bookmarksOnlyMode) {
+            progressFillEl.style.background = 'var(--gradient-accent, linear-gradient(90deg, #f59e0b, #fbbf24))';
+        } else {
+            progressFillEl.style.background = ''; // Usuń styl, aby wrócić do domyślnego z CSS
         }
     }
+
 
     /**
      * Aktualizacja statystyk
@@ -557,7 +1221,26 @@ class EnglishFlashcardsApp {
         this.updateStatElement('favorite-category', stats.favoriteCategory || 'Brak');
         this.updateStatElement('total-words', this.state.vocabulary.metadata.totalWords + '+');
         this.updateStatElement('completed-categories', `${quizStats.completedCategories}/${this.state.vocabulary.metadata.totalCategories}`);
-
+        // ✨ NOWE: Aktualizuj statystyki bookmarks
+        this.updateBookmarksCount();
+        
+        // 📊 Dodaj statystyki bookmarks do głównego panelu
+        if (this.managers.progress) {
+            const bookmarkStats = this.managers.progress.getBookmarkStats();
+            
+            // 🔖 Aktualizuj element z ulubionymi jeśli istnieje
+            const favoriteWordsEl = document.getElementById('favorite-words-count');
+            if (favoriteWordsEl) {
+                favoriteWordsEl.textContent = bookmarkStats.totalBookmarks;
+            }
+            
+            // 🏆 Najczęściej ulubiona kategoria
+            const topBookmarkCategoryEl = document.getElementById('top-bookmark-category');
+            if (topBookmarkCategoryEl && bookmarkStats.topCategory) {
+                topBookmarkCategoryEl.textContent = bookmarkStats.topCategory.name;
+            }
+        }
+    
         // Aktualizacja paska postępu kart
         const cardsProgressEl = document.getElementById('cards-progress');
         if (cardsProgressEl) {
@@ -1215,6 +1898,19 @@ class EnglishFlashcardsApp {
                 manager.cleanup();
             }
         });
+
+        // ✨ NOWE: Cleanup bookmarks controller
+        if (this.bookmarksController) {
+            // BookmarksController nie ma jeszcze metody cleanup, ale gdyby miał:
+            // this.bookmarksController.cleanup();
+            this.bookmarksController = null;
+        }
+        
+        // 🗑️ Usuń wskaźnik trybu ulubionych
+        const indicator = document.getElementById('bookmarks-mode-indicator');
+        if (indicator) {
+            indicator.remove();
+        }
     }
 
     // 3. NOWA METODA: setupAudioListeners()
