@@ -292,7 +292,7 @@ body {
 }
 
 .category-name {
-  font-size: var(--text-sm-mobile);
+  font-size: var(--text-lg-mobile);
 }
 
 .progress-actions {
@@ -597,6 +597,8 @@ body {
   .progress-info {
     flex-direction: row;
     text-align: left;
+    justify-content: center;
+    align-items: baseline;
   }
 
   /* Modal improvements */

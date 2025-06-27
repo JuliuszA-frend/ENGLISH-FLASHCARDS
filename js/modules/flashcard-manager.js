@@ -502,7 +502,7 @@ class FlashcardManager {
     updateBookmarkButton(button, isBookmarked) {
         // 🎨 Różne ikony dla różnych stanów
         const icon = isBookmarked ? '🔖' : '⚪'; // Wypełniona vs pusta ikona
-        const text = isBookmarked ? 'Usuń z ulubionych' : 'Dodaj do ulubionych';
+        const text = isBookmarked ? 'Usuń z trybu powtórki' : 'Dodaj do powtórek';
         const className = isBookmarked ? 'bookmarked' : 'not-bookmarked';
         
         // 📝 Aktualizuj zawartość przycisku
@@ -527,8 +527,8 @@ class FlashcardManager {
         // 📢 Sprawdź czy NotificationManager jest dostępny
         if (window.NotificationManager) {
             const message = isBookmarked 
-                ? `"${word.english}" dodane do ulubionych 🔖`
-                : `"${word.english}" usunięte z ulubionych ⚪`;
+                ? `"${word.english}" dodane do powtórek 🔖`
+                : `"${word.english}" usunięte z powtórek ⚪`;
             
             const type = isBookmarked ? 'success' : 'info';
             
@@ -641,7 +641,7 @@ class FlashcardManager {
         if (!window.englishFlashcardsApp || !window.englishFlashcardsApp.managers.progress) {
             console.error('❌ ProgressManager nie jest dostępny');
             if (window.NotificationManager) {
-                window.NotificationManager.show('Błąd: Nie można zapisać ulubionego', 'error');
+                window.NotificationManager.show('Błąd: Nie można zapisać do powtórki', 'error');
             }
             return false;
         }
@@ -657,7 +657,7 @@ class FlashcardManager {
             console.error('❌ Błąd podczas toggle bookmark:', error);
             
             if (window.NotificationManager) {
-                window.NotificationManager.show('Błąd podczas zapisywania ulubionego', 'error');
+                window.NotificationManager.show('Błąd podczas zapisywania powtórki', 'error');
             }
             
             return false;

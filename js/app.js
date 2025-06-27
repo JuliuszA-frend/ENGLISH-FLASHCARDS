@@ -211,6 +211,18 @@ class EnglishFlashcardsApp {
             });
         }
 
+         // ✨✨✨ POCZĄTEK NOWEGO KODU DO DODANIA ✨✨✨
+        // 🎯 PRZYCISKI W PANELU SZYBKIEGO DOSTĘPU
+        this.addEventListeners([
+            ['study-bookmarks-quick', 'click', () => this.startBookmarksOnlyMode()],
+            ['browse-bookmarks-quick', 'click', () => this.openBookmarks()],
+            ['quiz-bookmarks-quick', 'click', () => {
+                NotificationManager.show('Quiz z słownictwa do powtórzenia - wkrótce!', 'info');
+            }]
+        ]);
+        // ✨✨✨ KONIEC NOWEGO KODU DO DODANIA ✨✨✨
+
+
         // Settings actions
         this.addEventListeners([
             ['export-data', 'click', () => this.exportData()],
@@ -664,107 +676,6 @@ class EnglishFlashcardsApp {
             console.log(`🔄 Odświeżono progress kategorii ${categoryKey}: ${progress.studied}/${progress.total}`);
         }
     }
-
-    /**
-     * Następna karta
-     */
-    /**
- * 🔖 POPRAWKI DLA TRYBU ULUBIONYCH - Dodaj do app.js
- * Te metody zastąpią istniejące w Twojej aplikacji
- */
-
-    /**
-     * ✅ POPRAWIONA METODA: updateCard() z obsługą trybu ulubionych
-     */
-    updateCard() {
-        if (!this.state.vocabulary) return;
-
-        let word = null;
-        
-        // 🔖 Sprawdź czy jesteśmy w trybie ulubionych
-        if (this.state.bookmarksOnlyMode && this.state.bookmarkedWordsQueue) {
-            // Pobierz słowo z kolejki ulubionych
-            const currentBookmarkIndex = this.state.bookmarksQueueIndex || 0;
-            const bookmarkedWord = this.state.bookmarkedWordsQueue[currentBookmarkIndex];
-            
-            if (bookmarkedWord) {
-                word = bookmarkedWord;
-                console.log(`🔖 Tryb ulubionych: wyświetlam słowo ${currentBookmarkIndex + 1}/${this.state.bookmarkedWordsQueue.length}: ${word.english}`);
-            }
-        } else {
-            // Standardowy tryb - pobierz z kategorii
-            if (!this.state.currentCategory) return;
-            
-            const category = this.state.vocabulary.categories[this.state.currentCategory];
-            if (!category || !category.words) return;
-            
-            word = category.words[this.state.currentWordIndex];
-        }
-
-        if (!word) {
-            console.warn('⚠️ Nie można znaleźć słowa do wyświetlenia');
-            return;
-        }
-
-        // Wyświetl słowo
-        this.managers.flashcard.displayWord(word, this.state.currentMode);
-        this.resetCardFlip();
-        
-        // Odśwież progress tylko w trybie standardowym
-        if (!this.state.bookmarksOnlyMode) {
-            this.refreshCategoryProgress(this.state.currentCategory);
-        }
-        
-        // Zaktualizuj wskaźniki postępu
-        this.updateProgress();
-    }
-
-    /**
-     * ✅ POPRAWIONA METODA: updateProgress() z obsługą trybu ulubionych
-     */
-    updateProgress() {
-        let currentIndex, totalCount, categoryName;
-        
-        // 🔖 Tryb ulubionych
-        if (this.state.bookmarksOnlyMode && this.state.bookmarkedWordsQueue) {
-            currentIndex = (this.state.bookmarksQueueIndex || 0) + 1;
-            totalCount = this.state.bookmarkedWordsQueue.length;
-            categoryName = `Ulubione słowa (${totalCount})`;
-            
-            console.log(`📊 Progress w trybie ulubionych: ${currentIndex}/${totalCount}`);
-        } else {
-            // Standardowy tryb
-            const category = this.state.vocabulary?.categories[this.state.currentCategory];
-            if (!category) return;
-            
-            currentIndex = this.state.currentWordIndex + 1;
-            totalCount = category.words.length;
-            categoryName = category.name;
-        }
-
-        // Aktualizuj elementy UI
-        const currentCardEl = document.getElementById('current-card');
-        const totalCardsEl = document.getElementById('total-cards');
-        const progressFillEl = document.getElementById('progress-fill');
-        const currentCategoryEl = document.getElementById('current-category');
-
-        if (currentCardEl) currentCardEl.textContent = currentIndex;
-        if (totalCardsEl) totalCardsEl.textContent = totalCount;
-        if (currentCategoryEl) currentCategoryEl.textContent = categoryName;
-
-        if (progressFillEl) {
-            const progressPercent = (currentIndex / totalCount) * 100;
-            progressFillEl.style.width = `${progressPercent}%`;
-            
-            // 🔖 Różne kolory dla trybu ulubionych
-            if (this.state.bookmarksOnlyMode) {
-                progressFillEl.style.background = 'linear-gradient(90deg, #f59e0b, #fbbf24)'; // Złoty
-            } else {
-                progressFillEl.style.background = ''; // Domyślny
-            }
-        }
-    }
-
 /**
  * ✅ POPRAWIONA METODA: nextCard() z lepszą obsługą ulubionych
  */
@@ -840,13 +751,114 @@ class EnglishFlashcardsApp {
      */
     resetCategory() {
         if (confirm('Czy na pewno chcesz zresetować postęp tej kategorii?')) {
-            this.managers.progress.resetCategory(this.state.currentCategory);
-            this.state.currentWordIndex = 0;
-            this.updateCard();
-            this.updateProgress();
-            this.updateStats();
+            console.log(`🔄 Resetuję kategorię: ${this.state.currentCategory}`);
             
-            NotificationManager.show('Postęp kategorii został zresetowany', 'info');
+            // 📊 Zapisz stan przed resetem (do logowania)
+            const progressBefore = this.managers.progress.getCategoryProgress(this.state.currentCategory);
+            console.log(`📊 Postęp przed resetem: ${progressBefore.studied}/${progressBefore.total}`);
+            
+            // 🗑️ Resetuj dane w ProgressManager
+            const resetSuccess = this.managers.progress.resetCategory(this.state.currentCategory);
+            
+            if (resetSuccess) {
+                console.log(`✅ Kategoria ${this.state.currentCategory} zresetowana w ProgressManager`);
+                
+                // ✅ NOWE: Natychmiastowa aktualizacja UI
+                this.updateCategoryProgressUI(this.state.currentCategory);
+                
+                // 🔄 Resetuj indeks karty do pierwszej
+                this.state.currentWordIndex = 0;
+                
+                // 🔄 Aktualizuj aktualną kartę
+                this.updateCard();
+                
+                // 🔄 Aktualizuj pasek postępu nauki
+                this.updateProgress();
+                
+                // 📊 Aktualizuj ogólne statystyki
+                this.updateStats();
+                
+                // 🔄 Aktualizuj liczniki bookmarks (mogły się zmienić)
+                this.updateBookmarksCount();
+                
+                console.log(`🎯 UI zaktualizowane po resecie kategorii ${this.state.currentCategory}`);
+                
+                NotificationManager.show('Postęp kategorii został zresetowany', 'info');
+            } else {
+                console.error(`❌ Błąd resetowania kategorii ${this.state.currentCategory}`);
+                NotificationManager.show('Błąd podczas resetowania kategorii', 'error');
+            }
+        }
+    }
+
+    /**
+     * ✨ NOWA METODA: Aktualizacja UI konkretnej kategorii
+     */
+    updateCategoryProgressUI(categoryKey) {
+        console.log(`🎨 Aktualizuję UI kategorii: ${categoryKey}`);
+        
+        if (!this.managers.progress || !categoryKey) {
+            console.warn('⚠️ Brak ProgressManager lub categoryKey');
+            return;
+        }
+        
+        try {
+            // 📊 Pobierz nowy postęp kategorii
+            const newProgress = this.managers.progress.getCategoryProgress(categoryKey);
+            const progressPercent = Math.round((newProgress.studied / newProgress.total) * 100);
+            
+            console.log(`📊 Nowy postęp kategorii ${categoryKey}: ${newProgress.studied}/${newProgress.total} (${progressPercent}%)`);
+            
+            // 🎯 Znajdź kartę kategorii w DOM
+            const categoryCard = document.querySelector(`[data-category="${categoryKey}"]`);
+            
+            if (categoryCard) {
+                // 📊 Aktualizuj pasek postępu
+                const progressFill = categoryCard.querySelector('.progress-fill');
+                const progressText = categoryCard.querySelector('.progress-text');
+                
+                if (progressFill) {
+                    // Animacja zmiany - najpierw ukryj, potem pokaż z nową wartością
+                    progressFill.style.transition = 'width 0.5s ease, background-color 0.3s ease';
+                    progressFill.style.width = `${progressPercent}%`;
+                    progressFill.style.background = progressPercent === 100 ? '#22c55e' : '#3b82f6';
+                    
+                    console.log(`🎨 Zaktualizowano pasek postępu: ${progressPercent}%`);
+                }
+                
+                if (progressText) {
+                    progressText.textContent = `${newProgress.studied}/${newProgress.total}`;
+                    console.log(`📝 Zaktualizowano tekst postępu: ${newProgress.studied}/${newProgress.total}`);
+                }
+                
+                // 🏆 Usuń badge ukończenia jeśli był (po resecie nie powinno być 100%)
+                const existingBadge = categoryCard.querySelector('.completed-badge');
+                if (existingBadge && progressPercent < 100) {
+                    existingBadge.remove();
+                    console.log('🗑️ Usunięto badge ukończenia');
+                }
+                
+                // ✨ Dodaj efekt wizualny resetu
+                categoryCard.classList.add('reset-animation');
+                setTimeout(() => {
+                    categoryCard.classList.remove('reset-animation');
+                }, 600);
+                
+                console.log(`✅ UI kategorii ${categoryKey} zaktualizowane`);
+                
+            } else {
+                console.warn(`⚠️ Nie znaleziono karty kategorii ${categoryKey} w DOM`);
+                
+                // 🔄 Fallback - odśwież wszystkie kategorie
+                console.log('🔄 Odświeżam wszystkie kategorie jako fallback...');
+                this.renderCategories();
+            }
+            
+        } catch (error) {
+            console.error(`❌ Błąd aktualizacji UI kategorii ${categoryKey}:`, error);
+            
+            // 🔄 Fallback - odśwież wszystkie kategorie
+            this.renderCategories();
         }
     }
 
@@ -854,20 +866,25 @@ class EnglishFlashcardsApp {
      * 🔖 Otwarcie modala ulubionych
      */
     openBookmarks() {
-        console.log('🔖 Otwieranie ulubionych słów...');
+        console.log('🔖 Otwieranie słów do powtórki...');
+        console.log('📊 bookmarksController dostępny:', !!this.bookmarksController);
+        console.log('📊 BookmarksController class dostępny:', typeof BookmarksController !== 'undefined');
         
         if (!this.bookmarksController) {
             // 🔧 Inicjalizuj jeśli jeszcze nie istnieje
             if (typeof BookmarksController !== 'undefined') {
+                console.log('🔧 Tworzę nowy BookmarksController...');
                 this.bookmarksController = new BookmarksController(this);
+                console.log('✅ BookmarksController utworzony:', !!this.bookmarksController);
             } else {
                 console.error('❌ BookmarksController nie jest dostępny');
-                NotificationManager.show('Nie można otworzyć ulubionych - brak modułu', 'error');
+                NotificationManager.show('Nie można otworzyć powtórek - brak modułu', 'error');
                 return;
             }
         }
         
         // 📂 Otwórz modal
+        console.log('📂 Wywołuję openModal()...');
         this.bookmarksController.openModal();
         
         // 📊 Zapisz w statystykach że użytkownik otworzył ulubione
@@ -901,7 +918,7 @@ class EnglishFlashcardsApp {
         } else {
             navigationControls.classList.remove('bookmarks-mode');
             toggleButton.classList.remove('active');
-            toggleButton.querySelector('.text').textContent = 'Tryb ulubionych';
+            toggleButton.querySelector('.text').textContent = 'Tryb powtórki';
             toggleButton.querySelector('.icon').textContent = '🔖';
             body.classList.remove('bookmarks-only-mode');
         }
@@ -912,24 +929,98 @@ class EnglishFlashcardsApp {
         
         try {
             const stats = this.managers.progress.getBookmarkStats();
+            const bookmarksCount = stats.totalBookmarks;
             
-            // 🏷️ Aktualizuj licznik w header (jeśli istnieje)
+            console.log(`📊 Aktualizuję liczniki bookmarks: ${bookmarksCount} słów`);
+            
+            // 🏷️ Aktualizuj licznik w header (już było)
             const headerBadge = document.querySelector('#bookmarks-toggle .count-badge');
             if (headerBadge) {
-                headerBadge.textContent = stats.totalBookmarks;
-                headerBadge.style.display = stats.totalBookmarks > 0 ? 'inline' : 'none';
+                headerBadge.textContent = bookmarksCount;
+                headerBadge.style.display = bookmarksCount > 0 ? 'inline' : 'none';
             }
             
-            // 📊 Aktualizuj w statystykach
+            // 📊 Aktualizuj w statystykach (już było)
             const statElement = document.getElementById('total-bookmarks-stat');
             if (statElement) {
-                statElement.textContent = stats.totalBookmarks;
+                statElement.textContent = bookmarksCount;
             }
             
-            console.log(`📊 Zaktualizowano licznik bookmarks: ${stats.totalBookmarks}`);
+            // ✅ NOWE: Aktualizuj licznik w panelu Szybki dostęp
+            const quickAccessCounter = document.getElementById('bookmarks-count-quick');
+            if (quickAccessCounter) {
+                quickAccessCounter.textContent = bookmarksCount;
+                console.log(`📱 Zaktualizowano licznik szybkiego dostępu: ${bookmarksCount}`);
+            } else {
+                console.warn('⚠️ Element bookmarks-count-quick nie został znaleziony');
+            }
+            
+            // ✅ NOWE: Aktualizuj stan przycisku "Ucz się ulubionych" (enable/disable)
+            const studyBookmarksBtn = document.getElementById('study-bookmarks-quick');
+            if (studyBookmarksBtn) {
+                if (bookmarksCount === 0) {
+                    studyBookmarksBtn.disabled = true;
+                    studyBookmarksBtn.title = 'Brak słów do powtórki';
+                    studyBookmarksBtn.classList.add('disabled');
+                    console.log('🔒 Przycisk "Ucz się powtórek" wyłączony - brak słów');
+                } else {
+                    studyBookmarksBtn.disabled = false;
+                    studyBookmarksBtn.title = `Powtarzaj ${bookmarksCount} trudne słownictwo`;
+                    studyBookmarksBtn.classList.remove('disabled');
+                    console.log(`✅ Przycisk "Ucz się powtórek" włączony - ${bookmarksCount} słów`);
+                }
+            }
+            
+            // ✅ NOWE: Aktualizuj stan przycisku "Przeglądaj ulubione"
+            const browseBookmarksBtn = document.getElementById('browse-bookmarks-quick');
+            if (browseBookmarksBtn) {
+                if (bookmarksCount === 0) {
+                    browseBookmarksBtn.disabled = true;
+                    browseBookmarksBtn.title = 'Brak powtórek do przeglądania';
+                    browseBookmarksBtn.classList.add('disabled');
+                } else {
+                    browseBookmarksBtn.disabled = false;
+                    browseBookmarksBtn.title = `Powtarzaj ${bookmarksCount} trudne słownictwo`;
+                    browseBookmarksBtn.classList.remove('disabled');
+                }
+            }
+            
+            // ✅ NOWE: Aktualizuj stan przycisku "Quiz ulubionych"
+            const quizBookmarksBtn = document.getElementById('quiz-bookmarks-quick');
+            if (quizBookmarksBtn) {
+                if (bookmarksCount < 3) { // Minimum 3 słowa do quizu
+                    quizBookmarksBtn.disabled = true;
+                    quizBookmarksBtn.title = `Quiz wymaga minimum 3 słów oznaczonych do powtórki (masz: ${bookmarksCount})`;
+                    quizBookmarksBtn.classList.add('disabled');
+                } else {
+                    quizBookmarksBtn.disabled = false;
+                    quizBookmarksBtn.title = `Quiz z ${bookmarksCount} słów oznaczonych do powtórki`;
+                    quizBookmarksBtn.classList.remove('disabled');
+                }
+            }
+            
+            // ✅ POPRAWKA: Zawsze aktualizuj przycisk trybu ulubionych
+            const bookmarksModeBtn = document.getElementById('bookmarks-mode-toggle');
+            if (bookmarksModeBtn) {
+                const textEl = bookmarksModeBtn.querySelector('.text');
+                if (textEl) {
+                    // Aktualizuj tekst w zależności od liczby słów
+                    if (bookmarksCount > 0) {
+                        textEl.textContent = `Tryb powtórki (${bookmarksCount})`;
+                        bookmarksModeBtn.disabled = false;
+                        bookmarksModeBtn.title = `Przełącz na tryb nauki ${bookmarksCount} słów do powtórki`;
+                    } else {
+                        textEl.textContent = 'Tryb powtórki';
+                        bookmarksModeBtn.disabled = true;
+                        bookmarksModeBtn.title = 'Brak słów do powtórki - dodaj słowa klikając 🔖';
+                    }
+                }
+            }
+            
+            console.log(`✅ Zaktualizowano wszystkie liczniki bookmarks: ${bookmarksCount} słów`);
             
         } catch (error) {
-            console.error('❌ Błąd aktualizacji licznika bookmarks:', error);
+            console.error('❌ Błąd aktualizacji liczników bookmarks:', error);
         }
     }
 
@@ -979,14 +1070,14 @@ class EnglishFlashcardsApp {
         console.log('🎯 Rozpoczynam tryb nauki tylko ulubionych...');
         
         if (!this.managers.progress) {
-            NotificationManager.show('Nie można uruchomić trybu ulubionych', 'error');
+            NotificationManager.show('Nie można uruchomić trybu powtórki', 'error');
             return false;
         }
         
         const bookmarkedWords = this.managers.progress.getAllBookmarkedWords();
         
         if (bookmarkedWords.length === 0) {
-            NotificationManager.show('Brak ulubionych słów do nauki', 'info');
+            NotificationManager.show('Brak słowek do powtórzenia', 'info');
             return false;
         }
         
@@ -1005,12 +1096,12 @@ class EnglishFlashcardsApp {
         this.updateBookmarksModeUI(true);
         
         NotificationManager.show(
-            `🔖 Tryb ulubionych: ${bookmarkedWords.length} słów`, 
+            `🔖 Tryb powtórki: ${bookmarkedWords.length} słów`, 
             'success', 
             4000
         );
         
-        console.log(`✅ Uruchomiono tryb ulubionych z ${bookmarkedWords.length} słowami`);
+        console.log(`✅ Uruchomiono tryb powtórki z ${bookmarkedWords.length} słowami`);
         this.closeModal('bookmarks'); // Zamknij modal, jeśli był otwarty
         return true;
     }
@@ -1024,7 +1115,7 @@ class EnglishFlashcardsApp {
      * 🔄 Wyjście z trybu nauki tylko ulubionych
      */
     exitBookmarksOnlyMode() {
-        console.log('🔄 Wychodzę z trybu nauki ulubionych...');
+        console.log('🔄 Wychodzę z trybu powtórek...');
         
         // 🗑️ Wyczyść stan trybu ulubionych
         this.state.bookmarksOnlyMode = false;
@@ -1037,7 +1128,7 @@ class EnglishFlashcardsApp {
         // 🔄 Odśwież kartę (wróci do normalnego trybu)
         this.updateCard();
         
-        NotificationManager.show('Zakończono tryb ulubionych', 'info');
+        NotificationManager.show('Zakończono tryb powtórek', 'info');
     }
 
     /**
@@ -1045,7 +1136,7 @@ class EnglishFlashcardsApp {
      */
     nextBookmarkedWord() {
         if (!this.state.bookmarksOnlyMode || !this.state.bookmarkedWordsQueue) {
-            console.warn('⚠️ Nie jesteśmy w trybie ulubionych');
+            console.warn('⚠️ Nie jesteśmy w trybie powtórki');
             return;
         }
         
@@ -1054,7 +1145,7 @@ class EnglishFlashcardsApp {
         
         if (this.state.bookmarksQueueIndex >= this.state.bookmarkedWordsQueue.length) {
             // 🔄 Koniec listy - zaproponuj powtórkę
-            if (confirm('Przejrzałeś wszystkie ulubione słowa! Czy chcesz rozpocząć od nowa?')) {
+            if (confirm('Przejrzałeś wszystkie słowa do powtórki! Czy chcesz rozpocząć od nowa?')) {
                 this.state.bookmarksQueueIndex = 0;
             } else {
                 this.exitBookmarksOnlyMode();
@@ -1067,7 +1158,7 @@ class EnglishFlashcardsApp {
         
         // 📊 Pokaż progress
         const remaining = this.state.bookmarkedWordsQueue.length - this.state.bookmarksQueueIndex - 1;
-        console.log(`📖 Ulubione: pozostało ${remaining} słów`);
+        console.log(`📖 Powtórka: pozostało ${remaining} słów`);
     }
 
     /**
@@ -1075,7 +1166,7 @@ class EnglishFlashcardsApp {
      */
     previousBookmarkedWord() {
         if (!this.state.bookmarksOnlyMode || !this.state.bookmarkedWordsQueue) {
-            console.warn('⚠️ Nie jesteśmy w trybie ulubionych');
+            console.warn('⚠️ Nie jesteśmy w trybie powtórki');
             return;
         }
         
@@ -1084,7 +1175,7 @@ class EnglishFlashcardsApp {
             this.updateCard();
         } else {
             if (window.NotificationManager) {
-                window.NotificationManager.show('To pierwsze ulubione słowo', 'info');
+                window.NotificationManager.show('To pierwsze słowo do powtórki', 'info');
             }
         }
     }
@@ -1100,12 +1191,29 @@ class EnglishFlashcardsApp {
                 if (btnText) btnText.textContent = 'Wyjdź z trybu';
                 if (btnIcon) btnIcon.textContent = '🔙';
                 bookmarksModeBtn.classList.add('active');
-                bookmarksModeBtn.title = 'Wyjdź z trybu ulubionych';
+                bookmarksModeBtn.title = 'Wyjdź z trybu powtórki';
             } else {
-                if (btnText) btnText.textContent = 'Tryb ulubionych';
+                // ✅ POPRAWKA: Po wyjściu z trybu, zaktualizuj tekst na podstawie liczby słów
+                const stats = this.managers.progress ? this.managers.progress.getBookmarkStats() : null;
+                const bookmarksCount = stats ? stats.totalBookmarks : 0;
+                
+                if (btnText) {
+                    if (bookmarksCount > 0) {
+                        btnText.textContent = `Tryb powtórki (${bookmarksCount})`;
+                    } else {
+                        btnText.textContent = 'Tryb powtórki';
+                    }
+                }
                 if (btnIcon) btnIcon.textContent = '🔖';
                 bookmarksModeBtn.classList.remove('active');
-                bookmarksModeBtn.title = 'Przełącz na tryb ulubionych';
+                
+                if (bookmarksCount > 0) {
+                    bookmarksModeBtn.title = `Przełącz na tryb nauki ${bookmarksCount} słów do powtórki`;
+                    bookmarksModeBtn.disabled = false;
+                } else {
+                    bookmarksModeBtn.title = 'Brak słów do powtórki - dodaj słowa klikając 🔖';
+                    bookmarksModeBtn.disabled = true;
+                }
             }
         }
         
@@ -1132,7 +1240,7 @@ class EnglishFlashcardsApp {
         indicator.innerHTML = `
             <div class="indicator-content">
                 <span class="icon">🔖</span>
-                <span class="text">Tryb ulubionych</span>
+                <span class="text">Tryb powtórki</span>
                 <span class="count">${this.state.bookmarkedWordsQueue?.length || 0} słów</span>
                 <button class="close-btn" onclick="window.englishFlashcardsApp.exitBookmarksOnlyMode()" title="Wyjdź z trybu">×</button>
             </div>
@@ -1177,7 +1285,7 @@ class EnglishFlashcardsApp {
         if (this.state.bookmarksOnlyMode && this.state.bookmarkedWordsQueue) {
             currentIndex = this.state.bookmarksQueueIndex + 1;
             totalCount = this.state.bookmarkedWordsQueue.length;
-            categoryName = `🔖 Tryb ulubionych`;
+            categoryName = `🔖 Tryb powtórki`;
         } else {
             // Standardowy tryb
             const category = this.state.vocabulary?.categories[this.state.currentCategory];

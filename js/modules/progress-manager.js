@@ -328,8 +328,15 @@ class ProgressManager {
     }
 
     getWordKey(word) {
-        return word.id || `${word.english}-${word.polish}`;
+        // 🔧 STARA WERSJA (problematyczna):
+        // return word.id || `${word.english}-${word.polish}`;
+        
+        // ✅ NOWA WERSJA - zawsze unikalny klucz:
+        // Używa kombinacji angielskiego słowa i polskiego tłumaczenia
+        // co gwarantuje unikalność nawet jeśli ID są duplikowane
+        return `${word.english.toLowerCase().trim()}-${word.polish.toLowerCase().trim()}`;
     }
+
 
     loadProgress() {
         try {

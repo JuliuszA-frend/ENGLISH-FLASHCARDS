@@ -64,7 +64,6 @@
 .btn.primary {
     background: var(--gradient-primary);
     color: var(--white);
-    border: 1px solid transparent;
 }
 
 .btn.secondary {
@@ -619,73 +618,6 @@
 }
 
 /* ============================================
-   MODALS
-   ============================================ */
-
-.modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.7);
-    backdrop-filter: blur(5px);
-    z-index: var(--z-modal);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    visibility: hidden;
-    transition: all var(--transition-normal);
-}
-
-.modal.visible {
-    opacity: 1;
-    visibility: visible;
-}
-
-.modal-content {
-    background: var(--glass-backdrop);
-    backdrop-filter: blur(var(--glass-blur));
-    border: 1px solid var(--glass-border);
-    border-radius: var(--radius-2xl);
-    padding: var(--spacing-8);
-    max-width: 600px;
-    width: 90%;
-    max-height: 80vh;
-    overflow-y: auto;
-    color: var(--white);
-    position: relative;
-}
-
-.modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: var(--spacing-6);
-}
-
-.modal-title {
-    font-size: var(--font-size-xl);
-    font-weight: var(--font-weight-bold);
-}
-
-.modal-close {
-    background: none;
-    border: none;
-    color: var(--white);
-    font-size: var(--font-size-xl);
-    cursor: pointer;
-    padding: var(--spacing-2);
-    border-radius: var(--radius-md);
-    transition: background-color var(--transition-fast);
-}
-
-.modal-close:hover {
-    background: rgba(255, 255, 255, 0.1);
-}
-
-/* ============================================
    NOTIFICATIONS
    ============================================ */
 
@@ -900,8 +832,8 @@
 
 /* 🎨 Style dla modala ulubionych */
 .bookmarks-modal {
-    max-width: 800px;
-    max-height: 90vh;
+    max-width: 900px;
+    max-height: 85vh;
     width: 95%;
 }
 
@@ -909,6 +841,125 @@
     display: flex;
     align-items: center;
     gap: 12px;
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(8px);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    padding: var(--spacing-4);
+}
+
+.modal-overlay.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal {
+    background: var(--glass-backdrop);
+    backdrop-filter: blur(var(--glass-blur));
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-2xl);
+    color: var(--white);
+    
+    max-height: 90vh;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    box-shadow: var(--shadow-xl);
+    transform: scale(0.9) translateY(-20px);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.modal-overlay.visible .modal {
+    transform: scale(1) translateY(0);
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--spacing-6);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.05);
+    flex-shrink: 0;
+}
+
+.modal-title {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-3);
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--white);
+}
+
+.modal-title .icon {
+    font-size: var(--font-size-2xl);
+}
+
+.modal-title h3 {
+    margin: 0;
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--white);
+}
+
+/* PRZYCISK ZAMYKANIA */
+.modal-close {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: var(--radius-lg);
+    color: var(--white);
+    font-size: var(--font-size-xl);
+    font-weight: bold;
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    padding: 0;
+}
+
+.modal-close:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: scale(1.1);
+}
+
+.modal-close:active {
+    transform: scale(0.95);
+}
+
+/* ============================================
+   ZAWARTOŚĆ MODALA
+   ============================================ */
+
+.modal-content {
+    padding: var(--spacing-4);
+    overflow-y: auto;
+    flex: 1;
+    min-height: 0; /* Ważne dla prawidłowego scrollowania */
+}
+
+.modal-content.bookmarks-content {
+    max-height: none; /* Usuń ograniczenie wysokości */
 }
 
 .count-badge {
@@ -970,17 +1021,16 @@
     gap: var(--spacing-3);
     margin-bottom: var(--spacing-4);
     flex-wrap: wrap;
-    align-items: center;
+    justify-content: space-around;
 }
 
 .search-group {
-    flex: 1;
-    min-width: 200px;
+    min-width: 320px;
 }
 
 .filter-group {
     display: flex;
-    gap: var(--spacing-2);
+    gap: var(--spacing-8);
     flex-wrap: wrap;
 }
 
@@ -1006,8 +1056,9 @@
 }
 
 .bookmarks-list {
-    display: grid;
+    display: flex !important;
     gap: var(--spacing-3);
+    flex-wrap: wrap;
 }
 
 .bookmark-item {
@@ -1057,6 +1108,7 @@
     margin-top: var(--spacing-3);
     font-size: var(--font-size-xs);
     color: rgba(255, 255, 255, 0.6);
+    gap: var(--spacing-4);
 }
 
 .category-tag {
@@ -1107,25 +1159,25 @@
 /* 🎯 Style dla placeholder */
 .placeholder {
     text-align: center;
-    padding: var(--spacing-12) var(--spacing-6);
+    padding: var(--spacing-1) var(--spacing-1);
     color: rgba(255, 255, 255, 0.7);
 }
 
 .placeholder-icon {
-    font-size: 4rem;
-    margin-bottom: var(--spacing-4);
+    font-size: 2rem;
+    margin-bottom: var(--spacing-1);
     opacity: 0.5;
 }
 
 .placeholder h4 {
     font-size: var(--font-size-xl);
-    margin-bottom: var(--spacing-3);
+    margin-bottom: var(--spacing-1);
     color: var(--white);
 }
 
 .placeholder p {
     font-size: var(--font-size-base);
-    margin-bottom: var(--spacing-6);
+    margin-bottom: var(--spacing-1);
     line-height: var(--line-height-relaxed);
 }
 
@@ -1545,7 +1597,6 @@ body.bookmarks-only-mode .flashcard-container {
 .navigation-controls.bookmarks-mode::before {
     content: "🔖 Tryb ulubionych";
     position: absolute;
-    top: -0.75rem;
     left: 1rem;
     background: #f59e0b;
     color: #111827;
@@ -1575,8 +1626,8 @@ body.bookmarks-only-mode .flashcard-container {
 #bookmarks-mode-toggle.active::after {
     content: "";
     position: absolute;
-    top: -2px;
-    right: -2px;
+    top: 8px;
+    right: 10px;
     width: 8px;
     height: 8px;
     background: #22c55e;

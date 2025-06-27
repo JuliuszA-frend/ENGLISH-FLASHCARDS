@@ -34,11 +34,6 @@ class BookmarksController {
      * 🔧 Konfiguracja nasłuchiwaczy zdarzeń
      */
     setupEventListeners() {
-        // 📝 Event listeners dla przycisku otwierania modala
-        const bookmarksBtn = document.getElementById('bookmarks-toggle');
-        if (bookmarksBtn) {
-            bookmarksBtn.addEventListener('click', () => this.openModal());
-        }
         
         // 📝 Event listeners dla modala
         const closeBtn = document.getElementById('bookmarks-modal-close');
@@ -126,34 +121,44 @@ class BookmarksController {
         }
     }
     
-    /**
-     * 📂 Otwieranie modala
-     */
+    
     openModal() {
-        console.log('🔖 Otwieranie modala ulubionych...');
+        console.log('🔖 BookmarksController.openModal() wywołana');
         
         // 📊 Załaduj dane
+        console.log('📊 Ładuję dane bookmarks...');
         this.loadBookmarksData();
         
         // 🎨 Pokaż modal
         const modal = document.getElementById('bookmarks-modal');
+        console.log('🎨 Modal element znaleziony:', !!modal);
+        
         if (modal) {
+            console.log('📱 Obecny display modal:', modal.style.display);
             modal.style.display = 'flex';
+            console.log('📱 Nowy display modal:', modal.style.display);
+            
             // 📱 Animacja pojawienia się
             setTimeout(() => {
+                console.log('🎬 Dodaję klasę visible...');
                 modal.classList.add('visible');
+                console.log('🎬 Klasy modala:', modal.classList.toString());
             }, 10);
+        } else {
+            console.error('❌ Element bookmarks-modal nie został znaleziony!');
+            return;
         }
         
         // 🔍 Focus na wyszukiwanie
         setTimeout(() => {
             const searchInput = document.getElementById('bookmarks-search');
+            console.log('🔍 Search input znaleziony:', !!searchInput);
             if (searchInput) {
                 searchInput.focus();
             }
         }, 300);
         
-        console.log('✅ Modal ulubionych otwarty');
+        console.log('✅ BookmarksController.openModal() zakończona');
     }
     
     /**
@@ -374,6 +379,9 @@ class BookmarksController {
         
         if (!container || !placeholder) return;
         
+        // ✅ POPRAWKA: ZAWSZE wyczyść kontener na początku
+        container.innerHTML = '';
+        
         // 🎯 Sprawdź czy są ulubione
         if (this.filteredBookmarks.length === 0) {
             // 📭 Pokaż placeholder
@@ -384,12 +392,13 @@ class BookmarksController {
             const placeholderText = placeholder.querySelector('p');
             if (placeholderText) {
                 if (this.allBookmarks.length === 0) {
-                    placeholderText.textContent = 'Dodaj słowa do ulubionych klikając przycisk 🔖 na fiszce';
+                    placeholderText.textContent = 'Dodaj słowa do powtórek klikając przycisk 🔖 na fiszce';
                 } else {
                     placeholderText.textContent = 'Brak wyników dla podanych kryteriów wyszukiwania';
                 }
             }
             
+            console.log('📭 Pokazano placeholder - brak słów do wyświetlenia');
             return;
         }
         
@@ -402,10 +411,7 @@ class BookmarksController {
         const endIndex = startIndex + this.itemsPerPage;
         const pageBookmarks = this.filteredBookmarks.slice(startIndex, endIndex);
         
-        // 🗑️ Wyczyść kontener
-        container.innerHTML = '';
-        
-        // 📝 Renderuj każde słowo
+        // 📝 Renderuj każde słowo (kontener już wyczyszczony na początku)
         pageBookmarks.forEach((word, index) => {
             const wordElement = this.createBookmarkElement(word, startIndex + index);
             container.appendChild(wordElement);
@@ -437,7 +443,7 @@ class BookmarksController {
                     <button class="bookmark-action-btn study-btn" title="Ucz się tego słowa">
                         📚
                     </button>
-                    <button class="bookmark-action-btn remove-btn" title="Usuń z ulubionych">
+                    <button class="bookmark-action-btn remove-btn" title="Usuń z powtórek">
                         🗑️
                     </button>
                 </div>
@@ -491,7 +497,7 @@ class BookmarksController {
 
     startBookmarksStudy() {
         if (this.allBookmarks.length === 0) {
-            NotificationManager.show('Brak ulubionych słów do nauki', 'info');
+            NotificationManager.show('Brak trudnych słów do nauki', 'info');
             return;
         }
         
@@ -530,27 +536,103 @@ class BookmarksController {
      * 🗑️ Usunięcie słowa z ulubionych
      */
     removeBookmark(word) {
-        if (!confirm(`Czy na pewno chcesz usunąć "${word.english}" z ulubionych?`)) {
+        if (!confirm(`Czy na pewno chcesz usunąć "${word.english}" z trybu powtórki?`)) {
             return;
         }
         
-        console.log(`🗑️ Usuwam z ulubionych: ${word.english}`);
+        console.log(`🗑️ Usuwam z powtórek: ${word.english}`);
         
-        // 🔄 Toggle bookmark (usunie go)
+        // ✅ NOWE: Sprawdź stan przed usunięciem
+        const wasInBookmarksMode = this.app.state.bookmarksOnlyMode;
+        const bookmarksCountBefore = this.app.managers.progress.getAllBookmarkedWords().length;
+        const willBeLastBookmark = bookmarksCountBefore === 1;
+        
+        console.log(`🔖 Stan przed usunięciem: tryb=${wasInBookmarksMode}, liczba=${bookmarksCountBefore}, ostatnie=${willBeLastBookmark}`);
+        
+        // Toggle bookmark (usunie go)
         const success = this.app.managers.progress.toggleWordBookmark(word);
         
         if (success !== undefined) {
-            // 🔄 Odśwież dane
+            console.log(`✅ Bookmark usunięty z ProgressManager: ${word.english}`);
+            
+            // ✅ NOWE: Wyjdź z trybu ulubionych jeśli usunięto ostatnie słowo
+            if (wasInBookmarksMode && willBeLastBookmark) {
+                console.log('🚪 To było ostatnie ulubione słowo - wychodzimy z trybu ulubionych');
+                this.app.exitBookmarksOnlyMode();
+                
+                setTimeout(() => {
+                    NotificationManager.show(
+                        '🚪 Wyszedłeś z trybu powtórki - brak słów do nauki', 
+                        'info', 
+                        3000
+                    );
+                }, 500);
+            }
+            
+            // Powiadom o zmianie (jak wcześniej)
+            this.notifyBookmarkChange(word, false);
+            
+            // Odśwież dane
             this.loadBookmarksData();
             
-            NotificationManager.show(`"${word.english}" usunięte z ulubionych`, 'info');
+            NotificationManager.show(`"${word.english}" usunięte z powtórek`, 'info');
             
-            // 🔄 Aktualizuj statystyki w głównej aplikacji
+            // Aktualizuj statystyki i liczniki
             if (this.app.updateStats) {
                 this.app.updateStats();
             }
+            
+            // ✅ POPRAWKA: Jawnie zaktualizuj wszystkie liczniki bookmarks
+            if (this.app.updateBookmarksCount) {
+                this.app.updateBookmarksCount();
+            }
+            
+            console.log('✅ Usuwanie zakończone pomyślnie');
+            
         } else {
-            NotificationManager.show('Błąd podczas usuwania z ulubionych', 'error');
+            console.error('❌ Błąd podczas usuwania bookmark z ProgressManager');
+            NotificationManager.show('Błąd podczas usuwania z powtórek', 'error');
+        }
+    }
+
+    /**
+     * ✨ NOWA METODA: Powiadomienie o zmianie bookmark
+     */
+    notifyBookmarkChange(word, isBookmarked) {
+        console.log(`📡 Powiadamiam o zmianie bookmark: ${word.english} → ${isBookmarked}`);
+        
+        // 1. Wyślij event do aplikacji (jeśli istnieje system eventów)
+        const bookmarkEvent = new CustomEvent('bookmarkChanged', {
+            detail: {
+                word: word,
+                isBookmarked: isBookmarked,
+                wordKey: this.app.managers.progress.getWordKey(word),
+                source: 'modal'
+            }
+        });
+        document.dispatchEvent(bookmarkEvent);
+        
+        // 2. Bezpośrednie powiadomienie FlashcardManager jeśli to jest aktualne słowo
+        if (this.app.managers.flashcard && this.app.managers.flashcard.currentWord) {
+            const currentWord = this.app.managers.flashcard.currentWord;
+            
+            // Sprawdź czy usuwane słowo to aktualnie wyświetlane słowo
+            const currentWordKey = this.app.managers.progress.getWordKey(currentWord);
+            const removedWordKey = this.app.managers.progress.getWordKey(word);
+            
+            if (currentWordKey === removedWordKey) {
+                console.log(`🎯 Aktualizuję przycisk bookmark na karcie dla: ${word.english}`);
+                
+                // Odśwież stan przycisku bookmark na karcie
+                setTimeout(() => {
+                    this.app.managers.flashcard.refreshBookmarkState(currentWord);
+                }, 100); // Małe opóźnienie żeby dać czas na aktualizację danych
+            }
+        }
+        
+        // 3. Aktualizuj liczniki w header
+        if (this.app.updateBookmarksCount) {
+            this.app.updateBookmarksCount();
         }
     }
     
@@ -558,7 +640,7 @@ class BookmarksController {
      * 💾 Eksport ulubionych do pliku
      */
     exportBookmarks() {
-        console.log('💾 Eksportuję ulubione słowa...');
+        console.log('💾 Eksportuję słowa do powtórki...');
         
         try {
             // 📊 Pobierz dane do eksportu
@@ -573,43 +655,96 @@ class BookmarksController {
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `ulubione-slowa-${new Date().toISOString().split('T')[0]}.json`;
+            a.download = `powtorka-slowa-${new Date().toISOString().split('T')[0]}.json`;
             
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
             
-            NotificationManager.show(`Wyeksportowano ${exportData.bookmarks.length} ulubionych słów`, 'success');
+            NotificationManager.show(`Wyeksportowano ${exportData.bookmarks.length} słów`, 'success');
             
         } catch (error) {
             console.error('❌ Błąd eksportu:', error);
-            NotificationManager.show('Błąd podczas eksportu ulubionych', 'error');
+            NotificationManager.show('Błąd podczas eksportu słów', 'error');
         }
     }
     
-    /**
-     * 🗑️ Czyszczenie wszystkich ulubionych
-     */
     clearAllBookmarks() {
-        if (!confirm('Czy na pewno chcesz usunąć WSZYSTKIE ulubione słowa? Tej operacji nie można cofnąć.')) {
+        if (!confirm('Czy na pewno chcesz usunąć WSZYSTKIE słowa do powtórki? Tej operacji nie można cofnąć.')) {
             return;
         }
         
-        console.log('🗑️ Czyszczę wszystkie ulubione...');
+        console.log('🗑️ Czyszczę wszystkie słowa...');
         
+        // ✅ NOWE: Sprawdź czy jesteśmy w trybie ulubionych
+        const wasInBookmarksMode = this.app.state.bookmarksOnlyMode;
+        console.log(`🔖 Czy w trybie ulubionych przed czyszczeniem: ${wasInBookmarksMode}`);
+        
+        // Pobierz listę wszystkich bookmarks PRZED usunięciem
+        const bookmarksToRemove = this.app.managers.progress.getAllBookmarkedWords();
+        console.log(`📋 Do usunięcia: ${bookmarksToRemove.length} ulubionych słów`);
+        
+        // 🗑️ Usuń wszystkie bookmarks
         const removedCount = this.app.managers.progress.clearAllBookmarks();
         
-        // 🔄 Odśwież dane
+        // ✅ NOWE: Wyjdź z trybu ulubionych jeśli byliśmy w nim
+        if (wasInBookmarksMode) {
+            console.log('🚪 Wychodzimy z trybu ulubionych bo usunięto wszystkie słowa');
+            this.app.exitBookmarksOnlyMode();
+            
+            // Dodatkowe powiadomienie użytkownika
+            setTimeout(() => {
+                NotificationManager.show(
+                    '🚪 Wyszedłeś z trybu powtórka - brak słów do nauki', 
+                    'info', 
+                    4000
+                );
+            }, 1000);
+        }
+        
+        // Powiadom o usunięciu słów (jak wcześniej)
+        if (bookmarksToRemove.length > 0) {
+            console.log('📡 Powiadamiam o usunięciu wszystkich bookmarks...');
+            
+            bookmarksToRemove.forEach((word, index) => {
+                setTimeout(() => {
+                    this.notifyBookmarkChange(word, false);
+                }, index * 10);
+            });
+            
+            // Globalny event z informacją o trybie
+            setTimeout(() => {
+                const clearAllEvent = new CustomEvent('bookmarksCleared', {
+                    detail: {
+                        removedWords: bookmarksToRemove,
+                        removedCount: removedCount,
+                        wasInBookmarksMode: wasInBookmarksMode,
+                        source: 'modal'
+                    }
+                });
+                document.dispatchEvent(clearAllEvent);
+                console.log('📡 Wysłano event bookmarksCleared z informacją o trybie');
+            }, bookmarksToRemove.length * 10 + 100);
+        }
+        
+        // Odśwież dane
         this.loadBookmarksData();
         
-        // 🔄 Aktualizuj statystyki w głównej aplikacji
+        // Aktualizuj statystyki
         if (this.app.updateStats) {
             this.app.updateStats();
         }
+            
+        // ✅ POPRAWKA: Jawnie zaktualizuj liczniki bookmarks
+        if (this.app.updateBookmarksCount) {
+            this.app.updateBookmarksCount();
+        }
         
-        NotificationManager.show(`Usunięto ${removedCount} ulubionych słów`, 'info');
+        NotificationManager.show(`Usunięto ${removedCount} słów do powtórki`, 'info');
+        console.log(`✅ Wyczyszczono ${removedCount} ulubionych słów${wasInBookmarksMode ? ' i wyszedłem z trybu ulubionych' : ''}`);
     }
+
     
     /**
      * 📄 Paginacja - poprzednia strona
