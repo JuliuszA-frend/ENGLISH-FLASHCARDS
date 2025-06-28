@@ -1,6 +1,6 @@
 /**
  * ProgressManager - Naprawione zarządzanie postępem
- * Główne poprawki: prawidłowe liczenie słów w kategoriach i dynamiczny progress bar
+ * POPRAWIONA WERSJA z pełną obsługą systemu trudności
  */
 class ProgressManager {
     constructor() {
@@ -271,21 +271,154 @@ class ProgressManager {
         return updated;
     }
 
-    // ✅ Pozostałe metody bez zmian (kopiuję dla kompletności)
-    
+    /**
+     * ✨ NAPRAWIONA METODA: Toggle trudności słowa z pełną obsługą i logowaniem
+     */
     toggleWordDifficulty(word) {
-        const difficulty = this.loadDifficulty();
-        const wordKey = this.getWordKey(word);
+        console.log(`⭐ toggleWordDifficulty wywołane dla słowa: ${word.english}`);
         
-        const levels = ['easy', 'medium', 'hard'];
-        const currentLevel = difficulty[wordKey] || word.difficulty || 'medium';
-        const currentIndex = levels.indexOf(currentLevel);
-        const nextIndex = (currentIndex + 1) % levels.length;
+        try {
+            // 📊 Załaduj aktualny stan trudności
+            const difficulty = this.loadDifficulty();
+            const wordKey = this.getWordKey(word);
+            
+            console.log(`🔑 WordKey: ${wordKey}`);
+            
+            // 📈 Dostępne poziomy trudności
+            const levels = ['easy', 'medium', 'hard'];
+            
+            // 📊 Znajdź aktualny poziom
+            const currentLevel = difficulty[wordKey] || word.difficulty || 'medium';
+            console.log(`📊 Aktualny poziom: ${currentLevel}`);
+            
+            // 🔄 Oblicz następny poziom (cyklicznie)
+            const currentIndex = levels.indexOf(currentLevel);
+            const nextIndex = (currentIndex + 1) % levels.length;
+            const newLevel = levels[nextIndex];
+            
+            console.log(`🔄 Przełączam z ${currentLevel} (index: ${currentIndex}) na ${newLevel} (index: ${nextIndex})`);
+            
+            // 💾 Zapisz nowy poziom
+            difficulty[wordKey] = newLevel;
+            this.saveDifficulty(difficulty);
+            
+            console.log(`✅ Trudność zapisana: ${wordKey} → ${newLevel}`);
+            
+            // 📊 Wyloguj stan po zapisie (weryfikacja)
+            const verificationDifficulty = this.loadDifficulty();
+            const savedLevel = verificationDifficulty[wordKey];
+            console.log(`🔍 Weryfikacja zapisu: ${savedLevel} (oczekiwano: ${newLevel})`);
+            
+            if (savedLevel !== newLevel) {
+                console.error(`❌ BŁĄD: Poziom nie został poprawnie zapisany! Saved: ${savedLevel}, Expected: ${newLevel}`);
+            }
+            
+            return newLevel;
+            
+        } catch (error) {
+            console.error('❌ Błąd w toggleWordDifficulty:', error);
+            console.error('❌ Stack trace:', error.stack);
+            
+            // Fallback - zwróć aktualny poziom lub domyślny
+            const fallbackLevel = word.difficulty || 'medium';
+            console.log(`🔄 Fallback: zwracam ${fallbackLevel}`);
+            return fallbackLevel;
+        }
+    }
+
+    /**
+     * ✨ NOWA METODA: Pobieranie poziomu trudności słowa (dla UI)
+     */
+    getWordDifficulty(word) {
+        try {
+            const difficulty = this.loadDifficulty();
+            const wordKey = this.getWordKey(word);
+            const level = difficulty[wordKey] || word.difficulty || 'medium';
+            
+            console.log(`🔍 getWordDifficulty dla ${word.english}: ${level}`);
+            return level;
+            
+        } catch (error) {
+            console.error('❌ Błąd podczas pobierania trudności:', error);
+            return word.difficulty || 'medium';
+        }
+    }
+
+    /**
+     * ✨ NOWA METODA: Ustawienie poziomu trudności słowa (bezpośrednie)
+     */
+    setWordDifficulty(word, difficultyLevel) {
+        const validLevels = ['easy', 'medium', 'hard'];
         
-        difficulty[wordKey] = levels[nextIndex];
-        this.saveDifficulty(difficulty);
+        if (!validLevels.includes(difficultyLevel)) {
+            console.error(`❌ Nieprawidłowy poziom trudności: ${difficultyLevel}`);
+            return false;
+        }
         
-        return levels[nextIndex];
+        try {
+            const difficulty = this.loadDifficulty();
+            const wordKey = this.getWordKey(word);
+            
+            console.log(`⭐ setWordDifficulty: ${word.english} → ${difficultyLevel}`);
+            
+            difficulty[wordKey] = difficultyLevel;
+            this.saveDifficulty(difficulty);
+            
+            console.log(`✅ Poziom trudności ustawiony: ${wordKey} → ${difficultyLevel}`);
+            return true;
+            
+        } catch (error) {
+            console.error('❌ Błąd podczas ustawiania trudności:', error);
+            return false;
+        }
+    }
+
+    /**
+     * ✨ NOWA METODA: Statystyki trudności
+     */
+    getDifficultyStats() {
+        try {
+            const difficulty = this.loadDifficulty();
+            const stats = {
+                easy: 0,
+                medium: 0,
+                hard: 0,
+                total: 0
+            };
+            
+            Object.values(difficulty).forEach(level => {
+                if (stats.hasOwnProperty(level)) {
+                    stats[level]++;
+                    stats.total++;
+                }
+            });
+            
+            console.log('📊 Statystyki trudności:', stats);
+            return stats;
+            
+        } catch (error) {
+            console.error('❌ Błąd podczas pobierania statystyk trudności:', error);
+            return { easy: 0, medium: 0, hard: 0, total: 0 };
+        }
+    }
+
+    /**
+     * ✨ NOWA METODA: Reset wszystkich poziomów trudności
+     */
+    resetAllDifficulties() {
+        try {
+            console.log('🔄 Resetuję wszystkie poziomy trudności...');
+            
+            const emptyDifficulty = {};
+            this.saveDifficulty(emptyDifficulty);
+            
+            console.log('✅ Wszystkie poziomy trudności zresetowane');
+            return true;
+            
+        } catch (error) {
+            console.error('❌ Błąd podczas resetowania trudności:', error);
+            return false;
+        }
     }
 
     toggleWordBookmark(word) {
@@ -336,7 +469,6 @@ class ProgressManager {
         // co gwarantuje unikalność nawet jeśli ID są duplikowane
         return `${word.english.toLowerCase().trim()}-${word.polish.toLowerCase().trim()}`;
     }
-
 
     loadProgress() {
         try {
@@ -608,21 +740,44 @@ class ProgressManager {
         }
     }
 
+    /**
+     * ✨ NAPRAWIONE METODY: Ładowanie i zapisywanie trudności z logowaniem
+     */
     loadDifficulty() {
         try {
             const data = localStorage.getItem(this.difficultyKey);
-            return data ? JSON.parse(data) : {};
+            const difficulty = data ? JSON.parse(data) : {};
+            
+            console.log(`📊 Załadowano ${Object.keys(difficulty).length} poziomów trudności z localStorage`);
+            
+            return difficulty;
         } catch (error) {
-            console.error('Błąd ładowania poziomów trudności:', error);
+            console.error('❌ Błąd ładowania poziomów trudności:', error);
             return {};
         }
     }
 
     saveDifficulty(difficulty) {
         try {
-            localStorage.setItem(this.difficultyKey, JSON.stringify(difficulty));
+            const serialized = JSON.stringify(difficulty);
+            localStorage.setItem(this.difficultyKey, serialized);
+            
+            console.log(`💾 Zapisano ${Object.keys(difficulty).length} poziomów trudności do localStorage`);
+            console.log('💾 Przykład zapisanych danych:', Object.fromEntries(Object.entries(difficulty).slice(0, 3)));
+            
+            // ✅ WERYFIKACJA ZAPISU
+            const verification = localStorage.getItem(this.difficultyKey);
+            if (verification === serialized) {
+                console.log('✅ Weryfikacja zapisu trudności: SUKCES');
+            } else {
+                console.error('❌ Weryfikacja zapisu trudności: BŁĄD');
+                console.error('❌ Oczekiwano:', serialized);
+                console.error('❌ Otrzymano:', verification);
+            }
+            
         } catch (error) {
-            console.error('Błąd zapisywania poziomów trudności:', error);
+            console.error('❌ Błąd zapisywania poziomów trudności:', error);
+            console.error('❌ Dane do zapisu:', difficulty);
         }
     }
 

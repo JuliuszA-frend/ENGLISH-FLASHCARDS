@@ -2192,3 +2192,286 @@ window.addEventListener('beforeunload', () => {
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = EnglishFlashcardsApp;
 }
+
+/**
+ * DEBUG TOOLS dla systemu trudności
+ * Dodaj ten kod na koniec app.js lub jako osobny plik dla debugowania
+ */
+
+// 🧪 NARZĘDZIA DEBUGOWANIA (tylko dla developmentu)
+if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+    
+    /**
+     * 🔧 Debug tools dla systemu trudności
+     */
+    window.debugDifficulty = {
+        
+        /**
+         * Sprawdź statystyki trudności
+         */
+        getStats() {
+            if (!window.englishFlashcardsApp?.managers?.progress) {
+                console.error('❌ ProgressManager nie jest dostępny');
+                return null;
+            }
+            
+            const stats = window.englishFlashcardsApp.managers.progress.getDifficultyStats();
+            console.table(stats);
+            return stats;
+        },
+        
+        /**
+         * Sprawdź trudność konkretnego słowa
+         */
+        checkWord(english, polish) {
+            const word = { english, polish };
+            const difficulty = window.englishFlashcardsApp.managers.progress.getWordDifficulty(word);
+            console.log(`🔍 Słowo "${english}": ${difficulty}`);
+            return difficulty;
+        },
+        
+        /**
+         * Ustaw trudność słowa
+         */
+        setDifficulty(english, polish, level) {
+            const word = { english, polish };
+            const result = window.englishFlashcardsApp.managers.progress.setWordDifficulty(word, level);
+            console.log(`⭐ Ustawiono "${english}" na ${level}: ${result ? 'SUKCES' : 'BŁĄD'}`);
+            return result;
+        },
+        
+        /**
+         * Test pełnego cyklu trudności
+         */
+        testCycle(english = 'beautiful', polish = 'piękny') {
+            const word = { english, polish };
+            console.group(`🧪 Test cyklu trudności dla: ${english}`);
+            
+            // Sprawdź początkowy stan
+            let current = window.englishFlashcardsApp.managers.progress.getWordDifficulty(word);
+            console.log(`📊 Stan początkowy: ${current}`);
+            
+            // Test 3 zmian (pełny cykl)
+            for (let i = 1; i <= 3; i++) {
+                const newLevel = window.englishFlashcardsApp.managers.progress.toggleWordDifficulty(word);
+                console.log(`🔄 Zmiana ${i}: ${current} → ${newLevel}`);
+                current = newLevel;
+            }
+            
+            console.groupEnd();
+            return current;
+        },
+        
+        /**
+         * Reset wszystkich trudności
+         */
+        resetAll() {
+            const result = window.englishFlashcardsApp.managers.progress.resetAllDifficulties();
+            console.log(`🔄 Reset wszystkich trudności: ${result ? 'SUKCES' : 'BŁĄD'}`);
+            return result;
+        },
+        
+        /**
+         * Sprawdź localStorage
+         */
+        checkStorage() {
+            const key = 'english-flashcards-difficulty';
+            const data = localStorage.getItem(key);
+            
+            if (data) {
+                const parsed = JSON.parse(data);
+                console.log(`📦 Dane w localStorage (${Object.keys(parsed).length} słów):`);
+                console.table(parsed);
+                return parsed;
+            } else {
+                console.log('📦 Brak danych w localStorage');
+                return null;
+            }
+        },
+        
+        /**
+         * Test wizualnej aktualizacji przycisku
+         */
+        testVisualUpdate() {
+            const diffBtn = document.querySelector('.difficulty-btn');
+            if (!diffBtn) {
+                console.error('❌ Nie znaleziono przycisku trudności na karcie');
+                return false;
+            }
+            
+            console.log('🎨 Testuję wizualną aktualizację...');
+            
+            const levels = ['easy', 'medium', 'hard'];
+            let index = 0;
+            
+            const interval = setInterval(() => {
+                const level = levels[index];
+                
+                // Usuń poprzednie klasy
+                diffBtn.classList.remove('easy', 'medium', 'hard');
+                // Dodaj nową klasę
+                diffBtn.classList.add(level);
+                
+                // Zaktualizuj zawartość
+                const icons = { easy: '⭐', medium: '⭐⭐', hard: '⭐⭐⭐' };
+                const texts = { easy: 'Łatwe', medium: 'Średnie', hard: 'Trudne' };
+                
+                diffBtn.innerHTML = `
+                    <span class="icon">${icons[level]}</span>
+                    <span class="text">${texts[level]}</span>
+                `;
+                
+                console.log(`🎨 Przełączono na: ${level}`);
+                
+                index++;
+                if (index >= levels.length) {
+                    clearInterval(interval);
+                    console.log('✅ Test wizualny zakończony');
+                }
+            }, 1500);
+            
+            return true;
+        },
+        
+        /**
+         * Sprawdź event listenery
+         */
+        checkEventListeners() {
+            const diffBtn = document.querySelector('.difficulty-btn');
+            if (!diffBtn) {
+                console.error('❌ Nie znaleziono przycisku trudności');
+                return false;
+            }
+            
+            // Sprawdź czy przycisk ma event listener
+            const hasListener = diffBtn.onclick !== null || 
+                               (diffBtn._events && diffBtn._events.click);
+            
+            console.log(`🎯 Przycisk ma event listener: ${hasListener}`);
+            
+            // Test kliknięcia programowego
+            console.log('🖱️ Testuję kliknięcie programowe...');
+            diffBtn.click();
+            
+            return true;
+        }
+    };
+    
+    // 🎮 Dodaj przycisk debug do UI
+    function addDebugButton() {
+        const debugBtn = document.createElement('button');
+        debugBtn.innerHTML = '🧪 Debug Difficulty';
+        debugBtn.style.cssText = `
+            position: fixed;
+            top: 60px;
+            right: 10px;
+            z-index: 9999;
+            padding: 8px 12px;
+            background: #8b5cf6;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+        `;
+        
+        debugBtn.addEventListener('click', () => {
+            console.group('🧪 Debug systemu trudności');
+            window.debugDifficulty.getStats();
+            window.debugDifficulty.checkStorage();
+            window.debugDifficulty.checkEventListeners();
+            console.groupEnd();
+        });
+        
+        document.body.appendChild(debugBtn);
+        console.log('🧪 Przycisk debug difficulty dodany');
+    }
+    
+    // Dodaj przycisk po załadowaniu DOM
+    if (document.readyState === 'complete') {
+        addDebugButton();
+    } else {
+        window.addEventListener('load', addDebugButton);
+    }
+    
+    console.log('🧪 Debug tools dla systemu trudności załadowane');
+    console.log('💡 Użyj: window.debugDifficulty.getStats() aby sprawdzić statystyki');
+}
+
+/**
+ * 🎯 GLOBALNE FUNKCJE POMOCNICZE (dostępne zawsze)
+ */
+window.testDifficultyButton = function() {
+    const currentWord = window.englishFlashcardsApp?.managers?.flashcard?.currentWord;
+    if (!currentWord) {
+        console.error('❌ Brak aktualnego słowa na karcie');
+        return false;
+    }
+    
+    console.log(`🧪 Testuję przycisk trudności dla: ${currentWord.english}`);
+    
+    // Znajdź przycisk
+    const diffBtn = document.querySelector('.difficulty-btn');
+    if (!diffBtn) {
+        console.error('❌ Nie znaleziono przycisku trudności');
+        return false;
+    }
+    
+    // Symuluj kliknięcie
+    diffBtn.click();
+    
+    console.log('✅ Test wykonany - sprawdź konsolę pod kątem logów z ProgressManager');
+    return true;
+};
+
+/**
+ * 🔍 Funkcja sprawdzania stanu systemu trudności
+ */
+window.checkDifficultySystem = function() {
+    console.group('🔍 Sprawdzanie systemu trudności');
+    
+    // 1. Sprawdź dostępność menedżerów
+    const app = window.englishFlashcardsApp;
+    const hasProgress = !!app?.managers?.progress;
+    const hasFlashcard = !!app?.managers?.flashcard;
+    
+    console.log('📊 Dostępność menedżerów:');
+    console.log(`  ProgressManager: ${hasProgress ? '✅' : '❌'}`);
+    console.log(`  FlashcardManager: ${hasFlashcard ? '✅' : '❌'}`);
+    
+    // 2. Sprawdź aktualną kartę
+    const currentWord = app?.managers?.flashcard?.currentWord;
+    console.log(`📱 Aktualne słowo: ${currentWord ? currentWord.english : 'BRAK'}`);
+    
+    // 3. Sprawdź przycisk na karcie
+    const diffBtn = document.querySelector('.difficulty-btn');
+    console.log(`🎯 Przycisk trudności: ${diffBtn ? '✅ Znaleziony' : '❌ Nie znaleziony'}`);
+    
+    if (diffBtn) {
+        const classes = Array.from(diffBtn.classList);
+        console.log(`🎨 Klasy przycisku: ${classes.join(', ')}`);
+    }
+    
+    // 4. Sprawdź localStorage
+    const difficultyData = localStorage.getItem('english-flashcards-difficulty');
+    const wordsCount = difficultyData ? Object.keys(JSON.parse(difficultyData)).length : 0;
+    console.log(`💾 Słowa z ustawioną trudnością: ${wordsCount}`);
+    
+    console.groupEnd();
+    
+    return {
+        hasManagers: hasProgress && hasFlashcard,
+        hasCurrentWord: !!currentWord,
+        hasButton: !!diffBtn,
+        wordsWithDifficulty: wordsCount
+    };
+};
+
+// 💡 Informacja dla użytkownika
+console.log(`
+🧪 SYSTEM DEBUG TRUDNOŚCI ZAŁADOWANY
+📝 Dostępne funkcje:
+   - window.testDifficultyButton() - test przycisku na karcie
+   - window.checkDifficultySystem() - sprawdź cały system
+   - window.debugDifficulty.* - zaawansowane narzędzia (tylko localhost)
+`);

@@ -1,6 +1,6 @@
 /**
- * FlashcardManager - Menedżer fiszek
- * Odpowiada za wyświetlanie i zarządzanie fiszkami
+ * FlashcardManager - POPRAWKA WIZUALNEJ AKTUALIZACJI PRZYCISKU TRUDNOŚCI
+ * Główna zmiana: dodano animację i natychmiastową aktualizację przycisku
  */
 
 class FlashcardManager {
@@ -38,8 +38,8 @@ class FlashcardManager {
     }
 
     /**
- * Wyświetlenie słowa na karcie - ZAKTUALIZOWANA WERSJA
- */
+     * Wyświetlenie słowa na karcie - ZAKTUALIZOWANA WERSJA
+     */
     displayWord(word, mode = 'flashcards') {
         this.currentWord = word;
         
@@ -55,7 +55,6 @@ class FlashcardManager {
             default:
                 this.displayFlashcard(word);
         }
-
     }
 
     /**
@@ -116,10 +115,11 @@ class FlashcardManager {
         container.appendChild(englishEl);
 
         // Poziom trudności
-        if (word.difficulty) {
+        const currentDifficulty = this.getWordDifficulty(word);
+        if (currentDifficulty) {
             const difficultyEl = this.createElement('div', 'difficulty-badge');
-            difficultyEl.classList.add(`difficulty-${word.difficulty}`);
-            difficultyEl.textContent = this.getDifficultyLabel(word.difficulty);
+            difficultyEl.classList.add(`difficulty-${currentDifficulty}`);
+            difficultyEl.textContent = this.getDifficultyLabel(currentDifficulty);
             container.appendChild(difficultyEl);
         }
 
@@ -347,11 +347,8 @@ class FlashcardManager {
     }
 
     /**
- * Dodawanie przycisku audio - ZAKTUALIZOWANA WERSJA
- */
-    /**
- * Dodawanie przycisku audio - ZAKTUALIZOWANA WERSJA
- */
+     * Dodawanie przycisku audio - ZAKTUALIZOWANA WERSJA
+     */
     addAudioButton(container, text) {
         const audioBtn = this.createElement('button', 'audio-btn word-audio-btn');
         audioBtn.innerHTML = `
@@ -446,20 +443,44 @@ class FlashcardManager {
     }
 
     /**
-     * Dodawanie kontrolek słowa
+     * ✨ NAPRAWIONE: Dodawanie kontrolek słowa z pełną obsługą trudności
      */
     addWordControls(container, word) {
         const controlsEl = this.createElement('div', 'word-controls');
 
-        // Przycisk trudności (bez zmian)
+        // ⭐ NAPRAWIONY przycisk trudności - z pełną obsługą
         const difficultyBtn = this.createElement('button', 'control-btn difficulty-btn');
-        difficultyBtn.innerHTML = `
-            <span class="icon">⭐</span>
-            <span class="text">Trudność</span>
-        `;
+        
+        // 📊 Pobierz aktualny poziom trudności
+        const currentDifficulty = this.getWordDifficulty(word);
+        
+        // 🎨 Ustaw wygląd przycisku na podstawie aktualnej trudności
+        this.updateDifficultyButton(difficultyBtn, currentDifficulty);
+        
+        // 🔧 NAPRAWIONY event listener z pełną obsługą
         difficultyBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            this.toggleDifficulty(word);
+            e.stopPropagation(); // Zatrzymaj propagację by nie obracać karty
+            console.log(`⭐ Kliknięto przycisk trudności dla słowa: ${word.english}`);
+            
+            // ✨ NOWE: Dodaj animację kliknięcia
+            this.addClickAnimation(difficultyBtn);
+            
+            // 📝 Toggle difficulty i otrzymaj nowy poziom
+            const newDifficulty = this.toggleDifficulty(word);
+            
+            // 🎨 Natychmiast zaktualizuj wizualnie przycisk z animacją
+            setTimeout(() => {
+                this.updateDifficultyButton(difficultyBtn, newDifficulty);
+                this.addChangeAnimation(difficultyBtn);
+                
+                // ✨ NOWE: Aktualizuj również badge na przodzie karty
+                this.updateDifficultyBadge(word);
+            }, 100);
+            
+            // 📢 Pokaż powiadomienie użytkownikowi
+            this.showDifficultyNotification(word, newDifficulty);
+            
+            console.log(`✅ Trudność zmieniona na: ${newDifficulty} dla słowa: ${word.english}`);
         });
 
         // ✅ NAPRAWIONY przycisk ulubionych
@@ -476,11 +497,17 @@ class FlashcardManager {
             e.stopPropagation(); // Zatrzymaj propagację by nie obracać karty
             console.log(`🔖 Kliknięto bookmark dla słowa: ${word.english}`);
             
+            // ✨ NOWE: Dodaj animację kliknięcia
+            this.addClickAnimation(bookmarkBtn);
+            
             // 📝 Toggle bookmark i otrzymaj nowy stan
             const newState = this.toggleBookmark(word);
             
             // 🎨 Natychmiast zaktualizuj wizualnie przycisk
-            this.updateBookmarkButton(bookmarkBtn, newState);
+            setTimeout(() => {
+                this.updateBookmarkButton(bookmarkBtn, newState);
+                this.addChangeAnimation(bookmarkBtn);
+            }, 100);
             
             // 📢 Pokaż powiadomienie użytkownikowi
             this.showBookmarkNotification(word, newState);
@@ -497,6 +524,175 @@ class FlashcardManager {
         controlsEl.appendChild(difficultyBtn);
         controlsEl.appendChild(bookmarkBtn);
         container.appendChild(controlsEl);
+    }
+
+    /**
+     * ✨ NOWA METODA: Animacja kliknięcia
+     */
+    addClickAnimation(button) {
+        // Usuń poprzednie animacje
+        button.classList.remove('click-animation', 'change-animation');
+        
+        // Dodaj animację kliknięcia
+        button.classList.add('click-animation');
+        
+        // Usuń animację po zakończeniu
+        setTimeout(() => {
+            button.classList.remove('click-animation');
+        }, 200);
+    }
+
+    /**
+     * ✨ NOWA METODA: Animacja zmiany
+     */
+    addChangeAnimation(button) {
+        // Dodaj animację zmiany
+        button.classList.add('change-animation');
+        
+        // Usuń animację po zakończeniu
+        setTimeout(() => {
+            button.classList.remove('change-animation');
+        }, 600);
+    }
+
+    /**
+     * ✨ NOWA METODA: Pobranie aktualnego poziomu trudności słowa
+     */
+    getWordDifficulty(word) {
+        // Najpierw sprawdź ProgressManager (aktualny stan)
+        if (window.englishFlashcardsApp && window.englishFlashcardsApp.managers.progress) {
+            try {
+                const currentDifficulty = window.englishFlashcardsApp.managers.progress.getWordDifficulty(word);
+                return currentDifficulty;
+            } catch (error) {
+                console.warn('⚠️ Błąd pobierania trudności z ProgressManager:', error);
+            }
+        }
+        
+        // Fallback - oryginalna trudność słowa
+        return word.difficulty || 'medium';
+    }
+
+    /**
+     * ✨ NOWA METODA: Aktualizacja wyglądu przycisku trudności z animacją
+     */
+    updateDifficultyButton(button, difficulty) {
+        // 🎨 Różne ikony i kolory dla różnych poziomów trudności
+        const difficultyConfig = {
+            'easy': { icon: '⭐', text: 'Łatwe', class: 'easy' },
+            'medium': { icon: '⭐⭐', text: 'Średnie', class: 'medium' },
+            'hard': { icon: '⭐⭐⭐', text: 'Trudne', class: 'hard' }
+        };
+        
+        const config = difficultyConfig[difficulty] || difficultyConfig['medium'];
+        
+        // 📝 Aktualizuj zawartość przycisku z płynną animacją
+        const currentIcon = button.querySelector('.icon');
+        const currentText = button.querySelector('.text');
+        
+        if (currentIcon && currentText) {
+            // Animacja zmiany zawartości
+            button.style.transform = 'scale(0.95)';
+            button.style.opacity = '0.7';
+            
+            setTimeout(() => {
+                currentIcon.textContent = config.icon;
+                currentText.textContent = config.text;
+                
+                // 🎭 Aktualizuj klasy CSS dla stylowania
+                button.classList.remove('easy', 'medium', 'hard');
+                button.classList.add(config.class);
+                
+                // Przywróć normalny wygląd
+                button.style.transform = 'scale(1)';
+                button.style.opacity = '1';
+            }, 150);
+        } else {
+            // Fallback - ustaw zawartość bezpośrednio
+            button.innerHTML = `
+                <span class="icon">${config.icon}</span>
+                <span class="text">${config.text}</span>
+            `;
+            
+            // 🎭 Aktualizuj klasy CSS dla stylowania
+            button.classList.remove('easy', 'medium', 'hard');
+            button.classList.add(config.class);
+        }
+        
+        // ♿ Accessibility - screen readers
+        button.setAttribute('aria-label', `Poziom trudności: ${config.text}`);
+        button.setAttribute('title', `Poziom trudności: ${config.text}. Kliknij aby zmienić.`);
+        
+        console.log(`🎨 Zaktualizowano przycisk trudności: ${difficulty} (${config.text})`);
+    }
+
+    /**
+     * ✨ NOWA METODA: Powiadomienia o zmianie trudności
+     */
+    showDifficultyNotification(word, newDifficulty) {
+        // 📢 Sprawdź czy NotificationManager jest dostępny
+        if (window.NotificationManager) {
+            const difficultyLabels = {
+                'easy': 'Łatwe',
+                'medium': 'Średnie', 
+                'hard': 'Trudne'
+            };
+            
+            const label = difficultyLabels[newDifficulty] || newDifficulty;
+            const icon = {
+                'easy': '⭐',
+                'medium': '⭐⭐', 
+                'hard': '⭐⭐⭐'
+            }[newDifficulty] || '⭐';
+            
+            const message = `${icon} "${word.english}" → ${label}`;
+            
+            // 🎯 Pokaż powiadomienie przez 2 sekundy
+            window.NotificationManager.show(message, 'info', 2000);
+        }
+    }
+
+    /**
+     * ✨ NAPRAWIONA METODA: Toggle trudności z pełną obsługą
+     */
+    toggleDifficulty(word) {
+        // 🛡️ Sprawdź czy ProgressManager jest dostępny
+        if (!window.englishFlashcardsApp || !window.englishFlashcardsApp.managers.progress) {
+            console.error('❌ ProgressManager nie jest dostępny');
+            if (window.NotificationManager) {
+                window.NotificationManager.show('Błąd: Nie można zmienić trudności', 'error');
+            }
+            return this.getWordDifficulty(word); // Zwróć aktualną trudność
+        }
+        
+        try {
+            // ✅ Wywołaj toggle w ProgressManager i otrzymaj nowy poziom
+            const newDifficulty = window.englishFlashcardsApp.managers.progress.toggleWordDifficulty(word);
+            
+            console.log(`🔄 Toggle difficulty: ${word.english} → ${newDifficulty}`);
+            
+            return newDifficulty;
+            
+        } catch (error) {
+            console.error('❌ Błąd podczas toggle difficulty:', error);
+            
+            if (window.NotificationManager) {
+                window.NotificationManager.show('Błąd podczas zmiany trudności', 'error');
+            }
+            
+            return this.getWordDifficulty(word); // Zwróć aktualną trudność jako fallback
+        }
+    }
+
+    /**
+     * ✨ NOWA METODA: Odświeżenie stanu przycisku trudności (do użycia zewnętrznego)
+     */
+    refreshDifficultyState(word) {
+        const difficultyBtn = document.querySelector('.difficulty-btn');
+        if (difficultyBtn && word) {
+            const currentDifficulty = this.getWordDifficulty(word);
+            this.updateDifficultyButton(difficultyBtn, currentDifficulty);
+        }
     }
 
     updateBookmarkButton(button, isBookmarked) {
@@ -626,16 +822,6 @@ class FlashcardManager {
         return labels[frequency] || frequency;
     }
 
-    /**
-     * Funkcje interakcji
-     */
-    toggleDifficulty(word) {
-        // Implementacja w ProgressManager
-        if (window.englishFlashcardsApp && window.englishFlashcardsApp.managers.progress) {
-            window.englishFlashcardsApp.managers.progress.toggleWordDifficulty(word);
-        }
-    }
-
     toggleBookmark(word) {
         // 🛡️ Sprawdź czy ProgressManager jest dostępny
         if (!window.englishFlashcardsApp || !window.englishFlashcardsApp.managers.progress) {
@@ -647,10 +833,44 @@ class FlashcardManager {
         }
         
         try {
+            // ✅ NOWE: Sprawdź stan przed usunięciem/dodaniem
+            const wasInBookmarksMode = window.englishFlashcardsApp.state?.bookmarksOnlyMode || false;
+            const bookmarksCountBefore = window.englishFlashcardsApp.managers.progress.getAllBookmarkedWords().length;
+            const isCurrentlyBookmarked = window.englishFlashcardsApp.managers.progress.isWordBookmarked(word);
+            
+            console.log(`🔖 Stan przed toggle: tryb=${wasInBookmarksMode}, liczba=${bookmarksCountBefore}, będzie_usunięte=${isCurrentlyBookmarked}`);
+            
+            // Sprawdź czy usuwamy ostatnie słowo w trybie powtórki
+            const willBeLastBookmark = isCurrentlyBookmarked && bookmarksCountBefore === 1;
+            
             // 📝 Wywołaj toggle w ProgressManager
             const newState = window.englishFlashcardsApp.managers.progress.toggleWordBookmark(word);
             
             console.log(`🔄 Toggle bookmark: ${word.english} → ${newState ? 'dodany' : 'usunięty'}`);
+            
+            // ✅ NOWE: Wyjdź z trybu powtórki jeśli usunięto ostatnie słowo
+            if (wasInBookmarksMode && willBeLastBookmark && !newState) {
+                console.log('🚪 To było ostatnie słowo w trybie powtórki - wychodzimy z trybu');
+                
+                // Wyjdź z trybu powtórki
+                if (window.englishFlashcardsApp.exitBookmarksOnlyMode) {
+                    window.englishFlashcardsApp.exitBookmarksOnlyMode();
+                    
+                    // Pokaż powiadomienie z opóźnieniem
+                    setTimeout(() => {
+                        if (window.NotificationManager) {
+                            window.NotificationManager.show(
+                                '🚪 Wyszedłeś z trybu powtórki - brak słów do nauki', 
+                                'info', 
+                                4000
+                            );
+                        }
+                    }, 800);
+                } else {
+                    console.error('❌ Metoda exitBookmarksOnlyMode nie jest dostępna');
+                }
+            }
+            
             return newState;
             
         } catch (error) {
@@ -663,7 +883,6 @@ class FlashcardManager {
             return false;
         }
     }
-
 
     isWordBookmarked(word) {
         // 🛡️ Sprawdź czy ProgressManager jest dostępny
@@ -689,6 +908,32 @@ class FlashcardManager {
             const isBookmarked = this.isWordBookmarked(word);
             this.updateBookmarkButton(bookmarkBtn, isBookmarked);
         }
+    }
+
+
+    updateDifficultyBadge(word) {
+        const difficultyBadge = document.querySelector('.difficulty-badge');
+        if (!difficultyBadge || !word) return;
+        
+        // 📊 Pobierz aktualną trudność
+        const currentDifficulty = this.getWordDifficulty(word);
+        
+        // 🎨 Aktualizuj klasy CSS
+        difficultyBadge.className = 'difficulty-badge'; // Reset klas
+        difficultyBadge.classList.add(`difficulty-${currentDifficulty}`);
+        
+        // 📝 Aktualizuj tekst
+        difficultyBadge.textContent = this.getDifficultyLabel(currentDifficulty);
+        
+        // ✨ Dodaj efekt wizualny zmiany
+        difficultyBadge.style.transform = 'scale(1.1)';
+        difficultyBadge.style.transition = 'all 0.3s ease';
+        
+        setTimeout(() => {
+            difficultyBadge.style.transform = 'scale(1)';
+        }, 300);
+        
+        console.log(`🎨 Zaktualizowano badge trudności na przodzie: ${currentDifficulty}`);
     }
 
     openImageManager(wordId, word) {

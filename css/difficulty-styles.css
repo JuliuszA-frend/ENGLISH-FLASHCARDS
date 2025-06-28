@@ -1,0 +1,773 @@
+/**
+ * 🎨 NAPRAWIONY CSS POZIOMÓW TRUDNOŚCI - OSTATECZNA WERSJA
+ * 
+ * INSTRUKCJE:
+ * 1. ZASTĄP całą zawartość pliku difficulty-styles.css tym kodem
+ * 2. LUB dodaj na KONIEC pliku style.css/main.css z komentarzem
+ * 3. Upewnij się że ładuje się OSTATNI (po components.css)
+ */
+
+/* ============================================
+   🎯 DIFFICULTY BUTTONS - NAPRAWIONE STYLE
+   ============================================ */
+
+/* PODSTAWOWY STYL - zwiększona specyficzność */
+.word-controls .control-btn.difficulty-btn,
+.control-btn.difficulty-btn {
+    /* PODSTAWOWE WŁAŚCIWOŚCI */
+    position: relative !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    
+    /* WIELKOŚĆ I PADDING */
+    padding: 12px 20px !important;
+    min-width: 140px !important;
+    min-height: 48px !important;
+    
+    /* TYPOGRAFIA */
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    font-family: var(--font-family-sans, 'Inter', sans-serif) !important;
+    text-decoration: none !important;
+    white-space: nowrap !important;
+    
+    /* WYGLĄD */
+    border: 2px solid transparent !important;
+    border-radius: 12px !important;
+    cursor: pointer !important;
+    user-select: none !important;
+    
+    /* ANIMACJE */
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    transform: translateZ(0) !important; /* GPU acceleration */
+    will-change: transform, background, border-color !important;
+    
+    /* DOMYŚLNY WYGLĄD */
+    background: rgba(255, 255, 255, 0.1) !important;
+    color: rgba(255, 255, 255, 0.8) !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+/* HOVER STATE - ogólny */
+.word-controls .control-btn.difficulty-btn:hover,
+.control-btn.difficulty-btn:hover {
+    transform: translateY(-2px) translateZ(0) !important;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2) !important;
+    background: rgba(255, 255, 255, 0.2) !important;
+    border-color: rgba(255, 255, 255, 0.3) !important;
+}
+
+/* ACTIVE STATE */
+.word-controls .control-btn.difficulty-btn:active,
+.control-btn.difficulty-btn:active {
+    transform: translateY(0) translateZ(0) !important;
+    transition: transform 0.1s ease !important;
+}
+
+/* ============================================
+   🟢 ŁATWY POZIOM - ZIELONY
+   ============================================ */
+
+.word-controls .control-btn.difficulty-btn.easy,
+.control-btn.difficulty-btn.easy {
+    background: linear-gradient(135deg, #dcfce7, #bbf7d0) !important;
+    border-color: #22c55e !important;
+    color: #15803d !important;
+    box-shadow: 0 4px 12px rgba(34, 197, 94, 0.25) !important;
+}
+
+.word-controls .control-btn.difficulty-btn.easy:hover,
+.control-btn.difficulty-btn.easy:hover {
+    background: linear-gradient(135deg, #bbf7d0, #86efac) !important;
+    border-color: #16a34a !important;
+    color: #14532d !important;
+    box-shadow: 0 8px 25px rgba(34, 197, 94, 0.4) !important;
+    transform: translateY(-3px) translateZ(0) !important;
+}
+
+.word-controls .control-btn.difficulty-btn.easy .icon,
+.control-btn.difficulty-btn.easy .icon {
+    color: #22c55e !important;
+    filter: drop-shadow(0 2px 4px rgba(34, 197, 94, 0.3)) !important;
+    font-size: 16px !important;
+}
+
+/* ============================================
+   🟡 ŚREDNI POZIOM - ŻÓŁTY
+   ============================================ */
+
+.word-controls .control-btn.difficulty-btn.medium,
+.control-btn.difficulty-btn.medium {
+    background: linear-gradient(135deg, #fef3c7, #fde68a) !important;
+    border-color: #f59e0b !important;
+    color: #92400e !important;
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.25) !important;
+}
+
+.word-controls .control-btn.difficulty-btn.medium:hover,
+.control-btn.difficulty-btn.medium:hover {
+    background: linear-gradient(135deg, #fde68a, #fcd34d) !important;
+    border-color: #d97706 !important;
+    color: #78350f !important;
+    box-shadow: 0 8px 25px rgba(245, 158, 11, 0.4) !important;
+    transform: translateY(-3px) translateZ(0) !important;
+}
+
+.word-controls .control-btn.difficulty-btn.medium .icon,
+.control-btn.difficulty-btn.medium .icon {
+    color: #f59e0b !important;
+    filter: drop-shadow(0 2px 4px rgba(245, 158, 11, 0.3)) !important;
+    font-size: 16px !important;
+}
+
+/* ============================================
+   🔴 TRUDNY POZIOM - CZERWONY
+   ============================================ */
+
+.word-controls .control-btn.difficulty-btn.hard,
+.control-btn.difficulty-btn.hard {
+    background: linear-gradient(135deg, #fee2e2, #fecaca) !important;
+    border-color: #ef4444 !important;
+    color: #dc2626 !important;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25) !important;
+}
+
+.word-controls .control-btn.difficulty-btn.hard:hover,
+.control-btn.difficulty-btn.hard:hover {
+    background: linear-gradient(135deg, #fecaca, #fca5a5) !important;
+    border-color: #dc2626 !important;
+    color: #991b1b !important;
+    box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4) !important;
+    transform: translateY(-3px) translateZ(0) !important;
+}
+
+.word-controls .control-btn.difficulty-btn.hard .icon,
+.control-btn.difficulty-btn.hard .icon {
+    color: #ef4444 !important;
+    filter: drop-shadow(0 2px 4px rgba(239, 68, 68, 0.3)) !important;
+    font-size: 16px !important;
+}
+
+/* ============================================
+   🎬 ANIMACJE SPECJALNE
+   ============================================ */
+
+/* Animacja kliknięcia */
+.control-btn.difficulty-btn.click-animation {
+    animation: difficultyClickPulse 0.2s ease-out !important;
+}
+
+@keyframes difficultyClickPulse {
+    0% { 
+        transform: scale(1) translateZ(0); 
+    }
+    50% { 
+        transform: scale(0.95) translateZ(0); 
+        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+    100% { 
+        transform: scale(1) translateZ(0); 
+    }
+}
+
+/* Animacja zmiany poziomu */
+.control-btn.difficulty-btn.change-animation {
+    animation: difficultyLevelChange 0.6s ease-in-out !important;
+}
+
+@keyframes difficultyLevelChange {
+    0% { 
+        transform: scale(1) rotate(0deg) translateZ(0); 
+        filter: brightness(1);
+    }
+    25% { 
+        transform: scale(1.05) rotate(-2deg) translateZ(0); 
+        filter: brightness(1.2);
+    }
+    50% { 
+        transform: scale(1.1) rotate(2deg) translateZ(0); 
+        filter: brightness(1.3);
+    }
+    75% { 
+        transform: scale(1.05) rotate(-1deg) translateZ(0); 
+        filter: brightness(1.1);
+    }
+    100% { 
+        transform: scale(1) rotate(0deg) translateZ(0); 
+        filter: brightness(1);
+    }
+}
+
+/* Specjalne efekty dla poziomu trudności */
+.control-btn.difficulty-btn.easy.change-animation {
+    box-shadow: 0 4px 20px rgba(34, 197, 94, 0.6) !important;
+}
+
+.control-btn.difficulty-btn.medium.change-animation {
+    box-shadow: 0 4px 20px rgba(245, 158, 11, 0.6) !important;
+}
+
+.control-btn.difficulty-btn.hard.change-animation {
+    box-shadow: 0 4px 20px rgba(239, 68, 68, 0.6) !important;
+}
+
+/* ============================================
+   🎯 FOCUS STATES - ACCESSIBILITY
+   ============================================ */
+
+.control-btn.difficulty-btn:focus,
+.control-btn.difficulty-btn:focus-visible {
+    outline: 2px solid #3b82f6 !important;
+    outline-offset: 2px !important;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2) !important;
+}
+
+.control-btn.difficulty-btn.easy:focus {
+    outline-color: #22c55e !important;
+    box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.2) !important;
+}
+
+.control-btn.difficulty-btn.medium:focus {
+    outline-color: #f59e0b !important;
+    box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.2) !important;
+}
+
+.control-btn.difficulty-btn.hard:focus {
+    outline-color: #ef4444 !important;
+    box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.2) !important;
+}
+
+/* ============================================
+   💎 EFEKTY WIZUALNE
+   ============================================ */
+
+/* Gradient overlay przy hover */
+.control-btn.difficulty-btn::before {
+    content: '' !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: -100% !important;
+    width: 100% !important;
+    height: 100% !important;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent) !important;
+    transition: left 0.3s ease !important;
+    pointer-events: none !important;
+    border-radius: inherit !important;
+    z-index: 1 !important;
+}
+
+.control-btn.difficulty-btn:hover::before {
+    left: 100% !important;
+}
+
+/* Shimmer effect */
+.control-btn.difficulty-btn:hover::after {
+    content: '' !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%) !important;
+    opacity: 0 !important;
+    animation: shimmerEffect 1.5s ease-in-out infinite !important;
+    pointer-events: none !important;
+    border-radius: inherit !important;
+    z-index: 2 !important;
+}
+
+@keyframes shimmerEffect {
+    0% { 
+        transform: translateX(-100%); 
+        opacity: 0;
+    }
+    50% { 
+        opacity: 1;
+    }
+    100% { 
+        transform: translateX(100%); 
+        opacity: 0;
+    }
+}
+
+/* ============================================
+   📱 RESPONSIVE DESIGN
+   ============================================ */
+
+/* Tablet adjustments */
+@media (max-width: 768px) {
+    .word-controls .control-btn.difficulty-btn,
+    .control-btn.difficulty-btn {
+        padding: 10px 16px !important;
+        min-width: 120px !important;
+        font-size: 13px !important;
+    }
+    
+    .control-btn.difficulty-btn .icon {
+        font-size: 15px !important;
+    }
+}
+
+/* Mobile adjustments */
+@media (max-width: 576px) {
+    .word-controls .control-btn.difficulty-btn,
+    .control-btn.difficulty-btn {
+        padding: 8px 12px !important;
+        min-width: 100px !important;
+        font-size: 12px !important;
+    }
+    
+    .control-btn.difficulty-btn .text {
+        display: none !important; /* Ukryj tekst na mobile */
+    }
+    
+    .control-btn.difficulty-btn .icon {
+        font-size: 18px !important; /* Większe ikony na mobile */
+    }
+}
+
+/* ============================================
+   🌙 DARK MODE SUPPORT
+   ============================================ */
+
+[data-theme="dark"] .control-btn.difficulty-btn.easy {
+    background: linear-gradient(135deg, #065f46, #047857) !important;
+    color: #86efac !important;
+    border-color: #059669 !important;
+}
+
+[data-theme="dark"] .control-btn.difficulty-btn.medium {
+    background: linear-gradient(135deg, #92400e, #b45309) !important;
+    color: #fcd34d !important;
+    border-color: #d97706 !important;
+}
+
+[data-theme="dark"] .control-btn.difficulty-btn.hard {
+    background: linear-gradient(135deg, #991b1b, #dc2626) !important;
+    color: #fca5a5 !important;
+    border-color: #dc2626 !important;
+}
+
+/* ============================================
+   ⚡ WYSOKIE KONTRASTY
+   ============================================ */
+
+@media (prefers-contrast: high) {
+    .control-btn.difficulty-btn {
+        border-width: 3px !important;
+        font-weight: 700 !important;
+    }
+    
+    .control-btn.difficulty-btn.easy {
+        background: #22c55e !important;
+        color: #000 !important;
+        border-color: #000 !important;
+    }
+    
+    .control-btn.difficulty-btn.medium {
+        background: #f59e0b !important;
+        color: #000 !important;
+        border-color: #000 !important;
+    }
+    
+    .control-btn.difficulty-btn.hard {
+        background: #ef4444 !important;
+        color: #fff !important;
+        border-color: #000 !important;
+    }
+}
+
+/* ============================================
+   🎭 REDUCED MOTION
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+    .control-btn.difficulty-btn {
+        transition: background 0.2s ease, color 0.2s ease !important;
+    }
+    
+    .control-btn.difficulty-btn:hover {
+        transform: none !important;
+    }
+    
+    .control-btn.difficulty-btn.click-animation,
+    .control-btn.difficulty-btn.change-animation {
+        animation: none !important;
+    }
+    
+    .control-btn.difficulty-btn::before,
+    .control-btn.difficulty-btn::after {
+        display: none !important;
+    }
+}
+
+/* ============================================
+   🔧 DEBUG HELPERS (DEVELOPMENT ONLY)
+   ============================================ */
+
+/* Uncomment dla debugowania */
+/*
+.debug-difficulty .control-btn.difficulty-btn {
+    border: 3px dashed red !important;
+}
+
+.debug-difficulty .control-btn.difficulty-btn.easy {
+    border-color: green !important;
+}
+
+.debug-difficulty .control-btn.difficulty-btn.medium {
+    border-color: orange !important;
+}
+
+.debug-difficulty .control-btn.difficulty-btn.hard {
+    border-color: red !important;
+}
+*/
+
+/* ============================================
+   ✅ COMPATIBILITY OVERRIDES
+   ============================================ */
+
+/* Nadpisanie wszystkich potencjalnych konfliktów */
+.word-controls .difficulty-btn,
+.card-controls .difficulty-btn,
+.flashcard .difficulty-btn,
+.control-btn[class*="difficulty"] {
+    /* Upewnij się że wszystkie selektory będą nadpisane */
+    background: linear-gradient(135deg, #fef3c7, #fde68a) !important;
+    border-color: #f59e0b !important;
+    color: #92400e !important;
+}
+
+/* Easy override */
+.word-controls .difficulty-btn.easy,
+.card-controls .difficulty-btn.easy,
+.flashcard .difficulty-btn.easy,
+.control-btn[class*="difficulty"].easy {
+    background: linear-gradient(135deg, #dcfce7, #bbf7d0) !important;
+    border-color: #22c55e !important;
+    color: #15803d !important;
+}
+
+/* Medium override */
+.word-controls .difficulty-btn.medium,
+.card-controls .difficulty-btn.medium,
+.flashcard .difficulty-btn.medium,
+.control-btn[class*="difficulty"].medium {
+    background: linear-gradient(135deg, #fef3c7, #fde68a) !important;
+    border-color: #f59e0b !important;
+    color: #92400e !important;
+}
+
+/* Hard override */
+.word-controls .difficulty-btn.hard,
+.card-controls .difficulty-btn.hard,
+.flashcard .difficulty-btn.hard,
+.control-btn[class*="difficulty"].hard {
+    background: linear-gradient(135deg, #fee2e2, #fecaca) !important;
+    border-color: #ef4444 !important;
+    color: #dc2626 !important;
+}
+
+/* ============================================
+   🎯 FINAL FALLBACK
+   ============================================ */
+
+/* Nuclear option - jeśli nic nie działa */
+button[class*="difficulty-btn"],
+.control-btn[class*="difficulty"],
+*[class*="difficulty-btn"] {
+    background: linear-gradient(135deg, #fef3c7, #fde68a) !important;
+    border: 2px solid #f59e0b !important;
+    color: #92400e !important;
+}
+
+button[class*="difficulty-btn"].easy,
+.control-btn[class*="difficulty"].easy,
+*[class*="difficulty-btn"].easy {
+    background: linear-gradient(135deg, #dcfce7, #bbf7d0) !important;
+    border-color: #22c55e !important;
+    color: #15803d !important;
+}
+
+button[class*="difficulty-btn"].hard,
+.control-btn[class*="difficulty"].hard,
+*[class*="difficulty-btn"].hard {
+    background: linear-gradient(135deg, #fee2e2, #fecaca) !important;
+    border-color: #ef4444 !important;
+    color: #dc2626 !important;
+}
+
+/**
+ * 🎨 DODAJ NA KONIEC pliku difficulty-styles.css
+ * 
+ * KOLORYSTYCZNE BADGE'Y TRUDNOŚCI NA PRZODZIE KARTY
+ */
+
+/* ============================================
+   🏷️ DIFFICULTY BADGES - PRZÓD KARTY
+   ============================================ */
+
+/* PODSTAWOWY STYL BADGE'A TRUDNOŚCI */
+.difficulty-badge {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 4px !important;
+    
+    /* WIELKOŚĆ I PADDING */
+    padding: 6px 12px !important;
+    min-width: 80px !important;
+    min-height: 28px !important;
+    
+    /* TYPOGRAFIA */
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    font-family: var(--font-family-sans, 'Inter', sans-serif) !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    
+    /* WYGLĄD */
+    border: 2px solid transparent !important;
+    border-radius: 8px !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+    
+    /* ANIMACJE */
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    transform: translateZ(0) !important;
+    
+    /* POZYCJONOWANIE */
+    margin-bottom: 12px !important;
+    flex-shrink: 0 !important;
+}
+
+/* HOVER EFFECT dla badge'ów */
+.difficulty-badge:hover {
+    transform: translateY(-1px) scale(1.05) translateZ(0) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* ============================================
+   🟢 ŁATWY POZIOM - BADGE ZIELONY
+   ============================================ */
+
+.difficulty-badge.difficulty-easy {
+    background: linear-gradient(135deg, #dcfce7, #bbf7d0) !important;
+    border-color: #22c55e !important;
+    color: #15803d !important;
+    box-shadow: 0 2px 8px rgba(34, 197, 94, 0.3) !important;
+}
+
+.difficulty-badge.difficulty-easy:hover {
+    background: linear-gradient(135deg, #bbf7d0, #86efac) !important;
+    border-color: #16a34a !important;
+    color: #14532d !important;
+    box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4) !important;
+}
+
+.difficulty-badge.difficulty-easy::before {
+    content: '⭐' !important;
+    margin-right: 4px !important;
+    font-size: 14px !important;
+    filter: drop-shadow(0 1px 2px rgba(34, 197, 94, 0.3)) !important;
+}
+
+/* ============================================
+   🟡 ŚREDNI POZIOM - BADGE ŻÓŁTY
+   ============================================ */
+
+.difficulty-badge.difficulty-medium {
+    background: linear-gradient(135deg, #fef3c7, #fde68a) !important;
+    border-color: #f59e0b !important;
+    color: #92400e !important;
+    box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3) !important;
+}
+
+.difficulty-badge.difficulty-medium:hover {
+    background: linear-gradient(135deg, #fde68a, #fcd34d) !important;
+    border-color: #d97706 !important;
+    color: #78350f !important;
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4) !important;
+}
+
+.difficulty-badge.difficulty-medium::before {
+    content: '⭐⭐' !important;
+    margin-right: 4px !important;
+    font-size: 14px !important;
+    filter: drop-shadow(0 1px 2px rgba(245, 158, 11, 0.3)) !important;
+}
+
+/* ============================================
+   🔴 TRUDNY POZIOM - BADGE CZERWONY
+   ============================================ */
+
+.difficulty-badge.difficulty-hard {
+    background: linear-gradient(135deg, #fee2e2, #fecaca) !important;
+    border-color: #ef4444 !important;
+    color: #dc2626 !important;
+    box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3) !important;
+}
+
+.difficulty-badge.difficulty-hard:hover {
+    background: linear-gradient(135deg, #fecaca, #fca5a5) !important;
+    border-color: #dc2626 !important;
+    color: #991b1b !important;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4) !important;
+}
+
+.difficulty-badge.difficulty-hard::before {
+    content: '⭐⭐⭐' !important;
+    margin-right: 4px !important;
+    font-size: 14px !important;
+    filter: drop-shadow(0 1px 2px rgba(239, 68, 68, 0.3)) !important;
+}
+
+/* ============================================
+   🎬 ANIMACJE SPECJALNE DLA BADGE'ÓW
+   ============================================ */
+
+/* Animacja pojawienia się */
+.difficulty-badge {
+    animation: badgeSlideIn 0.4s ease-out !important;
+}
+
+@keyframes badgeSlideIn {
+    0% { 
+        opacity: 0;
+        transform: translateY(-10px) scale(0.9) translateZ(0); 
+    }
+    100% { 
+        opacity: 1;
+        transform: translateY(0) scale(1) translateZ(0); 
+    }
+}
+
+/* Animacja aktualizacji trudności */
+.difficulty-badge.updating {
+    animation: badgeUpdate 0.6s ease-in-out !important;
+}
+
+@keyframes badgeUpdate {
+    0% { 
+        transform: scale(1) rotateY(0deg) translateZ(0); 
+    }
+    25% { 
+        transform: scale(1.1) rotateY(-5deg) translateZ(0); 
+    }
+    50% { 
+        transform: scale(1.15) rotateY(5deg) translateZ(0); 
+    }
+    75% { 
+        transform: scale(1.05) rotateY(-2deg) translateZ(0); 
+    }
+    100% { 
+        transform: scale(1) rotateY(0deg) translateZ(0); 
+    }
+}
+
+/* ============================================
+   📱 RESPONSIVE DESIGN DLA BADGE'ÓW
+   ============================================ */
+
+/* Tablet adjustments */
+@media (max-width: 768px) {
+    .difficulty-badge {
+        padding: 5px 10px !important;
+        min-width: 70px !important;
+        font-size: 11px !important;
+        min-height: 26px !important;
+    }
+    
+    .difficulty-badge::before {
+        font-size: 12px !important;
+        margin-right: 3px !important;
+    }
+}
+
+/* Mobile adjustments */
+@media (max-width: 576px) {
+    .difficulty-badge {
+        padding: 4px 8px !important;
+        min-width: 60px !important;
+        font-size: 10px !important;
+        min-height: 24px !important;
+        letter-spacing: 0.3px !important;
+    }
+    
+    .difficulty-badge::before {
+        font-size: 11px !important;
+        margin-right: 2px !important;
+    }
+}
+
+/* ============================================
+   🌙 DARK MODE SUPPORT DLA BADGE'ÓW
+   ============================================ */
+
+[data-theme="dark"] .difficulty-badge.difficulty-easy {
+    background: linear-gradient(135deg, #065f46, #047857) !important;
+    color: #86efac !important;
+    border-color: #059669 !important;
+}
+
+[data-theme="dark"] .difficulty-badge.difficulty-medium {
+    background: linear-gradient(135deg, #92400e, #b45309) !important;
+    color: #fcd34d !important;
+    border-color: #d97706 !important;
+}
+
+[data-theme="dark"] .difficulty-badge.difficulty-hard {
+    background: linear-gradient(135deg, #991b1b, #dc2626) !important;
+    color: #fca5a5 !important;
+    border-color: #dc2626 !important;
+}
+
+/* ============================================
+   ⚡ WYSOKIE KONTRASTY DLA BADGE'ÓW
+   ============================================ */
+
+@media (prefers-contrast: high) {
+    .difficulty-badge {
+        border-width: 3px !important;
+        font-weight: 800 !important;
+    }
+    
+    .difficulty-badge.difficulty-easy {
+        background: #22c55e !important;
+        color: #000 !important;
+        border-color: #000 !important;
+    }
+    
+    .difficulty-badge.difficulty-medium {
+        background: #f59e0b !important;
+        color: #000 !important;
+        border-color: #000 !important;
+    }
+    
+    .difficulty-badge.difficulty-hard {
+        background: #ef4444 !important;
+        color: #fff !important;
+        border-color: #000 !important;
+    }
+}
+
+/* ============================================
+   🎭 REDUCED MOTION DLA BADGE'ÓW
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+    .difficulty-badge {
+        transition: background 0.2s ease, color 0.2s ease !important;
+        animation: none !important;
+    }
+    
+    .difficulty-badge:hover {
+        transform: none !important;
+    }
+    
+    .difficulty-badge.updating {
+        animation: none !important;
+    }
+}
