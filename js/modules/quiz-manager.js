@@ -27,9 +27,16 @@ class QuizManager {
         PROGRESSIVE: 'progressive',        // NOWE - progresywny (łatwe→trudne)
         ADAPTIVE: 'adaptive'               // NOWE - adaptacyjny do użytkownika
     };
-        
+        this.allResults = {};
+        // ✅ POPRAWIONY KLUCZ - spójny z innymi menedżerami
         this.storageKey = 'english-flashcards-quiz-results';
         this.usedQuestionsKey = 'english-flashcards-used-questions';
+        
+        // ✨ DODAJ: Weryfikacja klucza przy starcie
+        this.verifyStorageKey();
+        
+        this.debugMode = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        this.loadAllResultsFromStorage();
     }
 
     /**
@@ -51,6 +58,56 @@ class QuizManager {
      */
     setLanguage(language) {
         this.language = language;
+    }
+
+    loadAllResultsFromStorage() {
+        try {
+            const existingResults = this.loadQuizResults(); // Użyj istniejącej logiki ładowania
+            this.allResults = existingResults; // <-- ZAPISZ WYNIKI DO STANU WEWNĘTRZNEGO
+            
+            const resultsCount = Object.keys(this.allResults).length;
+            
+            if (this.debugMode) {
+                console.group('🎯 QuizManager - Inicjalizacja wyników');
+                console.log(`📊 Załadowano ${resultsCount} typów quizów z localStorage do stanu menedżera`);
+                console.log('🔑 Klucze wyników:', Object.keys(this.allResults));
+                console.groupEnd();
+            }
+        } catch (error) {
+            console.error('❌ Błąd inicjalizacji wyników quizów:', error);
+            this.allResults = {}; // Upewnij się, że stan jest czysty w razie błędu
+        }
+    }
+
+    verifyStorageKey() {
+        console.log(`🔑 QuizManager używa klucza: "${this.storageKey}"`);
+        
+        // Sprawdź czy nie ma danych pod alternatywnymi kluczami
+        const alternativeKeys = [
+            'quiz-results',
+            'english-flashcards-quizzes',
+            'flashcards-quiz-results',
+            'quiz-data'
+        ];
+        
+        alternativeKeys.forEach(key => {
+            const data = localStorage.getItem(key);
+            if (data) {
+                console.warn(`⚠️ Znaleziono dane pod alternatywnym kluczem: "${key}"`);
+                console.log(`📦 Dane: ${data.substring(0, 100)}...`);
+            }
+        });
+        
+        // Sprawdź wszystkie klucze w localStorage
+        const allKeys = Object.keys(localStorage);
+        const quizRelatedKeys = allKeys.filter(key => 
+            key.toLowerCase().includes('quiz') || 
+            key.toLowerCase().includes('result')
+        );
+        
+        if (quizRelatedKeys.length > 0) {
+            console.log(`🔍 Klucze związane z quizami w localStorage:`, quizRelatedKeys);
+        }
     }
 
     /**
@@ -1418,7 +1475,7 @@ class QuizManager {
     }
 
     getDifficultWords() {
-        const quizResults = this.loadQuizResults();
+        const quizResults = this.allResults; // <-- ZMIANA: Użycie stanu z pamięci
         const wordStats = {};
 
         // Analizuj wyniki poprzednich quizów
@@ -1484,52 +1541,163 @@ class QuizManager {
      * Zarządzanie wynikami
      */
     saveQuizResults(results) {
+        console.group('💾 saveQuizResults - Zapis na podstawie stanu w pamięci');
+        
         try {
-            const allResults = this.loadQuizResults();
+            if (!results || !results.quizType || !results.category) {
+                console.error('❌ Nieprawidłowe dane wyników:', results);
+                return false;
+            }
+            
             const key = `${results.quizType}_${results.category}`;
+            console.log(`🔑 Klucz zapisu: "${key}"`);
             
-            if (!allResults[key]) {
-                allResults[key] = [];
+            // 1. Użyj stanu z pamięci, ZAMIAST this.loadQuizResults()
+            // const allResults = this.loadQuizResults(); // <--- USUŃ TĘ LINIĘ
+            
+            // 2. Modyfikuj bezpośrednio stan w pamięci (this.allResults)
+            if (!this.allResults[key]) {
+                this.allResults[key] = [];
             }
             
-            allResults[key].push(results);
+            this.allResults[key].push(results);
             
-            // Zachowaj tylko ostatnie 10 wyników dla każdego typu
-            if (allResults[key].length > 10) {
-                allResults[key] = allResults[key].slice(-10);
+            // Opcjonalne: przycinanie do 10 ostatnich wyników
+            if (this.allResults[key].length > 10) {
+                this.allResults[key] = this.allResults[key].slice(-10);
             }
             
-            localStorage.setItem(this.storageKey, JSON.stringify(allResults));
+            // 3. Przygotuj dane do zapisu
+            const dataToSave = JSON.stringify(this.allResults);
+            
+            // 4. ZAPISZ CAŁY OBIEKT DO localStorage
+            localStorage.setItem(this.storageKey, dataToSave);
+            console.log(`✅ Zapisano stan z ${Object.keys(this.allResults).length} kluczami do localStorage.`);
+            
+            // Weryfikacja (opcjonalna, ale dobra praktyka)
+            const verification = localStorage.getItem(this.storageKey);
+            if (!verification || verification.length !== dataToSave.length) {
+                console.error(`❌ BŁĄD: Weryfikacja zapisu w localStorage nie powiodła się!`);
+                return false;
+            }
+            
+            document.dispatchEvent(new CustomEvent('quizResultsSaved', { detail: { key, results } }));
+            
+            console.groupEnd();
+            return true;
+            
         } catch (error) {
-            console.error('Błąd zapisywania wyników quizu:', error);
+            console.error('💥 KRYTYCZNY BŁĄD zapisywania wyników quizu:', error);
+            console.groupEnd();
+            return false;
         }
     }
 
     loadQuizResults() {
+        console.group('📚 loadQuizResults - SZCZEGÓŁOWY DEBUG');
+        
         try {
+            console.log(`🔑 Ładuję z klucza: "${this.storageKey}"`);
+            
+            // 1. Sprawdź dostępność localStorage
+            if (typeof Storage === 'undefined') {
+                console.error('❌ localStorage nie jest dostępne w tej przeglądarce');
+                console.groupEnd();
+                return {};
+            }
+            
+            // 2. Sprawdź wszystkie klucze w localStorage
+            const allKeys = Object.keys(localStorage);
+            console.log(`🗂️ Wszystkie klucze w localStorage: [${allKeys.join(', ')}]`);
+            
+            const quizKeys = allKeys.filter(key => key.includes('quiz') || key.includes('result'));
+            if (quizKeys.length > 0) {
+                console.log(`🎯 Klucze związane z quizami: [${quizKeys.join(', ')}]`);
+            }
+            
+            // 3. Pobierz dane
             const saved = localStorage.getItem(this.storageKey);
-            return saved ? JSON.parse(saved) : {};
+            
+            if (!saved) {
+                console.log(`📭 Brak danych pod kluczem "${this.storageKey}"`);
+                console.log(`🔍 Sprawdzam localStorage.length: ${localStorage.length}`);
+                
+                // Sprawdź czy localStorage w ogóle działa
+                const testKey = 'test-' + Date.now();
+                const testValue = 'test-value';
+                
+                try {
+                    localStorage.setItem(testKey, testValue);
+                    const testResult = localStorage.getItem(testKey);
+                    localStorage.removeItem(testKey);
+                    
+                    if (testResult === testValue) {
+                        console.log(`✅ localStorage działa poprawnie (test passed)`);
+                    } else {
+                        console.error(`❌ localStorage test failed: expected "${testValue}", got "${testResult}"`);
+                    }
+                } catch (testError) {
+                    console.error(`❌ localStorage test error:`, testError);
+                }
+                
+                console.groupEnd();
+                return {};
+            }
+            
+            console.log(`📦 Rozmiar pobranych danych: ${saved.length} znaków`);
+            console.log(`📄 Pierwsze 200 znaków:`, saved.substring(0, 200));
+            
+            // 4. Parsuj dane
+            const parsed = JSON.parse(saved);
+            const keys = Object.keys(parsed);
+            
+            console.log(`🔑 Znajdowane klucze w danych: [${keys.join(', ')}]`);
+            console.log(`📊 Liczba kategorii z wynikami: ${keys.length}`);
+            
+            // 5. Szczegóły każdego klucza
+            keys.forEach(key => {
+                const results = parsed[key];
+                if (Array.isArray(results)) {
+                    console.log(`📋 ${key}: ${results.length} wyników, najnowszy: ${results[results.length - 1]?.completedAt || 'brak daty'}`);
+                } else {
+                    console.warn(`⚠️ ${key}: nieprawidłowy format (nie jest tablicą)`);
+                }
+            });
+            
+            console.log(`✅ Ładowanie zakończone sukcesem`);
+            console.groupEnd();
+            return parsed;
+            
         } catch (error) {
-            console.warn('Błąd ładowania wyników quizów:', error);
+            console.error('💥 KRYTYCZNY BŁĄD ładowania wyników quizów:', error);
+            console.error('📋 Stack trace:', error.stack);
+            console.groupEnd();
             return {};
         }
     }
 
     getCategoryResults(category) {
-        const allResults = this.loadQuizResults();
-        const key = `${this.quizTypes.CATEGORY}_${category}`;
-        const results = allResults[key] || [];
-        
-        if (results.length === 0) return null;
-        
-        // Zwróć najlepszy wynik
-        return results.reduce((best, current) => 
-            current.score > best.score ? current : best
-        );
+        try {
+            // const allResults = this.loadQuizResults(); // <--- USUŃ TĘ LINIĘ
+            const key = `${this.quizTypes.CATEGORY}_${category}`;
+            const results = this.allResults[key] || []; // <-- ODCZYTAJ Z PAMIĘCI
+            
+            if (results.length === 0) {
+                return null;
+            }
+            
+            // Zwróć najlepszy wynik
+            return results.reduce((best, current) => 
+                current.score > best.score ? current : best
+            );
+        } catch (error) {
+            console.error(`❌ Błąd pobierania wyników dla kategorii "${category}":`, error);
+            return null;
+        }
     }
 
     getOverallStats() {
-        const allResults = this.loadQuizResults();
+        const allResults = this.allResults; // <-- ZMIANA: Użycie stanu z pamięci
         let totalQuizzes = 0;
         let totalScore = 0;
         let totalPossible = 0;
@@ -1564,11 +1732,11 @@ class QuizManager {
     }
 
     getCompletedCategoriesCount() {
-        const allResults = this.loadQuizResults();
+        const allResults = this.allResults; // <-- ZMIANA: Użycie stanu z pamięci
         let count = 0;
 
         Object.entries(allResults).forEach(([key, results]) => {
-            if (key.startsWith(this.quizTypes.CATEGORY) && Array.isArray(results)) {
+            if (key.startsWith(this.quizTypes.CATEGORY) && Array.isArray(results) && results.length > 0) {
                 const bestResult = results.reduce((best, current) => 
                     current.score > best.score ? current : best
                 );
@@ -1699,8 +1867,15 @@ class QuizManager {
     }
 
     cleanup() {
-        this.reset();
+        // NIE wywołuj this.reset() tutaj! Resetowanie usuwa dane z localStorage
+        // i powinno być wykonywane tylko na jawne żądanie użytkownika.
+        // this.reset(); // <-- USUWAMY TĘ LINIĘ
+
+        // Czyszczenie stanu w pamięci jest w porządku.
         this.vocabulary = null;
+        this.currentQuiz = null;
+        this.allResults = {};
+        console.log('🧹 QuizManager cleanup: Wyczyściłem stan w pamięci (bez usuwania localStorage).');
     }
 }
 

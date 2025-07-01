@@ -222,6 +222,30 @@ class EnglishFlashcardsApp {
         ]);
         // ✨✨✨ KONIEC NOWEGO KODU DO DODANIA ✨✨✨
 
+        // ✨ NOWY EVENT LISTENER: Odświeżanie UI po zapisaniu wyników quizu
+        document.addEventListener('quizResultsSaved', (event) => {
+            console.log('🔔 Event: Quiz results saved', event.detail);
+            
+            // Odśwież renderowanie quizów z opóźnieniem
+            setTimeout(() => {
+                this.renderCategoryQuizzes();
+                this.updateStats();
+            }, 100);
+        });
+        
+        // ✨ NOWY EVENT LISTENER: Debug localStorage changes (tylko dev)
+        if (window.location.hostname === 'localhost') {
+            window.addEventListener('storage', (e) => {
+                if (e.key === 'english-flashcards-quiz-results') {
+                    console.log('🔔 localStorage quiz results changed:', {
+                        key: e.key,
+                        oldValue: e.oldValue ? 'existed' : 'null',
+                        newValue: e.newValue ? 'exists' : 'null'
+                    });
+                }
+            });
+        }
+    
 
         // Settings actions
         this.addEventListeners([
@@ -237,6 +261,7 @@ class EnglishFlashcardsApp {
      * Konfiguracja nasłuchiwaczy quizów
      */
     setupQuizEventListeners() {
+        
         // Quiz navigation (zachowaj istniejące)
         this.addEventListeners([
             ['quiz-submit-btn', 'click', () => this.submitQuizAnswer()],
@@ -328,6 +353,7 @@ class EnglishFlashcardsApp {
         this.updateStats();
         this.applySettings();
         this.initializeBookmarksUI();
+        this.verifyQuizState();
     }
 
     /**
@@ -345,6 +371,61 @@ class EnglishFlashcardsApp {
         }
         
         console.log('✅ UI bookmarks zainicjalizowane');
+    }
+
+    verifyQuizState() {
+        console.group('🔍 Weryfikacja stanu quizów po inicjalizacji');
+        
+        try {
+            // Sprawdź dostępność QuizManager
+            const hasQuizManager = !!this.managers.quiz;
+            console.log(`📊 QuizManager dostępny: ${hasQuizManager}`);
+            
+            if (hasQuizManager) {
+                // Sprawdź localStorage
+                const allResults = this.managers.quiz.loadQuizResults();
+                const resultsKeys = Object.keys(allResults);
+                console.log(`💾 Klucze w localStorage: [${resultsKeys.join(', ')}]`);
+                
+                // Sprawdź wyniki dla każdej kategorii
+                if (this.state.vocabulary && this.state.vocabulary.categories) {
+                    const categories = Object.keys(this.state.vocabulary.categories);
+                    const completedCategories = [];
+                    
+                    categories.forEach(categoryKey => {
+                        const result = this.managers.quiz.getCategoryResults(categoryKey);
+                        if (result && result.passed) {
+                            completedCategories.push({
+                                category: categoryKey,
+                                score: result.score,
+                                total: result.total,
+                                percentage: result.percentage
+                            });
+                        }
+                    });
+                    
+                    console.log(`✅ Ukończone kategorie (${completedCategories.length}):`, completedCategories);
+                }
+            }
+            
+            // Sprawdź localStorage bezpośrednio
+            const directCheck = localStorage.getItem('english-flashcards-quiz-results');
+            if (directCheck) {
+                try {
+                    const parsed = JSON.parse(directCheck);
+                    console.log(`🔑 Bezpośredni dostęp do localStorage (${Object.keys(parsed).length} kluczy):`, Object.keys(parsed));
+                } catch (e) {
+                    console.error('❌ Błąd parsowania danych z localStorage:', e);
+                }
+            } else {
+                console.log('📭 Brak danych w localStorage dla klucza quiz-results');
+            }
+            
+        } catch (error) {
+            console.error('❌ Błąd weryfikacji stanu quizów:', error);
+        }
+        
+        console.groupEnd();
     }
 
     /**
@@ -428,21 +509,47 @@ class EnglishFlashcardsApp {
     }
 
     /**
-     * Renderowanie quizów kategorii
+     * ✅ POPRAWIONA METODA: renderCategoryQuizzes z debuggingiem
      */
     renderCategoryQuizzes() {
         const grid = document.getElementById('category-quiz-grid');
-        if (!grid || !this.state.vocabulary) return;
+        if (!grid || !this.state.vocabulary) {
+            console.warn('⚠️ renderCategoryQuizzes: Brak grid lub vocabulary');
+            return;
+        }
 
         const categories = this.state.vocabulary.categories;
         let html = '';
+        let completedCount = 0;
+        let totalCount = 0;
+
+        console.group('🎯 renderCategoryQuizzes - Renderowanie quizów kategorii');
 
         Object.entries(categories).forEach(([key, category]) => {
-            const quizResults = this.managers.quiz.getCategoryResults(key);
-            const isCompleted = quizResults && quizResults.passed;
-            const statusText = quizResults 
-                ? `${quizResults.score}/${quizResults.total} (${quizResults.percentage}%)`
-                : 'Nie ukończony';
+            totalCount++;
+            
+            // ✅ BEZPIECZNE POBIERANIE WYNIKÓW
+            let quizResults = null;
+            let isCompleted = false;
+            let statusText = 'Nie ukończony';
+            
+            try {
+                if (this.managers.quiz && typeof this.managers.quiz.getCategoryResults === 'function') {
+                    quizResults = this.managers.quiz.getCategoryResults(key);
+                    isCompleted = quizResults && quizResults.passed;
+                    
+                    if (quizResults) {
+                        statusText = `${quizResults.score}/${quizResults.total} (${quizResults.percentage}%)`;
+                        if (isCompleted) completedCount++;
+                    }
+                    
+                    console.log(`📋 Kategoria "${key}": ${isCompleted ? '✅ Zaliczony' : '❌ Nie zaliczony'} - ${statusText}`);
+                } else {
+                    console.warn(`⚠️ QuizManager nie jest dostępny dla kategorii "${key}"`);
+                }
+            } catch (error) {
+                console.error(`❌ Błąd pobierania wyników dla kategorii "${key}":`, error);
+            }
 
             html += `
                 <div class="quiz-card ${isCompleted ? 'completed' : ''}" data-quiz="${key}">
@@ -455,6 +562,9 @@ class EnglishFlashcardsApp {
             `;
         });
 
+        console.log(`📊 Podsumowanie: ${completedCount}/${totalCount} quizów ukończonych`);
+        console.groupEnd();
+
         grid.innerHTML = html;
 
         // Dodanie nasłuchiwaczy
@@ -464,6 +574,30 @@ class EnglishFlashcardsApp {
                 this.startCategoryQuiz(category);
             });
         });
+        
+        // ✨ NOWE: Aktualizuj statystyki po renderowaniu
+        this.updateQuizStatistics(completedCount, totalCount);
+    }
+
+
+    /**
+     * ✨ NOWA METODA: Aktualizacja statystyk quizów
+     */
+    updateQuizStatistics(completed, total) {
+        try {
+            const completedElement = document.getElementById('completed-categories');
+            if (completedElement) {
+                completedElement.textContent = `${completed}/${total}`;
+            }
+            
+            // Emit event for other components
+            document.dispatchEvent(new CustomEvent('quizStatisticsUpdated', {
+                detail: { completed, total }
+            }));
+            
+        } catch (error) {
+            console.warn('⚠️ Błąd aktualizacji statystyk quizów:', error);
+        }
     }
 
     /**
