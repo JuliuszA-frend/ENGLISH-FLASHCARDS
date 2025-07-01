@@ -248,11 +248,69 @@
                                     <span class="quiz-description">20 losowych słów</span>
                                     <span class="quiz-status">Zawsze dostępny</span>
                                 </button>
-                                <button class="quiz-card mixed-quiz" id="difficult-words-quiz">
-                                    <span class="quiz-icon">💪</span>
-                                    <span class="quiz-name">Trudne słowa</span>
-                                    <span class="quiz-description">Słowa z najgorszymi wynikami</span>
-                                    <span class="quiz-status">Dostępny po 5 quizach</span>
+                                
+                                <!-- ZMIANA: Zaktualizuj z difficult-words na bookmarks -->
+                                <button class="quiz-card mixed-quiz" id="bookmarks-quiz-btn">
+                                    <span class="quiz-icon">🔖</span>
+                                    <span class="quiz-name">Quiz z powtórek</span>
+                                    <span class="quiz-description">Słowa do powtórki</span>
+                                    <span class="quiz-status">Wymaga 3+ słów</span>
+                                </button>
+                                
+                                <!-- NOWE: Dodaj nowe typy quizów -->
+                                <button class="quiz-card mixed-quiz" id="speed-quiz-btn">
+                                    <span class="quiz-icon">⚡</span>
+                                    <span class="quiz-name">Quiz błyskawiczny</span>
+                                    <span class="quiz-description">10 pytań, 30s każde</span>
+                                    <span class="quiz-status">Zawsze dostępny</span>
+                                </button>
+                                
+                                <button class="quiz-card mixed-quiz" id="audio-quiz-btn">
+                                    <span class="quiz-icon">🔊</span>
+                                    <span class="quiz-name">Quiz słuchowy</span>
+                                    <span class="quiz-description">Nauka przez słuchanie</span>
+                                    <span class="quiz-status">Wymaga audio</span>
+                                </button>
+                                
+                                <button class="quiz-card mixed-quiz" id="mixed-quiz-btn">
+                                    <span class="quiz-icon">🎯</span>
+                                    <span class="quiz-name">Quiz mieszany</span>
+                                    <span class="quiz-description">Wybrane kategorie</span>
+                                    <span class="quiz-status">Dostępny</span>
+                                </button>
+                            </div>
+                        </section>
+
+                        <!-- NOWA SEKCJA: Quizy trudności -->
+                        <section class="quiz-section">
+                            <h3>⭐ Quizy poziomów trudności</h3>
+                            <div class="quiz-grid">
+                                <button class="quiz-card difficulty-quiz easy-quiz" id="easy-words-quiz-btn">
+                                    <span class="quiz-icon">⭐</span>
+                                    <span class="quiz-name">Quiz łatwych słów</span>
+                                    <span class="quiz-description">Słowa oznaczone jako łatwe</span>
+                                    <span class="quiz-status" id="easy-quiz-status">Brak słów</span>
+                                </button>
+                                
+                                <button class="quiz-card difficulty-quiz hard-quiz" id="hard-words-quiz-btn">
+                                    <span class="quiz-icon">⭐⭐⭐</span>
+                                    <span class="quiz-name">Quiz trudnych słów</span>
+                                    <span class="quiz-description">Słowa oznaczone jako trudne</span>
+                                    <span class="quiz-status" id="hard-quiz-status">Brak słów</span>
+                                </button>
+                                
+                                <button class="quiz-card difficulty-quiz progressive-quiz" id="progressive-quiz-btn">
+                                    <span class="quiz-icon">📈</span>
+                                    <span class="quiz-name">Quiz progresywny</span>
+                                    <span class="quiz-description">Od łatwych do trudnych</span>
+                                    <span class="quiz-status" id="progressive-quiz-status">Niedostępny</span>
+                                </button>
+                                
+                                <button class="quiz-card difficulty-quiz adaptive-quiz" id="adaptive-quiz-btn">
+                                    <span class="quiz-icon">🧠</span>
+                                    <span class="quiz-name">Quiz adaptacyjny</span>
+                                    <span class="quiz-description">Dostosowany do Twojego poziomu</span>
+                                    <span class="quiz-status" id="adaptive-quiz-status">Niedostępny</span>
                                 </button>
                             </div>
                         </section>
@@ -306,6 +364,14 @@
                         </div>
                     </div>
                     
+                    <div class="quiz-timer" id="quiz-timer" style="display: none;">
+                        <span class="timer-label">Czas:</span>
+                        <span class="timer-value" id="timer-value">30</span>
+                        <div class="timer-bar">
+                            <div class="timer-fill" id="timer-fill"></div>
+                        </div>
+                    </div>
+
                     <div class="quiz-content">
                         <div class="quiz-question-card">
                             <div class="question-section">

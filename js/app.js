@@ -237,35 +237,35 @@ class EnglishFlashcardsApp {
      * Konfiguracja nasłuchiwaczy quizów
      */
     setupQuizEventListeners() {
-        // Quiz navigation
+        // Quiz navigation (zachowaj istniejące)
         this.addEventListeners([
             ['quiz-submit-btn', 'click', () => this.submitQuizAnswer()],
             ['sentence-submit-btn', 'click', () => this.submitSentenceAnswer()],
             ['quiz-next-btn', 'click', () => this.nextQuizQuestion()],
             ['quiz-retry-btn', 'click', () => this.retryQuiz()],
-            ['quiz-continue-btn', 'click', () => this.continueAfterQuiz()]
+            ['quiz-continue-btn', 'click', () => this.continueAfterQuiz()],
+            ['hard-words-quiz-btn', 'click', () => this.startHardWordsQuiz()],      // NOWE
+            ['easy-words-quiz-btn', 'click', () => this.startEasyWordsQuiz()],      // NOWE  
+            ['progressive-quiz-btn', 'click', () => this.startProgressiveQuiz()],   // NOWE
+            ['adaptive-quiz-btn', 'click', () => this.startAdaptiveQuiz()]  
         ]);
 
-        // Quiz input handling
+        // NOWE: Przyciski nowych quizów
+        this.addEventListeners([
+            ['random-quiz-btn', 'click', () => this.startRandomQuiz()],
+            ['bookmarks-quiz-btn', 'click', () => this.startBookmarksQuiz()], // ZMIANA z difficult-words-quiz
+            ['final-quiz-btn', 'click', () => this.startFinalQuiz()],
+            ['speed-quiz-btn', 'click', () => this.startSpeedQuiz()],        // NOWE
+            ['audio-quiz-btn', 'click', () => this.startAudioQuiz()],        // NOWE
+            ['mixed-quiz-btn', 'click', () => this.startMixedQuiz()]         // NOWE
+        ]);
+
+        // Quiz input handling (zachowaj istniejące)
         this.addEventListener('quiz-answer-input', 'keypress', (e) => {
             if (e.key === 'Enter' && !document.getElementById('quiz-submit-btn').disabled) {
                 this.submitQuizAnswer();
             }
         });
-
-        this.addEventListener('sentence-answer', 'keydown', (e) => {
-            if (e.key === 'Enter' && e.ctrlKey) {
-                e.preventDefault();
-                this.submitSentenceAnswer();
-            }
-        });
-
-        // Special quiz buttons
-        this.addEventListeners([
-            ['random-quiz-btn', 'click', () => this.startRandomQuiz()],
-            ['difficult-words-quiz', 'click', () => this.startDifficultWordsQuiz()],
-            ['final-quiz-btn', 'click', () => this.startFinalQuiz()]
-        ]);
     }
 
     /**
@@ -1939,6 +1939,86 @@ class EnglishFlashcardsApp {
 
     continueAfterQuiz() {
         this.managers.quiz.continueAfterQuiz(this);
+    }
+
+    /**
+     * ✨ NOWA METODA: Quiz trudnych słów
+     */
+    startHardWordsQuiz() {
+        if (!this.managers.quiz.startHardWordsQuiz(this)) {
+            console.error('❌ Nie udało się uruchomić quiz trudnych słów');
+        }
+    }
+
+    /**
+     * ✨ NOWA METODA: Quiz łatwych słów  
+     */
+    startEasyWordsQuiz() {
+        if (!this.managers.quiz.startEasyWordsQuiz(this)) {
+            console.error('❌ Nie udało się uruchomić quiz łatwych słów');
+        }
+    }
+
+    /**
+     * ✨ NOWA METODA: Quiz progresywny
+     */
+    startProgressiveQuiz() {
+        if (!this.managers.quiz.startProgressiveQuiz(this)) {
+            console.error('❌ Nie udało się uruchomić quiz progresywny');
+        }
+    }
+
+    /**
+     * ✨ NOWA METODA: Quiz adaptacyjny
+     */
+    startAdaptiveQuiz() {
+        if (!this.managers.quiz.startAdaptiveQuiz(this)) {
+            console.error('❌ Nie udało się uruchomić quiz adaptacyjny');
+        }
+    }
+
+    /**
+     * ✨ NOWA METODA: Quiz z słów do powtórki
+     */
+    startBookmarksQuiz() {
+        if (!this.managers.quiz.startBookmarksQuiz(this)) {
+            console.error('❌ Nie udało się uruchomić quiz z powtórek');
+        }
+    }
+
+    /**
+     * ✨ NOWA METODA: Quiz szybki
+     */
+    startSpeedQuiz() {
+        if (!this.managers.quiz.startSpeedQuiz(this)) {
+            console.error('❌ Nie udało się uruchomić quiz szybki');
+        }
+    }
+
+    /**
+     * ✨ NOWA METODA: Quiz audio
+     */
+    startAudioQuiz() {
+        if (!this.managers.quiz.startAudioQuiz(this)) {
+            console.error('❌ Nie udało się uruchomić quiz audio');
+        }
+    }
+
+    /**
+     * ✨ NOWA METODA: Quiz mieszany kategorii
+     */
+    startMixedQuiz() {
+        // Pokaż modal wyboru kategorii
+        this.showCategorySelectionModal();
+    }
+
+    /**
+     * ✨ NOWA METODA: Modal wyboru kategorii
+     */
+    showCategorySelectionModal() {
+        // TODO: Implementacja modala wyboru kategorii
+        // Na razie fallback do losowego quizu
+        this.startRandomQuiz();
     }
 
     /**

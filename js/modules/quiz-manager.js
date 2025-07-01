@@ -14,11 +14,19 @@ class QuizManager {
         this.difficulty = 'medium';
         this.language = 'en-pl'; // en-pl, pl-en, mixed
         this.quizTypes = {
-            CATEGORY: 'category',
-            RANDOM: 'random',
-            DIFFICULT: 'difficult',
-            FINAL: 'final'
-        };
+        CATEGORY: 'category',
+        RANDOM: 'random',
+        BOOKMARKS: 'bookmarks',
+        FINAL: 'final',
+        SPEED: 'speed',
+        AUDIO: 'audio',
+        SPELLING: 'spelling',
+        MIXED_CATEGORIES: 'mixed',
+        HARD_WORDS: 'hard_words',          // NOWE - tylko trudne słowa
+        EASY_WORDS: 'easy_words',          // NOWE - tylko łatwe słowa  
+        PROGRESSIVE: 'progressive',        // NOWE - progresywny (łatwe→trudne)
+        ADAPTIVE: 'adaptive'               // NOWE - adaptacyjny do użytkownika
+    };
         
         this.storageKey = 'english-flashcards-quiz-results';
         this.usedQuestionsKey = 'english-flashcards-used-questions';
@@ -102,23 +110,82 @@ class QuizManager {
     /**
      * Rozpoczęcie quizu trudnych słów
      */
-    startDifficultWordsQuiz(app) {
-        const difficultWords = this.getDifficultWords();
-        
-        if (difficultWords.length < 5) {
-            NotificationManager.show('Potrzebujesz więcej danych z quizów, aby odblokować quiz trudnych słów', 'info');
+    startBookmarksQuiz(app) {
+        const bookmarkedWords = app.managers.progress.getAllBookmarkedWords();
+    
+        if (bookmarkedWords.length < 3) {
+            NotificationManager.show('Potrzebujesz co najmniej 3 słowa do powtórki', 'info');
             return false;
         }
 
-        const questions = this.generateQuestionsFromWords(difficultWords, 15);
+        const questions = this.generateQuestionsFromWords(bookmarkedWords, Math.min(15, bookmarkedWords.length));
 
         this.currentQuiz = {
-            type: this.quizTypes.DIFFICULT,
-            category: 'difficult',
-            categoryName: 'Trudne słowa',
+            type: this.quizTypes.BOOKMARKS,
+            category: 'bookmarks',
+            categoryName: 'Quiz z powtórek',
             totalQuestions: questions.length,
-            passScore: Math.ceil(questions.length * 0.6), // 60%
+            passScore: Math.ceil(questions.length * 0.7), // 70%
             timeLimit: null
+        };
+
+        this.initializeQuiz(questions, app);
+        return true;
+    }
+
+    /**
+     * Quiz szybki - 10 pytań, 30 sekund na pytanie
+     */
+    startSpeedQuiz(app) {
+        const questions = this.generateRandomQuestions(10);
+        
+        this.currentQuiz = {
+            type: this.quizTypes.SPEED,
+            category: 'speed',
+            categoryName: 'Quiz błyskawiczny',
+            totalQuestions: questions.length,
+            passScore: 7,
+            timeLimit: 30, // 30 sekund na pytanie
+            isSpeed: true
+        };
+
+        this.initializeQuiz(questions, app);
+        this.startQuestionTimer(app);
+        return true;
+    }
+
+    /**
+     * Quiz audio - z odtwarzaniem dźwięku
+     */
+    startAudioQuiz(app) {
+        const questions = this.generateAudioQuestions(12);
+        
+        this.currentQuiz = {
+            type: this.quizTypes.AUDIO,
+            category: 'audio',
+            categoryName: 'Quiz słuchowy',
+            totalQuestions: questions.length,
+            passScore: 8,
+            hasAudio: true
+        };
+
+        this.initializeQuiz(questions, app);
+        return true;
+    }
+
+    /**
+     * Quiz z wybranych kategorii
+     */
+    startMixedCategoriesQuiz(selectedCategories, app) {
+        const questions = this.generateMixedCategoryQuestions(selectedCategories, 20);
+        
+        this.currentQuiz = {
+            type: this.quizTypes.MIXED_CATEGORIES,
+            category: 'mixed',
+            categoryName: `Quiz mieszany (${selectedCategories.length} kategorii)`,
+            totalQuestions: questions.length,
+            passScore: 14,
+            categories: selectedCategories
         };
 
         this.initializeQuiz(questions, app);
@@ -153,9 +220,125 @@ class QuizManager {
     }
 
     /**
+     * ✨ NOWA METODA: Quiz z trudnych słów (oznaczonych przez użytkownika)
+     */
+    startHardWordsQuiz(app) {
+        const hardWords = this.getWordsByDifficulty('hard', app);
+        
+        if (hardWords.length < 5) {
+            NotificationManager.show('Musisz oznaczyć więcej słów jako trudne (⭐⭐⭐)', 'info');
+            return false;
+        }
+
+        const questions = this.generateQuestionsFromWords(hardWords, Math.min(15, hardWords.length));
+
+        this.currentQuiz = {
+            type: this.quizTypes.HARD_WORDS,
+            category: 'hard_words',
+            categoryName: 'Quiz trudnych słów',
+            totalQuestions: questions.length,
+            passScore: Math.ceil(questions.length * 0.6), // 60% - trudniejszy próg
+            timeLimit: null,
+            description: 'Słowa oznaczone jako trudne (⭐⭐⭐)'
+        };
+
+        this.initializeQuiz(questions, app);
+        return true;
+    }
+
+    /**
+     * ✨ NOWA METODA: Quiz z łatwych słów 
+     */
+    startEasyWordsQuiz(app) {
+        const easyWords = this.getWordsByDifficulty('easy', app);
+        
+        if (easyWords.length < 5) {
+            NotificationManager.show('Musisz oznaczyć więcej słów jako łatwe (⭐)', 'info');
+            return false;
+        }
+
+        const questions = this.generateQuestionsFromWords(easyWords, Math.min(20, easyWords.length));
+
+        this.currentQuiz = {
+            type: this.quizTypes.EASY_WORDS,
+            category: 'easy_words', 
+            categoryName: 'Quiz łatwych słów',
+            totalQuestions: questions.length,
+            passScore: Math.ceil(questions.length * 0.8), // 80% - wyższy próg dla łatwych
+            timeLimit: null,
+            description: 'Słowa oznaczone jako łatwe (⭐)'
+        };
+
+        this.initializeQuiz(questions, app);
+        return true;
+    }
+
+    /**
+     * ✨ NOWA METODA: Quiz progresywny (łatwe → średnie → trudne)
+     */
+    startProgressiveQuiz(app) {
+        const easyWords = this.getWordsByDifficulty('easy', app).slice(0, 5);
+        const mediumWords = this.getWordsByDifficulty('medium', app).slice(0, 8);
+        const hardWords = this.getWordsByDifficulty('hard', app).slice(0, 7);
+        
+        const allWords = [...easyWords, ...mediumWords, ...hardWords];
+        
+        if (allWords.length < 10) {
+            NotificationManager.show('Potrzebujesz więcej słów z różnymi poziomami trudności', 'info');
+            return false;
+        }
+
+        // NIE mieszaj - zachowaj kolejność łatwe→trudne
+        const questions = this.generateQuestionsFromWords(allWords, allWords.length, false);
+
+        this.currentQuiz = {
+            type: this.quizTypes.PROGRESSIVE,
+            category: 'progressive',
+            categoryName: 'Quiz progresywny',
+            totalQuestions: questions.length,
+            passScore: Math.ceil(questions.length * 0.7),
+            timeLimit: null,
+            description: 'Od łatwych do trudnych słów',
+            isProgressive: true
+        };
+
+        this.initializeQuiz(questions, app);
+        return true;
+    }
+
+    /**
+     * ✨ NOWA METODA: Quiz adaptacyjny 
+     */
+    startAdaptiveQuiz(app) {
+        const adaptiveWords = this.getAdaptiveWords(app);
+        
+        if (adaptiveWords.length < 10) {
+            NotificationManager.show('Potrzebujesz więcej danych do quizu adaptacyjnego', 'info');
+            return false;
+        }
+
+        const questions = this.generateQuestionsFromWords(adaptiveWords, 15);
+
+        this.currentQuiz = {
+            type: this.quizTypes.ADAPTIVE,
+            category: 'adaptive',
+            categoryName: 'Quiz adaptacyjny',
+            totalQuestions: questions.length,
+            passScore: Math.ceil(questions.length * 0.75),
+            timeLimit: null,
+            description: 'Dostosowany do Twojego poziomu',
+            isAdaptive: true
+        };
+
+        this.initializeQuiz(questions, app);
+        return true;
+    }
+
+    /**
      * Inicjalizacja quizu
      */
     initializeQuiz(questions, app) {
+        this.currentApp = app;  // ✅ Zapisz referencję do app
         this.currentQuestions = questions;
         this.currentQuestionIndex = 0;
         this.userAnswers = [];
@@ -194,6 +377,12 @@ class QuizManager {
         if (!question) {
             this.showQuizResults(app);
             return;
+        }
+
+        // ✅ DODAJ: Ukryj feedback z poprzedniego pytania
+        const feedbackEl = document.getElementById('quiz-feedback');
+        if (feedbackEl) {
+            feedbackEl.style.display = 'none';
         }
 
         // Aktualizuj nagłówek quizu
@@ -236,6 +425,10 @@ class QuizManager {
         if (scoreDisplayEl) {
             scoreDisplayEl.textContent = `${this.score}/${this.currentQuestionIndex}`;
         }
+    }
+
+    updateAchievements(results) {
+        // "Mistrz powtórek", "Błyskawica", "Słuchacz" itp.
     }
 
     /**
@@ -298,7 +491,7 @@ class QuizManager {
             optionEl.dataset.optionIndex = index;
             
             optionEl.addEventListener('click', () => {
-                this.selectAnswer(option, index);
+                this.selectAnswer(option, index, this.currentApp);  // ✅ Przekaż app
             });
 
             answerOptionsEl.appendChild(optionEl);
@@ -356,7 +549,7 @@ class QuizManager {
     /**
      * Wybór odpowiedzi w pytaniu wielokrotnego wyboru
      */
-    selectAnswer(answer, optionIndex) {
+    selectAnswer(answer, optionIndex, app) {
         // Usuń poprzednie zaznaczenie
         document.querySelectorAll('.answer-option').forEach(option => {
             option.classList.remove('selected');
@@ -370,7 +563,7 @@ class QuizManager {
 
         // Automatycznie prześlij odpowiedź po wyborze
         setTimeout(() => {
-            this.submitAnswer({
+            this.submitAnswer(app, {  // ✅ Poprawne przekazanie parametrów
                 type: 'multiple-choice',
                 answer: answer,
                 optionIndex: optionIndex
@@ -578,6 +771,9 @@ class QuizManager {
 
         if (!feedbackEl) return;
 
+        // ✅ DODAJ: Ustaw klasę CSS dla typu feedback
+        feedbackEl.className = `quiz-feedback ${result.isCorrect ? 'correct' : 'incorrect'}`;
+
         // Ukryj sekcje odpowiedzi
         ['multiple-choice-section', 'text-input-section', 'sentence-section'].forEach(id => {
             const section = document.getElementById(id);
@@ -639,6 +835,12 @@ class QuizManager {
      * Przejście do następnego pytania
      */
     nextQuestion(app) {
+        // ✅ DODAJ: Ukryj feedback przed przejściem
+        const feedbackEl = document.getElementById('quiz-feedback');
+        if (feedbackEl) {
+            feedbackEl.style.display = 'none';
+        }
+
         if (this.isLastQuestion()) {
             this.showQuizResults(app);
         } else {
@@ -700,6 +902,13 @@ class QuizManager {
         };
 
         return results;
+    }
+
+    displayAudioQuestion(question) {
+        // Odtwórz słowo i pozwól user wybrać odpowiedź
+        if (app.managers.audio && question.english) {
+            app.managers.audio.playAudio(question.english);
+        }
     }
 
     /**
@@ -816,6 +1025,7 @@ class QuizManager {
     }
 
     resetQuizInterface() {
+        // ✅ POPRAW: Ukryj feedback
         const feedbackEl = document.getElementById('quiz-feedback');
         if (feedbackEl) feedbackEl.style.display = 'none';
 
@@ -869,6 +1079,46 @@ class QuizManager {
         return questions;
     }
 
+    generateAdaptiveQuestions(count) {
+        const progress = app.managers.progress;
+        const words = this.getAllWords();
+        
+        // Wybierz słowa na podstawie ich poziomu trudności
+        const adaptiveWords = words.filter(word => {
+            const difficulty = progress.getWordDifficulty(word);
+            return this.shouldIncludeWord(difficulty);
+        });
+        
+        return this.generateQuestionsFromWords(adaptiveWords, count);
+    }
+
+    /**
+     * ✨ MODYFIKACJA: generateQuestionsFromWords - dodaj flagę shuffling
+     */
+    generateQuestionsFromWords(words, count, shuffle = true) {
+        if (!words || words.length === 0) return [];
+        
+        // Dla quizu progresywnego - NIE mieszaj słów
+        const selectedWords = shuffle ? Utils.shuffle(words) : words;
+        const limitedWords = selectedWords.slice(0, count);
+        const questions = [];
+
+        limitedWords.forEach(word => {
+            const questionType = this.selectQuestionType();
+            const direction = this.selectQuestionDirection();
+            
+            const question = this.createQuestion(word, questionType, direction, word.category);
+            if (question) {
+                // Dodaj informację o poziomie trudności do pytania
+                question.userDifficulty = word.userDifficulty || word.difficulty || 'medium';
+                questions.push(question);
+            }
+        });
+
+        return questions;
+    }
+
+
     generateRandomQuestions(count) {
         const allWords = this.getAllWords();
         const shuffledWords = Utils.shuffle(allWords).slice(0, count);
@@ -886,6 +1136,99 @@ class QuizManager {
 
         return questions;
     }
+
+    /**
+     * ✨ NOWA METODA: Pobieranie słów według poziomu trudności
+     */
+    getWordsByDifficulty(difficultyLevel, app) {
+        if (!app.managers.progress) {
+            console.error('❌ ProgressManager nie jest dostępny');
+            return [];
+        }
+
+        const allWords = this.getAllWords();
+        const wordsWithDifficulty = [];
+
+        allWords.forEach(word => {
+            const wordDifficulty = app.managers.progress.getWordDifficulty(word);
+            if (wordDifficulty === difficultyLevel) {
+                wordsWithDifficulty.push({
+                    ...word,
+                    userDifficulty: wordDifficulty
+                });
+            }
+        });
+
+        console.log(`🎯 Znaleziono ${wordsWithDifficulty.length} słów z trudnością: ${difficultyLevel}`);
+        return wordsWithDifficulty;
+    }
+
+    /**
+     * ✨ NOWA METODA: Inteligentny dobór słów dla quizu adaptacyjnego
+     */
+    getAdaptiveWords(app) {
+        const progressManager = app.managers.progress;
+        if (!progressManager) return [];
+
+        // Pobierz statystyki trudności użytkownika
+        const difficultyStats = progressManager.getDifficultyStats();
+        const allWords = this.getAllWords();
+        
+        console.log('📊 Statystyki trudności:', difficultyStats);
+
+        // Strategia adaptacyjna:
+        // - Jeśli użytkownik ma dużo trudnych słów → więcej średnich
+        // - Jeśli ma dużo łatwych → więcej średnich i trudnych
+        // - Balansuj na podstawie postępów
+        
+        let easyCount, mediumCount, hardCount;
+        
+        if (difficultyStats.hard > difficultyStats.easy) {
+            // Użytkownik ma dużo trudnych słów - daj mu przewagę łatwych/średnich
+            easyCount = 6;
+            mediumCount = 7;
+            hardCount = 2;
+        } else if (difficultyStats.easy > difficultyStats.hard * 2) {
+            // Użytkownik ma dużo łatwych - czas na wyzwanie
+            easyCount = 3;
+            mediumCount = 6;
+            hardCount = 6;
+        } else {
+            // Zbalansowany mix
+            easyCount = 5;
+            mediumCount = 5;
+            hardCount = 5;
+        }
+
+        const adaptiveWords = [
+            ...this.getWordsByDifficulty('easy', app).slice(0, easyCount),
+            ...this.getWordsByDifficulty('medium', app).slice(0, mediumCount),
+            ...this.getWordsByDifficulty('hard', app).slice(0, hardCount)
+        ];
+
+        console.log(`🎯 Quiz adaptacyjny: ${easyCount} łatwych, ${mediumCount} średnich, ${hardCount} trudnych`);
+        return Utils.shuffle(adaptiveWords);
+    }
+
+    /**
+     * ✨ NOWA METODA: Statystyki trudności dla UI
+     */
+    getDifficultyQuizStats(app) {
+        if (!app.managers.progress) return null;
+        
+        const stats = app.managers.progress.getDifficultyStats();
+        return {
+            easy: stats.easy,
+            medium: stats.medium, 
+            hard: stats.hard,
+            total: stats.total,
+            hasEnoughForHardQuiz: stats.hard >= 5,
+            hasEnoughForEasyQuiz: stats.easy >= 5,
+            hasEnoughForProgressive: stats.easy >= 3 && stats.medium >= 3 && stats.hard >= 3,
+            hasEnoughForAdaptive: stats.total >= 10
+        };
+    }
+
 
     generateFinalQuizQuestions(count) {
         const allWords = this.getAllWords();
