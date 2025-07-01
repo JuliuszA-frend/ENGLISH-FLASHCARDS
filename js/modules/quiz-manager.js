@@ -392,6 +392,131 @@ class QuizManager {
     }
 
     /**
+     * ✨ NOWA METODA: Przerwanie bieżącego quizu
+     */
+    cancelQuiz(app) {
+        console.log('🚫 QuizManager: Przerwanie quizu');
+        
+        if (!this.currentQuiz) {
+            console.warn('⚠️ Brak aktywnego quizu do przerwania');
+            return false;
+        }
+        
+        const cancelledQuiz = this.currentQuiz;
+        
+        try {
+            // 1. Wyczyść stan bieżącego quizu
+            this.currentQuiz = null;
+            this.currentQuestions = [];
+            this.currentQuestionIndex = 0;
+            this.userAnswers = [];
+            this.score = 0;
+            
+            // 2. Ukryj interfejs quizu
+            const quizContainer = document.getElementById('quiz-container');
+            const quizResults = document.getElementById('quiz-results');
+            
+            if (quizContainer) {
+                quizContainer.style.display = 'none';
+            }
+            
+            if (quizResults) {
+                quizResults.style.display = 'none';
+            }
+            
+            // 3. Pokaż selector quizów
+            const quizSelector = document.getElementById('quiz-selector');
+            if (quizSelector) {
+                quizSelector.style.display = 'block';
+            }
+            
+            // 4. Przełącz aplikację na tryb quizów (menu wyboru)
+            if (app && typeof app.switchMode === 'function') {
+                app.switchMode('quiz');
+            }
+            
+            // 5. Zresetuj interfejs quizu do stanu początkowego
+            this.resetQuizInterface();
+            
+            console.log(`✅ Quiz "${cancelledQuiz.categoryName}" został przerwany`);
+            
+            // 6. Opcjonalne: Wyślij event o przerwaniu
+            document.dispatchEvent(new CustomEvent('quizCancelled', {
+                detail: {
+                    quiz: cancelledQuiz,
+                    timestamp: new Date().toISOString()
+                }
+            }));
+            
+            return true;
+            
+        } catch (error) {
+            console.error('❌ Błąd podczas przerwania quizu:', error);
+            
+            // Fallback - na siłę przywróć menu quizów
+            if (app && typeof app.switchMode === 'function') {
+                app.switchMode('quiz');
+            }
+            
+            return false;
+        }
+    }
+
+    /**
+     * ✨ NOWA METODA: Reset interfejsu quizu po przerwaniu
+     */
+    resetQuizInterface() {
+        console.log('🔄 Resetowanie interfejsu quizu');
+        
+        try {
+            // Wyczyść wszystkie sekcje odpowiedzi
+            const sections = [
+                'multiple-choice-section',
+                'text-input-section', 
+                'sentence-section',
+                'quiz-feedback'
+            ];
+            
+            sections.forEach(sectionId => {
+                const section = document.getElementById(sectionId);
+                if (section) {
+                    section.style.display = 'none';
+                }
+            });
+            
+            // Wyczyść inputy
+            const answerInput = document.getElementById('quiz-answer-input');
+            const sentenceAnswer = document.getElementById('sentence-answer');
+            
+            if (answerInput) answerInput.value = '';
+            if (sentenceAnswer) sentenceAnswer.value = '';
+            
+            // Usuń zaznaczenia opcji
+            document.querySelectorAll('.answer-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            
+            // Zresetuj nagłówek
+            const titleEl = document.getElementById('quiz-title');
+            const currentEl = document.getElementById('quiz-current');
+            const totalEl = document.getElementById('quiz-total');
+            const progressFillEl = document.getElementById('quiz-progress-fill');
+            const scoreDisplayEl = document.getElementById('quiz-score-display');
+            
+            if (titleEl) titleEl.textContent = 'Wybierz quiz';
+            if (currentEl) currentEl.textContent = '0';
+            if (totalEl) totalEl.textContent = '0';
+            if (progressFillEl) progressFillEl.style.width = '0%';
+            if (scoreDisplayEl) scoreDisplayEl.textContent = '0/0';
+            
+            console.log('✅ Interfejs quizu zresetowany');
+            
+        } catch (error) {
+            console.warn('⚠️ Błąd resetowania interfejsu quizu:', error);
+        }
+    }
+
+    /**
      * Inicjalizacja quizu
      */
     initializeQuiz(questions, app) {

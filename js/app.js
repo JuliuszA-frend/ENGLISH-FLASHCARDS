@@ -269,6 +269,7 @@ class EnglishFlashcardsApp {
             ['quiz-next-btn', 'click', () => this.nextQuizQuestion()],
             ['quiz-retry-btn', 'click', () => this.retryQuiz()],
             ['quiz-continue-btn', 'click', () => this.continueAfterQuiz()],
+            ['quiz-cancel-btn', 'click', () => this.cancelQuiz()],
             ['hard-words-quiz-btn', 'click', () => this.startHardWordsQuiz()],      // NOWE
             ['easy-words-quiz-btn', 'click', () => this.startEasyWordsQuiz()],      // NOWE  
             ['progressive-quiz-btn', 'click', () => this.startProgressiveQuiz()],   // NOWE
@@ -426,6 +427,67 @@ class EnglishFlashcardsApp {
         }
         
         console.groupEnd();
+    }
+
+    /**
+     * ✨ NOWA METODA: Przerwanie bieżącego quizu
+     */
+    cancelQuiz() {
+        console.log('🚫 Użytkownik chce przerwać quiz');
+        
+        // Sprawdź czy quiz jest aktywny
+        if (!this.managers.quiz || !this.managers.quiz.currentQuiz) {
+            console.warn('⚠️ Brak aktywnego quizu do przerwania');
+            NotificationManager.show('Brak aktywnego quizu', 'info');
+            return;
+        }
+        
+        const currentQuiz = this.managers.quiz.currentQuiz;
+        const currentQuestion = this.managers.quiz.currentQuestionIndex + 1;
+        const totalQuestions = this.managers.quiz.currentQuestions.length;
+        const currentScore = this.managers.quiz.score;
+        
+        // Przygotuj informacje o bieżącym postępie
+        const progressInfo = `
+            Quiz: ${currentQuiz.categoryName}
+            Pytanie: ${currentQuestion}/${totalQuestions}
+            Aktualny wynik: ${currentScore}/${currentQuestion - 1}
+        `;
+        
+        console.log('📊 Postęp quizu:', progressInfo);
+        
+        // Pokaż ostrzeżenie z informacją o utracie postępu
+        const confirmMessage = `
+    🚫 Czy na pewno chcesz przerwać quiz?
+
+    📋 Bieżący postęp:
+    - Quiz: ${currentQuiz.categoryName}
+    - Pytanie: ${currentQuestion} z ${totalQuestions}
+    - Wynik: ${currentScore}/${currentQuestion - 1}
+
+    ⚠️ UWAGA: Cały postęp zostanie utracony!
+    Quiz nie zostanie zapisany.
+
+    Czy chcesz kontynuować?`;
+
+        if (confirm(confirmMessage.trim())) {
+            console.log('✅ Użytkownik potwierdził przerwanie quizu');
+            
+            // Przerwij quiz
+            this.managers.quiz.cancelQuiz(this);
+            
+            // Pokaż notyfikację
+            NotificationManager.show(
+                `Quiz "${currentQuiz.categoryName}" został przerwany`, 
+                'info', 
+                3000
+            );
+            
+            console.log('🔄 Quiz przerwany - powrót do menu');
+        } else {
+            console.log('❌ Użytkownik anulował przerwanie quizu');
+            NotificationManager.show('Quiz kontynuowany', 'info', 2000);
+        }
     }
 
     /**

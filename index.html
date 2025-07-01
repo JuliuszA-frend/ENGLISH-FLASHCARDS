@@ -348,16 +348,25 @@
                 <div id="quiz-container" class="quiz-container" style="display: none;">
                     <div class="quiz-header">
                         <div class="quiz-info">
-                            <h3 id="quiz-title">Quiz: Build and Appearance</h3>
-                            <div class="quiz-progress">
+                            
+                            <div class="quiz-controls">
+                            <h3 id="quiz-title">Quiz: Build and Appearance</h3><button class="quiz-btn cancel" id="quiz-cancel-btn" title="Przerwij quiz">
+                                <span class="icon">❌</span>
+                                <span class="text">Przerwij</span>
+                            </button>
+                        </div><div class="quiz-progress">
                                 <span class="progress-text">
                                     Pytanie <span id="quiz-current">1</span> z <span id="quiz-total">15</span>
                                 </span>
                                 <div class="progress-bar">
-                                    <div class="progress-fill" id="quiz-progress-fill"></div>
+                                    <div class="progress-fill" id="quiz-progress-fill" style="width: 6.66667%;"></div>
                                 </div>
                             </div>
                         </div>
+
+                        <!-- ✨ NOWY PRZYCISK PRZERWANIA QUIZU -->
+                        
+
                         <div class="quiz-score">
                             <span class="score-label">Wynik:</span>
                             <span class="score-value" id="quiz-score-display">0/0</span>

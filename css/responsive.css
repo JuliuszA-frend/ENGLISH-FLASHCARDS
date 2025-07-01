@@ -367,7 +367,7 @@ body {
 
 .answer-option {
   padding: var(--spacing-3) var(--spacing-4);
-  font-size: var(--text-sm-mobile);
+  font-size: var(--text-base-mobile);
 }
 
 .input-group {
