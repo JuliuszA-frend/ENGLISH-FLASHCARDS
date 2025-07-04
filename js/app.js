@@ -201,6 +201,8 @@ class EnglishFlashcardsApp {
 
         this.addEventListener('bookmarks-toggle', 'click', () => this.openBookmarks());
 
+        this.setupDifficultyEventListeners();
+
         // Quiz events
         this.setupQuizEventListeners();
 
@@ -360,6 +362,7 @@ class EnglishFlashcardsApp {
         this.applySettings();
         this.initializeBookmarksUI();
         this.verifyQuizState();
+        this.renderDifficultyQuizStatus();
     }
 
     /**
@@ -646,6 +649,18 @@ class EnglishFlashcardsApp {
         this.updateQuizStatistics(completedCount, totalCount);
     }
 
+    /**
+     * ✅ NOWA METODA: updateDifficultyQuizUI()
+     * Wywoływana gdy trudność słowa się zmieni
+     */
+    updateDifficultyQuizUI() {
+        console.log('🔄 Aktualizuję UI quizów trudności po zmianie...');
+        
+        // Opóźnij renderowanie żeby dać czas na zapisanie zmian
+        setTimeout(() => {
+            this.renderDifficultyQuizStatus();
+        }, 100);
+    }
 
     /**
      * ✨ NOWA METODA: Aktualizacja statystyk quizów
@@ -1061,6 +1076,34 @@ class EnglishFlashcardsApp {
             // 🔄 Fallback - odśwież wszystkie kategorie
             this.renderCategories();
         }
+    }
+
+    /**
+     * ✅ NOWA METODA: setupDifficultyEventListeners()
+     * Event listeners dla zmian trudności (dodaj do setupEventListeners)
+     */
+    setupDifficultyEventListeners() {
+        console.log('⭐ Konfigurowanie event listeners dla zmian trudności...');
+        
+        // Nasłuchuj na globalne zmiany trudności
+        document.addEventListener('wordDifficultyChanged', (event) => {
+            const { word, oldDifficulty, newDifficulty, wordKey } = event.detail;
+            
+            console.log(`📢 Otrzymano event zmiany trudności:`, {
+                word: word.english,
+                old: oldDifficulty,
+                new: newDifficulty,
+                key: wordKey
+            });
+            
+            // Aktualizuj UI quizów trudności
+            this.updateDifficultyQuizUI();
+            
+            // Opcjonalnie: aktualizuj statystyki
+            this.updateStats();
+            
+            console.log('✅ UI zaktualizowane po zmianie trudności');
+        });
     }
 
     /**
@@ -2525,6 +2568,88 @@ class EnglishFlashcardsApp {
             );
         } else {
             NotificationManager.show('Nie udało się uruchomić quiz mieszany', 'error');
+        }
+    }
+
+    /**
+     * ✅ NOWA METODA: renderDifficultyQuizStatus()
+     * Poprawnie renderuje status quizów trudności
+     */
+    renderDifficultyQuizStatus() {
+        if (!this.managers.quiz || !this.managers.progress) {
+            console.warn('⚠️ Menedżery nie są dostępne - pomijam renderowanie statusu trudności');
+            return;
+        }
+        
+        console.log('🎨 Renderuję status quizów trudności...');
+        
+        try {
+            // 📊 Pobierz statystyki trudności
+            const stats = this.managers.quiz.getDifficultyQuizStats(this);
+            
+            if (!stats) {
+                console.warn('⚠️ Brak statystyk trudności');
+                return;
+            }
+            
+            // 🎯 Aktualizuj status każdego quizu trudności
+            const quizMappings = [
+                {
+                    elementId: 'easy-quiz-status',
+                    count: stats.easy,
+                    minRequired: 5,
+                    level: 'łatwe',
+                    icon: '⭐'
+                },
+                {
+                    elementId: 'hard-quiz-status', 
+                    count: stats.hard,
+                    minRequired: 5,
+                    level: 'trudne',
+                    icon: '⭐⭐⭐'
+                },
+                {
+                    elementId: 'progressive-quiz-status',
+                    count: stats.total,
+                    minRequired: 10,
+                    level: 'progresywny',
+                    icon: '📈',
+                    customCheck: stats.easy >= 3 && stats.medium >= 3 && stats.hard >= 3
+                },
+                {
+                    elementId: 'adaptive-quiz-status',
+                    count: stats.total,
+                    minRequired: 10, 
+                    level: 'adaptacyjny',
+                    icon: '🎯'
+                }
+            ];
+            
+            quizMappings.forEach(mapping => {
+                const element = document.getElementById(mapping.elementId);
+                if (element) {
+                    // ✅ Sprawdź czy quiz dostępny
+                    const hasEnough = mapping.customCheck !== undefined 
+                        ? mapping.customCheck 
+                        : mapping.count >= mapping.minRequired;
+                    
+                    if (hasEnough) {
+                        element.textContent = `${mapping.count} słów dostępnych`;
+                        element.className = 'quiz-status available';
+                    } else {
+                        const needed = mapping.minRequired - mapping.count;
+                        element.textContent = `Potrzebujesz ${needed} więcej słów`;
+                        element.className = 'quiz-status unavailable';
+                    }
+                    
+                    console.log(`📊 ${mapping.level}: ${mapping.count} słów, dostępny: ${hasEnough}`);
+                }
+            });
+            
+            console.log('✅ Status quizów trudności zaktualizowany');
+            
+        } catch (error) {
+            console.error('❌ Błąd renderowania statusu quizów trudności:', error);
         }
     }
 

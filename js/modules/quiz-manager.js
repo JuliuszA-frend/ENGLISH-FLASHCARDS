@@ -1823,14 +1823,18 @@ class QuizManager {
     getDifficultyQuizStats(app) {
         if (!app.managers.progress) return null;
         
+        // ✅ Użyj poprawionej metody
         const stats = app.managers.progress.getDifficultyStats();
+        
+        console.log('🎯 Statystyki dla UI quizów trudności:', stats);
+        
         return {
             easy: stats.easy,
             medium: stats.medium, 
             hard: stats.hard,
             total: stats.total,
             hasEnoughForHardQuiz: stats.hard >= 5,
-            hasEnoughForEasyQuiz: stats.easy >= 5,
+            hasEnoughForEasyQuiz: stats.easy >= 5,  // ✅ Teraz będzie prawidłowe!
             hasEnoughForProgressive: stats.easy >= 3 && stats.medium >= 3 && stats.hard >= 3,
             hasEnoughForAdaptive: stats.total >= 10
         };

@@ -373,12 +373,11 @@ class ProgressManager {
         }
     }
 
-    /**
-     * ✨ NOWA METODA: Statystyki trudności
-     */
     getDifficultyStats() {
         try {
-            const difficulty = this.loadDifficulty();
+            // 📊 Załaduj custom ustawienia trudności
+            const customDifficulty = this.loadDifficulty();
+            
             const stats = {
                 easy: 0,
                 medium: 0,
@@ -386,20 +385,69 @@ class ProgressManager {
                 total: 0
             };
             
-            Object.values(difficulty).forEach(level => {
-                if (stats.hasOwnProperty(level)) {
-                    stats[level]++;
-                    stats.total++;
-                }
-            });
+            // 📚 Przejdź przez wszystkie słowa w słownictwie
+            if (this.vocabulary && this.vocabulary.categories) {
+                Object.values(this.vocabulary.categories).forEach(category => {
+                    if (category.words && Array.isArray(category.words)) {
+                        category.words.forEach(word => {
+                            // ⭐ Użyj tej samej logiki co getWordDifficulty()
+                            const wordKey = this.getWordKey(word);
+                            const difficulty = customDifficulty[wordKey] || word.difficulty || 'medium';
+                            
+                            if (stats.hasOwnProperty(difficulty)) {
+                                stats[difficulty]++;
+                                stats.total++;
+                            }
+                        });
+                    }
+                });
+            }
             
-            console.log('📊 Statystyki trudności:', stats);
+            console.log('📊 Poprawione statystyki trudności (wszystkie słowa):', stats);
             return stats;
             
         } catch (error) {
             console.error('❌ Błąd podczas pobierania statystyk trudności:', error);
             return { easy: 0, medium: 0, hard: 0, total: 0 };
         }
+    }
+
+    /**
+     * ✅ NOWA METODA: getAllWordsByDifficultyLevel()
+     * Zwraca wszystkie słowa z określonym poziomem trudności
+     */
+    getAllWordsByDifficultyLevel(difficultyLevel) {
+        const words = [];
+        
+        if (!this.vocabulary || !this.vocabulary.categories) {
+            console.warn('⚠️ Brak dostępu do słownictwa');
+            return words;
+        }
+        
+        const customDifficulty = this.loadDifficulty();
+        
+        Object.entries(this.vocabulary.categories).forEach(([categoryKey, category]) => {
+            if (category.words && Array.isArray(category.words)) {
+                category.words.forEach((word, index) => {
+                    const wordKey = this.getWordKey(word);
+                    const difficulty = customDifficulty[wordKey] || word.difficulty || 'medium';
+                    
+                    if (difficulty === difficultyLevel) {
+                        words.push({
+                            ...word,
+                            categoryKey: categoryKey,
+                            categoryName: category.name,
+                            wordIndex: index,
+                            currentDifficulty: difficulty,
+                            isCustomDifficulty: customDifficulty.hasOwnProperty(wordKey)
+                        });
+                    }
+                });
+            }
+        });
+        
+        console.log(`📚 Znaleziono ${words.length} słów z poziomem ${difficultyLevel}`);
+        return words;
     }
 
     /**

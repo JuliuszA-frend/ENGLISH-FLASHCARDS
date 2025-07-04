@@ -653,8 +653,11 @@ class FlashcardManager {
     }
 
     /**
-     * ✨ NAPRAWIONA METODA: Toggle trudności z pełną obsługą
+     * ✅ POPRAWIONA METODA: toggleDifficulty()
+     * Dodaj aktualizację UI quizów po zmianie trudności
      */
+
+    // ZASTĄP w flashcard-manager.js metodę toggleDifficulty():
     toggleDifficulty(word) {
         // 🛡️ Sprawdź czy ProgressManager jest dostępny
         if (!window.englishFlashcardsApp || !window.englishFlashcardsApp.managers.progress) {
@@ -666,10 +669,33 @@ class FlashcardManager {
         }
         
         try {
+            // 📊 Zapisz stan przed zmianą (dla porównania)
+            const oldDifficulty = this.getWordDifficulty(word);
+            
             // ✅ Wywołaj toggle w ProgressManager i otrzymaj nowy poziom
             const newDifficulty = window.englishFlashcardsApp.managers.progress.toggleWordDifficulty(word);
             
-            console.log(`🔄 Toggle difficulty: ${word.english} → ${newDifficulty}`);
+            console.log(`🔄 Toggle difficulty: ${word.english} → ${oldDifficulty} → ${newDifficulty}`);
+            
+            // ✅ NOWE: Aktualizuj UI quizów trudności po zmianie
+            if (window.englishFlashcardsApp.updateDifficultyQuizUI) {
+                console.log('🎨 Aktualizuję UI quizów trudności...');
+                window.englishFlashcardsApp.updateDifficultyQuizUI();
+            } else {
+                console.warn('⚠️ Metoda updateDifficultyQuizUI nie jest dostępna');
+            }
+            
+            // ✅ NOWE: Wyślij event globalny o zmianie trudności
+            document.dispatchEvent(new CustomEvent('wordDifficultyChanged', {
+                detail: { 
+                    word: word, 
+                    oldDifficulty: oldDifficulty,
+                    newDifficulty: newDifficulty,
+                    wordKey: window.englishFlashcardsApp.managers.progress.getWordKey(word)
+                }
+            }));
+            
+            console.log(`📢 Event wordDifficultyChanged wysłany dla: ${word.english}`);
             
             return newDifficulty;
             
