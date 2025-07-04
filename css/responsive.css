@@ -667,6 +667,7 @@ body {
   /* Larger modals */
   .modal-content {
     max-width: 700px;
+    width: inherit;
   }
 
   /* Better navigation spacing */

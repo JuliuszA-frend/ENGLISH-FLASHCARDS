@@ -1352,6 +1352,8 @@ textarea:focus-visible {
   position: relative;
   overflow: hidden;
   text-align: center;
+  display: flex;
+  flex-direction: column;
 }
 
 .quiz-card:hover {

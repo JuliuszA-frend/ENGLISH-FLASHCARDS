@@ -34,7 +34,7 @@ class EnglishFlashcardsApp {
         
         this.init();
     }
-
+    
     /**
      * Inicjalizacja aplikacji
      */
@@ -145,7 +145,7 @@ class EnglishFlashcardsApp {
             throw new Error('Nie udało się załadować danych słownictwa');
         }
     }
-
+    
     /**
      * Konfiguracja nasłuchiwaczy zdarzeń
      */
@@ -494,7 +494,7 @@ class EnglishFlashcardsApp {
             NotificationManager.show('Quiz kontynuowany', 'info', 2000);
         }
     }
-
+    
     /**
      * 🎯 Pokazanie wskaźnika trybu ulubionych
      */
@@ -2323,25 +2323,32 @@ class EnglishFlashcardsApp {
     }
 
     /**
-     * ✨ NOWA METODA: Renderowanie listy kategorii do wyboru
+     * ✨ NOWA METODA: Renderowanie listy kategorii do wyboru - Z LOGAMI
      */
     renderCategorySelection() {
+        console.log('🎯 [RENDER] renderCategorySelection() START');
+        
         const grid = document.getElementById('categories-selection-grid');
+        console.log('🎯 [RENDER] Grid found:', !!grid);
+        
         if (!grid || !this.state.vocabulary) {
-            console.error('❌ Brak grid lub vocabulary');
+            console.error('❌ [RENDER] Brak grid lub vocabulary');
             return;
         }
-        
+
         const categories = this.state.vocabulary.categories;
-        let html = '';
+        console.log('🎯 [RENDER] Categories found:', Object.keys(categories).length);
         
+        let html = '';
+
         Object.entries(categories).forEach(([key, category]) => {
             const progress = this.managers.progress.getCategoryProgress(key);
             const wordCount = category.words ? category.words.length : 0;
             const studiedPercent = Math.round((progress.studied / progress.total) * 100);
-            
+
+            // ✅ WAŻNE: Używamy NOWEJ klasy i NOWEGO atrybutu
             html += `
-                <div class="category-checkbox-item" data-category="${key}">
+                <div class="mixed-quiz-category-item GENERATED-NEW" data-category-key="${key}">
                     <div class="category-checkbox"></div>
                     <div class="category-info">
                         <div class="category-name">
@@ -2356,44 +2363,70 @@ class EnglishFlashcardsApp {
                 </div>
             `;
         });
-        
+
+        console.log('🎯 [RENDER] Generated HTML length:', html.length);
         grid.innerHTML = html;
         
-        // Dodaj event listeners do kategorii
-        grid.querySelectorAll('.category-checkbox-item').forEach(item => {
+        // Event listeners dla NOWYCH elementów
+        grid.querySelectorAll('.mixed-quiz-category-item').forEach(item => {
             item.addEventListener('click', (e) => {
                 e.preventDefault();
-                this.toggleCategorySelection(item.dataset.category);
+                console.log(`🖱️ [CLICK] Category clicked: ${item.dataset.categoryKey}`);
+                this.toggleCategorySelection(item.dataset.categoryKey);
             });
         });
-        
-        console.log(`📋 Renderowano ${Object.keys(categories).length} kategorii`);
+
+        console.log('✅ [RENDER] renderCategorySelection COMPLETED');
     }
 
-
     /**
-     * ✨ NOWA METODA: Przełączanie wyboru kategorii
+     * ✨ POPRAWIONA METODA: Przełączanie wyboru kategorii (dla NOWEJ struktury HTML)
      */
     toggleCategorySelection(categoryKey) {
         if (!this.selectedCategories) {
             this.selectedCategories = new Set();
         }
-        
-        const item = document.querySelector(`[data-category="${categoryKey}"]`);
-        if (!item) return;
-        
+
+        // ✅ TERAZ UŻYWAJ NOWEJ KLASY i NOWEGO ATRYBUTU
+        const item = document.querySelector(`.mixed-quiz-category-item[data-category-key="${categoryKey}"]`);
+        if (!item) {
+            console.warn(`⚠️ Nie znaleziono elementu kategorii: ${categoryKey}`);
+            return;
+        }
+
+        const checkbox = item.querySelector('.category-checkbox');
+
         if (this.selectedCategories.has(categoryKey)) {
-            // Usuń z wyboru
+            // Usuń zaznaczenie
             this.selectedCategories.delete(categoryKey);
             item.classList.remove('selected');
+            
+            if (checkbox) {
+                checkbox.style.cssText = '';
+                checkbox.innerHTML = '';
+            }
+            
             console.log(`➖ Usunięto kategorię: ${categoryKey}`);
         } else {
-            // Dodaj do wyboru
+            // Dodaj zaznaczenie
             this.selectedCategories.add(categoryKey);
             item.classList.add('selected');
+            
+            if (checkbox) {
+                checkbox.style.cssText = `
+                    width: 24px !important;
+                    height: 24px !important;
+                    border: 2px solid var(--blue-500) !important;
+                    border-radius: var(--radius-md) !important;
+                    background: var(--blue-500) !important;
+                    position: relative !important;
+                    transition: all 0.2s ease !important;
+                `;
+            }
+            
             console.log(`➕ Dodano kategorię: ${categoryKey}`);
         }
-        
+
         this.updateCategorySelectionUI();
     }
 

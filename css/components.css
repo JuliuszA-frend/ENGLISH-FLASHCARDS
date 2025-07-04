@@ -2721,6 +2721,7 @@ body.bookmarks-only-mode .flashcard-container {
     background: rgba(255, 255, 255, 0.05);
     border-radius: var(--radius-lg);
     margin-bottom: var(--spacing-4);
+    margin-top: var(--spacing-4);
     flex-wrap: wrap;
     gap: var(--spacing-3);
 }
@@ -2826,10 +2827,6 @@ body.bookmarks-only-mode .flashcard-container {
     border-color: #2563eb;
 }
 
-.category-checkbox-item.selected .category-checkbox::after {
-    opacity: 1 !important;
-    visibility: visible !important;
-}
 
 /* Checkbox */
 .category-checkbox {
@@ -2841,19 +2838,6 @@ body.bookmarks-only-mode .flashcard-container {
     position: relative;
     transition: all var(--transition-normal);
     flex-shrink: 0;
-}
-
-.category-checkbox::after {
-    content: '✓';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    color: white;
-    font-weight: bold;
-    font-size: 12px;
-    opacity: 0;
-    visibility: hidden;
 }
 
 /* Informacje o kategorii */
@@ -2981,4 +2965,111 @@ body.bookmarks-only-mode .flashcard-container {
         flex: 1;
         max-width: 120px;
     }
+}
+
+/* === POCZĄTEK ZMIAN w components.css (nowe, odizolowane style) === */
+
+/* Kontener na nową listę kategorii w modalu */
+.categories-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 0.75rem;
+}
+
+/* Styl pojedynczego elementu na liście wyboru */
+.mixed-quiz-category-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem;
+    border: 2px solid var(--gray-200);
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    position: relative;
+}
+
+.dark-theme .mixed-quiz-category-item {
+    background-color: var(--gray-700);
+    border-color: var(--gray-600);
+}
+
+/* Efekt po najechaniu myszką */
+.mixed-quiz-category-item:hover {
+    border-color: var(--blue-400);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+/* ----- KLUCZOWE STYLE DLA ZAZNACZENIA ----- */
+
+/* Pudełko na "ptaszek" */
+.mixed-quiz-category-item .category-checkbox {
+    width: 24px;
+    height: 24px;
+    border: 2px solid var(--gray-400);
+    border-radius: var(--radius-md);
+    margin-right: 0.75rem;
+    flex-shrink: 0;
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+/* "Ptaszek" - początkowo ukryty */
+.mixed-quiz-category-item .category-checkbox::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.5);
+    font-size: 18px;
+    font-weight: bold;
+    color: white;
+    opacity: 0;
+    transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Stan ZAZNACZONY - kiedy element ma klasę .selected */
+.mixed-quiz-category-item.selected {
+    border-color: var(--blue-500);
+}
+
+.dark-theme .mixed-quiz-category-item.selected {
+    background-color: var(--blue-800);
+    border-color: var(--blue-500);
+}
+
+/* Pudełko zmienia kolor po zaznaczeniu */
+.mixed-quiz-category-item.selected .category-checkbox {
+    background-color: var(--blue-500);
+    border-color: var(--blue-500);
+}
+
+/* "Ptaszek" staje się widoczny po zaznaczeniu */
+.mixed-quiz-category-item.selected .category-checkbox::after {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+}
+
+/* Reszta stylów (informacje o kategorii) */
+.mixed-quiz-category-item .category-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.mixed-quiz-category-item .category-name {
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.mixed-quiz-category-item .category-stats {
+    font-size: 0.8rem;
+    color: var(--gray-200);
+    display: flex;
+    gap: 0.75rem;
+}
+
+.dark-theme .mixed-quiz-category-item .category-stats {
+    color: var(--gray-400);
 }
