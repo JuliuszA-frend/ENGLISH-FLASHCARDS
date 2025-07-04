@@ -214,22 +214,113 @@ class QuizManager {
     }
 
     /**
-     * Quiz z wybranych kategorii
+     * ✨ NOWA METODA: Quiz z wybranych kategorii
      */
     startMixedCategoriesQuiz(selectedCategories, app) {
-        const questions = this.generateMixedCategoryQuestions(selectedCategories, 20);
+        console.log(`🎯 Uruchamiam quiz z kategorii:`, selectedCategories);
+        
+        if (!selectedCategories || selectedCategories.length < 2) {
+            console.error('❌ Za mało kategorii do quiz mieszany');
+            NotificationManager.show('Wybierz co najmniej 2 kategorie', 'error');
+            return false;
+        }
+        
+        // Sprawdź czy kategorie istnieją
+        const validCategories = selectedCategories.filter(key => 
+            this.vocabulary.categories[key]
+        );
+        
+        if (validCategories.length !== selectedCategories.length) {
+            console.warn('⚠️ Niektóre kategorie nie istnieją');
+        }
+        
+        if (validCategories.length < 2) {
+            NotificationManager.show('Błąd: nieprawidłowe kategorie', 'error');
+            return false;
+        }
+        
+        // Generuj pytania z wybranych kategorii
+        const questions = this.generateMixedCategoryQuestions(validCategories, 20);
+        
+        if (questions.length === 0) {
+            NotificationManager.show('Brak dostępnych pytań z wybranych kategorii', 'error');
+            return false;
+        }
+        
+        // Przygotuj informacje o quizie
+        const categoryNames = validCategories.map(key => 
+            this.vocabulary.categories[key].name
+        );
         
         this.currentQuiz = {
             type: this.quizTypes.MIXED_CATEGORIES,
             category: 'mixed',
-            categoryName: `Quiz mieszany (${selectedCategories.length} kategorii)`,
+            categoryName: `Quiz mieszany (${categoryNames.length} kategorii)`,
             totalQuestions: questions.length,
-            passScore: 14,
-            categories: selectedCategories
+            passScore: Math.ceil(questions.length * 0.7), // 70%
+            timeLimit: null,
+            selectedCategories: validCategories,
+            categoryNames: categoryNames
         };
-
+        
+        console.log(`✅ Quiz mieszany przygotowany: ${questions.length} pytań z kategorii: ${categoryNames.join(', ')}`);
+        
         this.initializeQuiz(questions, app);
         return true;
+    }
+
+    /**
+     * ✨ NOWA METODA: Generowanie pytań z wybranych kategorii
+     */
+    generateMixedCategoryQuestions(selectedCategories, totalCount) {
+        console.log(`🔄 Generuję ${totalCount} pytań z kategorii:`, selectedCategories);
+        
+        // Zbierz wszystkie słowa z wybranych kategorii
+        let allWords = [];
+        
+        selectedCategories.forEach(categoryKey => {
+            const category = this.vocabulary.categories[categoryKey];
+            if (category && category.words && Array.isArray(category.words)) {
+                category.words.forEach(word => {
+                    allWords.push({
+                        ...word,
+                        category: categoryKey,
+                        categoryName: category.name
+                    });
+                });
+            }
+        });
+        
+        console.log(`📚 Zebrano ${allWords.length} słów z ${selectedCategories.length} kategorii`);
+        
+        if (allWords.length === 0) {
+            console.error('❌ Brak słów w wybranych kategoriach');
+            return [];
+        }
+        
+        // Wymieszaj i wybierz słowa
+        const shuffledWords = Utils.shuffle(allWords);
+        const selectedWords = shuffledWords.slice(0, Math.min(totalCount, allWords.length));
+        
+        // Generuj pytania
+        const questions = [];
+        
+        selectedWords.forEach(word => {
+            const questionType = this.selectQuestionType();
+            const direction = this.selectQuestionDirection();
+            
+            const question = this.createQuestion(word, questionType, direction, word.category);
+            if (question) {
+                // Dodaj informacje o kategorii do pytania
+                question.sourceCategory = word.category;
+                question.sourceCategoryName = word.categoryName;
+                questions.push(question);
+            }
+        });
+        
+        console.log(`✅ Wygenerowano ${questions.length} pytań z wybranych kategorii`);
+        
+        return questions;
     }
 
     /**

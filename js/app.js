@@ -22,7 +22,13 @@ class EnglishFlashcardsApp {
             bookmarksQueueIndex: 0,   // ✨ NOWE: Indeks w kolejce ulubionych
             bookmarksController: null
         };
-
+        this.selectedCategories = new Set();
+        this.categoryCloseHandler = null;
+        this.categoryOverlayHandler = null;
+        this.selectAllHandler = null;
+        this.deselectAllHandler = null;
+        this.cancelSelectionHandler = null;
+        this.startMixedHandler = null;
         this.managers = {};
         this.eventListeners = new Map();
         
@@ -2191,20 +2197,302 @@ class EnglishFlashcardsApp {
     }
 
     /**
-     * ✨ NOWA METODA: Quiz mieszany kategorii
+     * ✨ NOWA METODA: Quiz mieszany z wyborem kategorii
      */
     startMixedQuiz() {
-        // Pokaż modal wyboru kategorii
+        console.log('🎯 Uruchamiam modal wyboru kategorii...');
         this.showCategorySelectionModal();
     }
 
     /**
-     * ✨ NOWA METODA: Modal wyboru kategorii
+     * ✨ NOWA METODA: Pokazanie modala wyboru kategorii
      */
     showCategorySelectionModal() {
-        // TODO: Implementacja modala wyboru kategorii
-        // Na razie fallback do losowego quizu
-        this.startRandomQuiz();
+        console.log('📋 Pokazuję modal wyboru kategorii');
+        
+        const modal = document.getElementById('category-selection-modal');
+        if (!modal) {
+            console.error('❌ Nie znaleziono modala wyboru kategorii');
+            NotificationManager.show('Błąd interfejsu - modal niedostępny', 'error');
+            return;
+        }
+        
+        // Wyczyść poprzedni stan
+        this.selectedCategories = new Set();
+        
+        // Renderuj kategorie
+        this.renderCategorySelection();
+        
+        // Pokaż modal
+        modal.style.display = 'flex';
+        setTimeout(() => {
+            modal.classList.add('visible');
+        }, 10);
+        
+        // Dodaj event listeners dla tego modala
+        this.setupCategorySelectionListeners();
+        
+        console.log('✅ Modal wyboru kategorii otwarty');
+    }
+
+    /**
+     * ✨ NOWA METODA: Event listeners dla modala kategorii
+     */
+    setupCategorySelectionListeners() {
+        // Usuń poprzednie listenery jeśli istnieją
+        this.removeCategorySelectionListeners();
+        
+        // Zamknij modal
+        this.categoryCloseHandler = () => this.closeCategorySelectionModal();
+        this.categoryOverlayHandler = (e) => {
+            if (e.target.id === 'category-selection-modal') {
+                this.closeCategorySelectionModal();
+            }
+        };
+        
+        // Zaznacz wszystkie
+        this.selectAllHandler = () => {
+            Object.keys(this.state.vocabulary.categories).forEach(key => {
+                if (!this.selectedCategories.has(key)) {
+                    this.toggleCategorySelection(key);
+                }
+            });
+        };
+        
+        // Odznacz wszystkie  
+        this.deselectAllHandler = () => {
+            const categories = Array.from(this.selectedCategories);
+            categories.forEach(key => {
+                this.toggleCategorySelection(key);
+            });
+        };
+        
+        // Anuluj
+        this.cancelSelectionHandler = () => this.closeCategorySelectionModal();
+        
+        // Uruchom quiz
+        this.startMixedHandler = () => this.startSelectedCategoriesQuiz();
+        
+        // Dodaj event listeners
+        const closeBtn = document.getElementById('category-selection-close');
+        const modal = document.getElementById('category-selection-modal');
+        const selectAllBtn = document.getElementById('select-all-categories');
+        const deselectAllBtn = document.getElementById('deselect-all-categories');
+        const cancelBtn = document.getElementById('cancel-category-selection');
+        const startBtn = document.getElementById('start-mixed-quiz');
+        
+        if (closeBtn) closeBtn.addEventListener('click', this.categoryCloseHandler);
+        if (modal) modal.addEventListener('click', this.categoryOverlayHandler);
+        if (selectAllBtn) selectAllBtn.addEventListener('click', this.selectAllHandler);
+        if (deselectAllBtn) deselectAllBtn.addEventListener('click', this.deselectAllHandler);
+        if (cancelBtn) cancelBtn.addEventListener('click', this.cancelSelectionHandler);
+        if (startBtn) startBtn.addEventListener('click', this.startMixedHandler);
+        
+        console.log('✅ Event listeners dla modala kategorii dodane');
+    }
+
+    /**
+     * ✨ NOWA METODA: Usuwanie event listeners
+     */
+    removeCategorySelectionListeners() {
+        const closeBtn = document.getElementById('category-selection-close');
+        const modal = document.getElementById('category-selection-modal');
+        const selectAllBtn = document.getElementById('select-all-categories');
+        const deselectAllBtn = document.getElementById('deselect-all-categories');
+        const cancelBtn = document.getElementById('cancel-category-selection');
+        const startBtn = document.getElementById('start-mixed-quiz');
+        
+        if (closeBtn && this.categoryCloseHandler) {
+            closeBtn.removeEventListener('click', this.categoryCloseHandler);
+        }
+        if (modal && this.categoryOverlayHandler) {
+            modal.removeEventListener('click', this.categoryOverlayHandler);
+        }
+        if (selectAllBtn && this.selectAllHandler) {
+            selectAllBtn.removeEventListener('click', this.selectAllHandler);
+        }
+        if (deselectAllBtn && this.deselectAllHandler) {
+            deselectAllBtn.removeEventListener('click', this.deselectAllHandler);
+        }
+        if (cancelBtn && this.cancelSelectionHandler) {
+            cancelBtn.removeEventListener('click', this.cancelSelectionHandler);
+        }
+        if (startBtn && this.startMixedHandler) {
+            startBtn.removeEventListener('click', this.startMixedHandler);
+        }
+    }
+
+    /**
+     * ✨ NOWA METODA: Renderowanie listy kategorii do wyboru
+     */
+    renderCategorySelection() {
+        const grid = document.getElementById('categories-selection-grid');
+        if (!grid || !this.state.vocabulary) {
+            console.error('❌ Brak grid lub vocabulary');
+            return;
+        }
+        
+        const categories = this.state.vocabulary.categories;
+        let html = '';
+        
+        Object.entries(categories).forEach(([key, category]) => {
+            const progress = this.managers.progress.getCategoryProgress(key);
+            const wordCount = category.words ? category.words.length : 0;
+            const studiedPercent = Math.round((progress.studied / progress.total) * 100);
+            
+            html += `
+                <div class="category-checkbox-item" data-category="${key}">
+                    <div class="category-checkbox"></div>
+                    <div class="category-info">
+                        <div class="category-name">
+                            <span class="category-icon">${category.icon || '📚'}</span>
+                            <span>${category.name}</span>
+                        </div>
+                        <div class="category-stats">
+                            <span class="category-word-count">${wordCount} słów</span>
+                            <span class="category-progress">${studiedPercent}% przejrzane</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        
+        grid.innerHTML = html;
+        
+        // Dodaj event listeners do kategorii
+        grid.querySelectorAll('.category-checkbox-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.toggleCategorySelection(item.dataset.category);
+            });
+        });
+        
+        console.log(`📋 Renderowano ${Object.keys(categories).length} kategorii`);
+    }
+
+
+    /**
+     * ✨ NOWA METODA: Przełączanie wyboru kategorii
+     */
+    toggleCategorySelection(categoryKey) {
+        if (!this.selectedCategories) {
+            this.selectedCategories = new Set();
+        }
+        
+        const item = document.querySelector(`[data-category="${categoryKey}"]`);
+        if (!item) return;
+        
+        if (this.selectedCategories.has(categoryKey)) {
+            // Usuń z wyboru
+            this.selectedCategories.delete(categoryKey);
+            item.classList.remove('selected');
+            console.log(`➖ Usunięto kategorię: ${categoryKey}`);
+        } else {
+            // Dodaj do wyboru
+            this.selectedCategories.add(categoryKey);
+            item.classList.add('selected');
+            console.log(`➕ Dodano kategorię: ${categoryKey}`);
+        }
+        
+        this.updateCategorySelectionUI();
+    }
+
+    /**
+     * ✨ NOWA METODA: Aktualizacja UI wyboru kategorii
+     */
+    updateCategorySelectionUI() {
+        const selectedCount = this.selectedCategories.size;
+        const totalCategories = Object.keys(this.state.vocabulary.categories).length;
+        
+        // Aktualizuj liczniki
+        const countElement = document.getElementById('selected-categories-count');
+        const wordsElement = document.getElementById('selected-words-count');
+        const startButton = document.getElementById('start-mixed-quiz');
+        
+        if (countElement) {
+            countElement.textContent = selectedCount;
+        }
+        
+        // Oblicz łączną liczbę słów z wybranych kategorii
+        let totalWords = 0;
+        this.selectedCategories.forEach(categoryKey => {
+            const category = this.state.vocabulary.categories[categoryKey];
+            if (category && category.words) {
+                totalWords += category.words.length;
+            }
+        });
+        
+        if (wordsElement) {
+            wordsElement.textContent = totalWords;
+        }
+        
+        // Aktywuj/dezaktywuj przycisk start
+        if (startButton) {
+            const canStart = selectedCount >= 2;
+            startButton.disabled = !canStart;
+            
+            if (canStart) {
+                startButton.classList.remove('disabled');
+            } else {
+                startButton.classList.add('disabled');
+            }
+        }
+        
+        console.log(`📊 Wybrano ${selectedCount}/${totalCategories} kategorii, ${totalWords} słów`);
+    }
+
+    /**
+     * ✨ NOWA METODA: Zamknięcie modala wyboru kategorii
+     */
+    closeCategorySelectionModal() {
+        const modal = document.getElementById('category-selection-modal');
+        if (modal) {
+            modal.classList.remove('visible');
+            setTimeout(() => {
+                modal.style.display = 'none';
+            }, 300);
+        }
+        
+        // Usuń event listeners
+        this.removeCategorySelectionListeners();
+        
+        // Wyczyść wybór
+        this.selectedCategories = new Set();
+        
+        console.log('❌ Modal wyboru kategorii zamknięty');
+    }
+
+    /**
+     * ✨ NOWA METODA: Uruchomienie quizu z wybranych kategorii
+     */
+    startSelectedCategoriesQuiz() {
+        if (!this.selectedCategories || this.selectedCategories.size < 2) {
+            NotificationManager.show('Wybierz co najmniej 2 kategorie', 'warning');
+            return;
+        }
+        
+        const selectedArray = Array.from(this.selectedCategories);
+        console.log(`🚀 Uruchamiam quiz mieszany z kategorii:`, selectedArray);
+        
+        // Zamknij modal
+        this.closeCategorySelectionModal();
+        
+        // Uruchom quiz przez QuizManager
+        const success = this.managers.quiz.startMixedCategoriesQuiz(selectedArray, this);
+        
+        if (success) {
+            const categoryNames = selectedArray.map(key => 
+                this.state.vocabulary.categories[key].name
+            ).join(', ');
+            
+            NotificationManager.show(
+                `🎯 Quiz mieszany z kategorii: ${categoryNames}`, 
+                'success', 
+                4000
+            );
+        } else {
+            NotificationManager.show('Nie udało się uruchomić quiz mieszany', 'error');
+        }
     }
 
     /**

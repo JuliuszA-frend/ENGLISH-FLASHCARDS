@@ -897,6 +897,7 @@
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     background: rgba(255, 255, 255, 0.05);
     flex-shrink: 0;
+    gap: var(--spacing-5);
 }
 
 .modal-title {
@@ -1836,8 +1837,6 @@ body.bookmarks-only-mode .flashcard-container {
 /* Modal wyboru kategorii */
 .category-selection-modal {
     position: fixed;
-    top: 0;
-    left: 0;
     width: 100%;
     height: 100%;
     background: rgba(0, 0, 0, 0.8);
@@ -2701,5 +2700,285 @@ body.bookmarks-only-mode .flashcard-container {
         padding: 0.5rem;
         min-width: 2.5rem;
         justify-content: center;
+    }
+}
+
+/* ============================================
+   MODAL WYBORU KATEGORII - QUIZ MIESZANY
+   ============================================ */
+
+.category-selection-modal {
+    max-width: 900px;
+    max-height: 90vh;
+    width: 95%;
+}
+
+.modal-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-4);
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: var(--radius-lg);
+    margin-bottom: var(--spacing-4);
+    flex-wrap: wrap;
+    gap: var(--spacing-3);
+}
+
+.selection-summary {
+    display: flex;
+    gap: var(--spacing-4);
+    flex-wrap: wrap;
+}
+
+.summary-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+}
+
+.summary-item .label {
+    font-size: var(--font-size-sm);
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.summary-item .value {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-bold);
+    color: var(--white);
+}
+
+.summary-item .total {
+    font-size: var(--font-size-sm);
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.selection-actions {
+    display: flex;
+    gap: var(--spacing-2);
+    flex-wrap: wrap;
+}
+
+.btn.small {
+    padding: var(--spacing-2) var(--spacing-3);
+    font-size: var(--font-size-sm);
+    min-height: 32px;
+}
+
+/* Siatka kategorii */
+.category-selection-content {
+    max-height: 400px;
+    overflow-y: auto;
+    padding: var(--spacing-4);
+}
+
+.categories-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--spacing-3);
+}
+
+/* Pojedyncza kategoria do wyboru */
+.category-checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-3);
+    padding: var(--spacing-4);
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    position: relative;
+    overflow: hidden;
+}
+
+.category-checkbox-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transition: left 0.3s ease;
+}
+
+.category-checkbox-item:hover::before {
+    left: 100%;
+}
+
+.category-checkbox-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.category-checkbox-item.selected {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(37, 99, 235, 0.2));
+    border-color: rgba(59, 130, 246, 0.5);
+    box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
+}
+
+.category-checkbox-item.selected .category-checkbox {
+    background: var(--gradient-primary);
+    border-color: #2563eb;
+}
+
+.category-checkbox-item.selected .category-checkbox::after {
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+/* Checkbox */
+.category-checkbox {
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    border-radius: var(--radius-sm);
+    background: transparent;
+    position: relative;
+    transition: all var(--transition-normal);
+    flex-shrink: 0;
+}
+
+.category-checkbox::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-weight: bold;
+    font-size: 12px;
+    opacity: 0;
+    visibility: hidden;
+}
+
+/* Informacje o kategorii */
+.category-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.category-name {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
+    color: var(--white);
+    margin-bottom: var(--spacing-1);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+}
+
+.category-icon {
+    font-size: var(--font-size-lg);
+    flex-shrink: 0;
+}
+
+.category-stats {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: var(--spacing-2);
+    font-size: var(--font-size-sm);
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.category-word-count {
+    font-weight: var(--font-weight-medium);
+}
+
+.category-progress {
+    font-style: italic;
+}
+
+/* Footer modala */
+.modal-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-4);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.02);
+    flex-wrap: wrap;
+    gap: var(--spacing-3);
+}
+
+.footer-info {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: var(--font-size-sm);
+}
+
+.footer-actions {
+    display: flex;
+    gap: var(--spacing-3);
+}
+
+.requirement {
+    font-style: italic;
+}
+
+/* Stany przycisku uruchom quiz */
+#start-mixed-quiz:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+#start-mixed-quiz:not(:disabled) {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.8; }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .categories-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .modal-info {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .selection-summary {
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .modal-footer {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .footer-actions {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 576px) {
+    .category-checkbox-item {
+        padding: var(--spacing-3);
+    }
+    
+    .category-name {
+        font-size: var(--font-size-sm);
+    }
+    
+    .selection-actions {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .btn.small {
+        flex: 1;
+        max-width: 120px;
     }
 }
