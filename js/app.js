@@ -279,10 +279,9 @@ class EnglishFlashcardsApp {
         // NOWE: Przyciski nowych quizów
         this.addEventListeners([
             ['random-quiz-btn', 'click', () => this.startRandomQuiz()],
-            ['bookmarks-quiz-btn', 'click', () => this.startBookmarksQuiz()], // ZMIANA z difficult-words-quiz
+            ['bookmarks-quiz-btn', 'click', () => this.startBookmarksQuiz()],
             ['final-quiz-btn', 'click', () => this.startFinalQuiz()],
             ['speed-quiz-btn', 'click', () => this.startSpeedQuiz()],        // NOWE
-            ['audio-quiz-btn', 'click', () => this.startAudioQuiz()],        // NOWE
             ['mixed-quiz-btn', 'click', () => this.startMixedQuiz()]         // NOWE
         ]);
 
@@ -2188,15 +2187,6 @@ class EnglishFlashcardsApp {
     startSpeedQuiz() {
         if (!this.managers.quiz.startSpeedQuiz(this)) {
             console.error('❌ Nie udało się uruchomić quiz szybki');
-        }
-    }
-
-    /**
-     * ✨ NOWA METODA: Quiz audio
-     */
-    startAudioQuiz() {
-        if (!this.managers.quiz.startAudioQuiz(this)) {
-            console.error('❌ Nie udało się uruchomić quiz audio');
         }
     }
 

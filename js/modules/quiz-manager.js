@@ -13,13 +13,16 @@ class QuizManager {
         this.score = 0;
         this.difficulty = 'medium';
         this.language = 'en-pl'; // en-pl, pl-en, mixed
+        this.questionTimer = null;          // Referencja do setInterval
+        this.questionTimeLeft = 0;          // Pozostały czas w sekundach
+        this.questionStartTime = null;      // Czas rozpoczęcia pytania
+        this.isTimerActive = false;         // Czy timer jest aktywny
         this.quizTypes = {
         CATEGORY: 'category',
         RANDOM: 'random',
         BOOKMARKS: 'bookmarks',
         FINAL: 'final',
         SPEED: 'speed',
-        AUDIO: 'audio',
         SPELLING: 'spelling',
         MIXED_CATEGORIES: 'mixed',
         HARD_WORDS: 'hard_words',          // NOWE - tylko trudne słowa
@@ -202,28 +205,8 @@ class QuizManager {
             categoryName: 'Quiz błyskawiczny',
             totalQuestions: questions.length,
             passScore: 7,
-            timeLimit: 30, // 30 sekund na pytanie
+            timeLimit: 10, // ✅ ZMIANA: 30 → 10 sekund na pytanie
             isSpeed: true
-        };
-
-        this.initializeQuiz(questions, app);
-        this.startQuestionTimer(app);
-        return true;
-    }
-
-    /**
-     * Quiz audio - z odtwarzaniem dźwięku
-     */
-    startAudioQuiz(app) {
-        const questions = this.generateAudioQuestions(12);
-        
-        this.currentQuiz = {
-            type: this.quizTypes.AUDIO,
-            category: 'audio',
-            categoryName: 'Quiz słuchowy',
-            totalQuestions: questions.length,
-            passScore: 8,
-            hasAudio: true
         };
 
         this.initializeQuiz(questions, app);
@@ -392,7 +375,8 @@ class QuizManager {
     }
 
     /**
-     * ✨ NOWA METODA: Przerwanie bieżącego quizu
+     * ✨ Przerwanie bieżącego quizu
+     * ✅ ZAKTUALIZOWANA WERSJA z obsługą timera
      */
     cancelQuiz(app) {
         console.log('🚫 QuizManager: Przerwanie quizu');
@@ -402,60 +386,161 @@ class QuizManager {
             return false;
         }
         
+        // ✨ NOWE: Zatrzymaj i ukryj timer przy przerywaniu quizu
+        console.log('⏰ Zatrzymuję timer przed przerwaniem quizu...');
+        this.stopQuestionTimer();
+        this.hideTimer();
+        
         const cancelledQuiz = this.currentQuiz;
+        const currentQuestion = this.currentQuestionIndex + 1;
+        const totalQuestions = this.currentQuestions.length;
+        const currentScore = this.score;
+        
+        // Przygotuj informacje o bieżącym postępie dla logów
+        const progressInfo = {
+            quizType: cancelledQuiz.type,
+            categoryName: cancelledQuiz.categoryName,
+            currentQuestion: currentQuestion,
+            totalQuestions: totalQuestions,
+            currentScore: currentScore,
+            progress: `${currentQuestion}/${totalQuestions}`,
+            scoreProgress: `${currentScore}/${Math.max(1, currentQuestion - 1)}`,
+            isSpeedQuiz: cancelledQuiz.isSpeed || false
+        };
+        
+        console.log('📊 Postęp quizu przed przerwaniem:', progressInfo);
         
         try {
             // 1. Wyczyść stan bieżącego quizu
+            console.log('🧹 Czyszczenie stanu quizu...');
             this.currentQuiz = null;
             this.currentQuestions = [];
             this.currentQuestionIndex = 0;
             this.userAnswers = [];
             this.score = 0;
             
+            // ✨ NOWE: Wyczyść stan timera
+            this.questionTimer = null;
+            this.questionTimeLeft = 0;
+            this.questionStartTime = null;
+            this.isTimerActive = false;
+            
             // 2. Ukryj interfejs quizu
+            console.log('🎨 Ukrywanie interfejsu quizu...');
             const quizContainer = document.getElementById('quiz-container');
             const quizResults = document.getElementById('quiz-results');
             
             if (quizContainer) {
                 quizContainer.style.display = 'none';
+                console.log('✅ Quiz container ukryty');
             }
             
             if (quizResults) {
                 quizResults.style.display = 'none';
+                console.log('✅ Quiz results ukryte');
             }
             
             // 3. Pokaż selector quizów
+            console.log('📋 Pokazywanie selectora quizów...');
             const quizSelector = document.getElementById('quiz-selector');
             if (quizSelector) {
                 quizSelector.style.display = 'block';
+                console.log('✅ Quiz selector pokazany');
             }
             
             // 4. Przełącz aplikację na tryb quizów (menu wyboru)
             if (app && typeof app.switchMode === 'function') {
+                console.log('🔄 Przełączanie na tryb quiz...');
                 app.switchMode('quiz');
+            } else {
+                console.warn('⚠️ Nie można przełączyć trybu - brak referencji do app');
             }
             
             // 5. Zresetuj interfejs quizu do stanu początkowego
+            console.log('🔄 Resetowanie interfejsu quizu...');
             this.resetQuizInterface();
             
-            console.log(`✅ Quiz "${cancelledQuiz.categoryName}" został przerwany`);
+            // ✨ NOWE: Dodatkowe czyszczenie elementów związanych z timerem
+            const timerElement = document.getElementById('quiz-timer');
+            if (timerElement) {
+                timerElement.classList.remove('warning', 'critical', 'visible');
+                console.log('🧹 Wyczyszczono klasy timera');
+            }
             
-            // 6. Opcjonalne: Wyślij event o przerwaniu
+            // ✨ NOWE: Wyczyść wszystkie feedback
+            const feedbackEl = document.getElementById('quiz-feedback');
+            if (feedbackEl) {
+                feedbackEl.style.display = 'none';
+                feedbackEl.className = 'quiz-feedback'; // Reset klas CSS
+                console.log('🧹 Wyczyszczono feedback');
+            }
+            
+            console.log(`✅ Quiz "${cancelledQuiz.categoryName}" został przerwany pomyślnie`);
+            
+            // 6. Wyślij event o przerwaniu (dla innych komponentów)
+            const eventDetail = {
+                quiz: cancelledQuiz,
+                progress: progressInfo,
+                timestamp: new Date().toISOString(),
+                reason: 'user_cancelled'
+            };
+            
             document.dispatchEvent(new CustomEvent('quizCancelled', {
-                detail: {
-                    quiz: cancelledQuiz,
-                    timestamp: new Date().toISOString()
-                }
+                detail: eventDetail
             }));
+            
+            console.log('📡 Event quizCancelled wysłany:', eventDetail);
+            
+            // 7. Pokaż notyfikację o przerwaniu
+            const message = progressInfo.isSpeedQuiz 
+                ? `Speed Quiz przerwany (${progressInfo.progress})`
+                : `Quiz "${cancelledQuiz.categoryName}" przerwany (${progressInfo.progress})`;
+                
+            if (window.NotificationManager) {
+                NotificationManager.show(message, 'info', 3000);
+            }
             
             return true;
             
         } catch (error) {
             console.error('❌ Błąd podczas przerwania quizu:', error);
+            console.error('📋 Stack trace:', error.stack);
+            
+            // ✨ NOWE: Bardziej defensywne fallback cleaning
+            try {
+                // Force cleanup w przypadku błędu
+                this.stopQuestionTimer();
+                this.hideTimer();
+                
+                // Ukryj wszystkie sekcje quizu
+                ['quiz-container', 'quiz-results', 'quiz-feedback'].forEach(id => {
+                    const element = document.getElementById(id);
+                    if (element) element.style.display = 'none';
+                });
+                
+                // Pokaż selector quizów
+                const quizSelector = document.getElementById('quiz-selector');
+                if (quizSelector) quizSelector.style.display = 'block';
+                
+                console.log('🔧 Emergency cleanup wykonany');
+                
+            } catch (cleanupError) {
+                console.error('💥 Krytyczny błąd podczas emergency cleanup:', cleanupError);
+            }
             
             // Fallback - na siłę przywróć menu quizów
             if (app && typeof app.switchMode === 'function') {
-                app.switchMode('quiz');
+                try {
+                    app.switchMode('quiz');
+                    console.log('🔄 Fallback: przełączono na menu quizów');
+                } catch (switchError) {
+                    console.error('❌ Błąd fallback switchMode:', switchError);
+                }
+            }
+            
+            // Pokaż notyfikację o błędzie
+            if (window.NotificationManager) {
+                NotificationManager.show('Wystąpił błąd podczas przerywania quizu', 'error', 4000);
             }
             
             return false;
@@ -561,7 +646,7 @@ class QuizManager {
             return;
         }
 
-        // ✅ DODAJ: Ukryj feedback z poprzedniego pytania
+        // Ukryj feedback z poprzedniego pytania
         const feedbackEl = document.getElementById('quiz-feedback');
         if (feedbackEl) {
             feedbackEl.style.display = 'none';
@@ -575,6 +660,14 @@ class QuizManager {
 
         // Resetuj interfejs odpowiedzi
         this.resetAnswerInterface();
+
+        // ✨ NOWE: Pokaż i rozpocznij timer dla speed quiz
+        if (this.currentQuiz && this.currentQuiz.isSpeed) {
+            this.showTimer();
+            this.startQuestionTimer(app);
+        } else {
+            this.hideTimer();
+        }
     }
 
     /**
@@ -729,6 +822,199 @@ class QuizManager {
     }
 
     /**
+     * POPRAWKA 4: NOWA METODA - Pokazanie timera
+     */
+    showTimer() {
+        const timerEl = document.getElementById('quiz-timer');
+        if (timerEl) {
+            timerEl.style.display = 'block'; // ✅ Usuń display: none
+            console.log('⏰ Timer został pokazany');
+        }
+    }
+
+    /**
+     * POPRAWKA 5: NOWA METODA - Ukrycie timera
+     */
+    hideTimer() {
+        const timerEl = document.getElementById('quiz-timer');
+        if (timerEl) {
+            timerEl.style.display = 'none';
+            console.log('⏰ Timer został ukryty');
+        }
+    }
+
+    /**
+     * POPRAWKA 6: NOWA METODA - Rozpoczęcie timera pytania
+     */
+    startQuestionTimer(app) {
+        console.log('⏰ Rozpoczynam timer pytania...');
+        
+        // Zatrzymaj poprzedni timer jeśli istnieje
+        this.stopQuestionTimer();
+        
+        // Ustaw czas na podstawie ustawień quizu
+        this.questionTimeLeft = this.currentQuiz.timeLimit || 10;
+        this.questionStartTime = Date.now();
+        this.isTimerActive = true;
+        
+        // Zaktualizuj wyświetlanie
+        this.updateTimerDisplay();
+        
+        // Rozpocznij odliczanie (co 100ms dla płynności)
+        this.questionTimer = setInterval(() => {
+            this.updateTimer(app);
+        }, 100);
+        
+        console.log(`⏰ Timer uruchomiony na ${this.questionTimeLeft} sekund`);
+    }
+
+    /**
+     * POPRAWKA 7: NOWA METODA - Zatrzymanie timera
+     */
+    stopQuestionTimer() {
+        if (this.questionTimer) {
+            clearInterval(this.questionTimer);
+            this.questionTimer = null;
+            this.isTimerActive = false;
+            console.log('⏰ Timer zatrzymany');
+        }
+    }
+
+    /**
+     * POPRAWKA 8: NOWA METODA - Aktualizacja timera
+     */
+    updateTimer(app) {
+        if (!this.isTimerActive) return;
+        
+        const elapsed = (Date.now() - this.questionStartTime) / 1000;
+        this.questionTimeLeft = Math.max(0, this.currentQuiz.timeLimit - elapsed);
+        
+        // Aktualizuj wyświetlanie
+        this.updateTimerDisplay();
+        
+        // Sprawdź czy czas się skończył
+        if (this.questionTimeLeft <= 0) {
+            console.log('⏰ Czas się skończył!');
+            this.onTimerExpired(app);
+        }
+    }
+
+    /**
+     * POPRAWKA 9: NOWA METODA - Aktualizacja wyświetlania timera
+     */
+    updateTimerDisplay() {
+        const timerValueEl = document.getElementById('timer-value');
+        const timerFillEl = document.getElementById('timer-fill');
+        
+        if (timerValueEl) {
+            timerValueEl.textContent = Math.ceil(this.questionTimeLeft);
+        }
+        
+        if (timerFillEl) {
+            const percentage = (this.questionTimeLeft / this.currentQuiz.timeLimit) * 100;
+            timerFillEl.style.width = `${percentage}%`;
+            
+            // Zmień kolor w zależności od pozostałego czasu
+            if (percentage > 50) {
+                timerFillEl.style.background = '#22c55e'; // Zielony
+            } else if (percentage > 25) {
+                timerFillEl.style.background = '#f59e0b'; // Pomarańczowy
+            } else {
+                timerFillEl.style.background = '#ef4444'; // Czerwony
+            }
+        }
+    }
+
+    /**
+     * POPRAWKA 10: NOWA METODA - Obsługa wygaśnięcia timera
+     */
+    onTimerExpired(app) {
+        console.log('🚨 Timer wygasł - automatyczne przejście');
+        
+        // Zatrzymaj timer
+        this.stopQuestionTimer();
+        
+        // Zapisz odpowiedź jako niepoprawną (timeout)
+        const question = this.getCurrentQuestion();
+        if (question) {
+            this.userAnswers.push({
+                question: question,
+                userAnswer: '(brak odpowiedzi - timeout)',
+                correctAnswer: question.correctAnswer || question.polish,
+                isCorrect: false,
+                answerType: 'timeout',
+                timeSpent: this.currentQuiz.timeLimit * 1000 // pełny czas w ms
+            });
+            
+            // Pokaż feedback dla timeout
+            this.showTimeoutFeedback(question, app);
+        }
+    }
+
+    /**
+     * POPRAWKA 11: NOWA METODA - Feedback dla timeout
+     */
+    showTimeoutFeedback(question, app) {
+        const feedbackEl = document.getElementById('quiz-feedback');
+        const iconEl = document.getElementById('feedback-icon');
+        const textEl = document.getElementById('feedback-text');
+        const detailsEl = document.getElementById('feedback-details');
+        const nextBtn = document.getElementById('quiz-next-btn');
+
+        if (!feedbackEl) return;
+
+        // Ustaw klasę CSS dla timeout
+        feedbackEl.className = 'quiz-feedback timeout';
+
+        // Ukryj sekcje odpowiedzi
+        ['multiple-choice-section', 'text-input-section', 'sentence-section'].forEach(id => {
+            const section = document.getElementById(id);
+            if (section) section.style.display = 'none';
+        });
+
+        // Aktualizuj zawartość feedback
+        if (iconEl) iconEl.textContent = '⏰';
+        if (textEl) {
+            textEl.textContent = 'Czas się skończył!';
+            textEl.className = 'feedback-text feedback-timeout';
+        }
+
+        // Szczegóły odpowiedzi
+        if (detailsEl) {
+            detailsEl.innerHTML = `
+                <div class="answer-comparison">
+                    <div class="timeout-message">
+                        <span class="label">Nie zdążyłeś odpowiedzieć na czas</span>
+                    </div>
+                    <div class="correct-answer">
+                        <span class="label">Poprawna odpowiedź:</span>
+                        <span class="value">${question.correctAnswer || question.polish}</span>
+                    </div>
+                </div>
+                <div class="timeout-tip">
+                    💡 Wskazówka: W speed quizu masz tylko ${this.currentQuiz.timeLimit} sekund na odpowiedź!
+                </div>
+            `;
+        }
+
+        // Aktualizuj przycisk następnego pytania
+        if (nextBtn) {
+            nextBtn.textContent = this.isLastQuestion() ? 'Zobacz wyniki' : 'Następne pytanie';
+        }
+
+        // Pokaż feedback
+        feedbackEl.style.display = 'block';
+        
+        // Auto-przejście po 3 sekundach
+        setTimeout(() => {
+            if (nextBtn) {
+                nextBtn.click();
+            }
+        }, 3000);
+    }
+
+
+    /**
      * Wybór odpowiedzi w pytaniu wielokrotnego wyboru
      */
     selectAnswer(answer, optionIndex, app) {
@@ -755,8 +1041,17 @@ class QuizManager {
 
     /**
      * Przesłanie odpowiedzi przez użytkownika
+     * ✅ ZAKTUALIZOWANA WERSJA z obsługą timera Speed Quiz
      */
     submitAnswer(app, answerData = null) {
+        console.log('📝 submitAnswer wywołane', { answerData, isSpeedQuiz: this.currentQuiz?.isSpeed });
+        
+        // ✨ NOWE: Zatrzymaj timer gdy użytkownik odpowie w Speed Quiz
+        if (this.currentQuiz && this.currentQuiz.isSpeed && this.isTimerActive) {
+            console.log('⏰ Zatrzymuję timer po odpowiedzi użytkownika');
+            this.stopQuestionTimer();
+        }
+        
         let userAnswer;
         let answerType;
 
@@ -764,6 +1059,7 @@ class QuizManager {
             // Odpowiedź z multiple choice
             userAnswer = answerData.answer;
             answerType = answerData.type;
+            console.log('🎯 Multiple choice answer:', userAnswer);
         } else {
             // Sprawdź który typ pytania jest aktywny
             const multipleChoiceSection = document.getElementById('multiple-choice-section');
@@ -774,44 +1070,85 @@ class QuizManager {
                 const answerInput = document.getElementById('quiz-answer-input');
                 userAnswer = answerInput ? answerInput.value.trim() : '';
                 answerType = 'text-input';
+                console.log('⌨️ Text input answer:', userAnswer);
             } else if (sentenceSection && sentenceSection.style.display !== 'none') {
                 const sentenceAnswer = document.getElementById('sentence-answer');
                 userAnswer = sentenceAnswer ? sentenceAnswer.value.trim() : '';
                 answerType = 'sentence-translation';
+                console.log('📝 Sentence answer:', userAnswer);
             } else {
+                console.warn('⚠️ No active answer section found');
                 NotificationManager.show('Wybierz odpowiedź', 'error');
                 return;
             }
         }
 
         if (!userAnswer) {
+            console.warn('⚠️ Empty answer provided');
             NotificationManager.show('Wpisz odpowiedź', 'error');
             return;
         }
 
         const question = this.getCurrentQuestion();
-        if (!question) return;
+        if (!question) {
+            console.error('❌ No current question available');
+            return;
+        }
+
+        // ✨ NOWE: Oblicz czas odpowiedzi (użyteczne dla statystyk)
+        const responseTime = this.questionStartTime ? Date.now() - this.questionStartTime : 0;
+        const responseTimeSeconds = Math.round(responseTime / 1000 * 10) / 10; // Zaokrąglij do 0.1s
+        
+        console.log(`⏱️ Czas odpowiedzi: ${responseTimeSeconds}s`);
 
         // Sprawdź poprawność odpowiedzi
         const result = this.checkAnswer(userAnswer, question, answerType);
         
-        // Zapisz odpowiedź użytkownika
-        this.userAnswers.push({
+        console.log('🔍 Answer check result:', {
+            isCorrect: result.isCorrect,
+            userAnswer: result.userAnswer,
+            correctAnswer: result.correctAnswer
+        });
+        
+        // ✨ ZAKTUALIZOWANE: Zapisz odpowiedź użytkownika z dodatkowymi informacjami
+        const answerRecord = {
             question: question,
             userAnswer: userAnswer,
             correctAnswer: result.correctAnswer,
             isCorrect: result.isCorrect,
             answerType: answerType,
-            timeSpent: Date.now() - (this.questionStartTime || Date.now())
-        });
+            timeSpent: responseTime,
+            responseTimeSeconds: responseTimeSeconds, // ✨ NOWE: Czas w sekundach dla czytelności
+            isSpeedQuiz: this.currentQuiz?.isSpeed || false, // ✨ NOWE: Czy to był speed quiz
+            remainingTime: this.currentQuiz?.isSpeed ? this.questionTimeLeft : null // ✨ NOWE: Pozostały czas przy odpowiedzi
+        };
+        
+        this.userAnswers.push(answerRecord);
 
         if (result.isCorrect) {
             this.score++;
+            console.log(`✅ Correct answer! Score: ${this.score}/${this.userAnswers.length}`);
+        } else {
+            console.log(`❌ Incorrect answer. Score: ${this.score}/${this.userAnswers.length}`);
+        }
+
+        // ✨ NOWE: Dodaj informację o szybkości odpowiedzi do feedback (dla Speed Quiz)
+        if (this.currentQuiz && this.currentQuiz.isSpeed) {
+            result.speedInfo = {
+                responseTime: responseTimeSeconds,
+                remainingTime: Math.max(0, this.questionTimeLeft),
+                wasQuick: responseTimeSeconds < (this.currentQuiz.timeLimit * 0.5) // Szybka odpowiedź = mniej niż połowa czasu
+            };
+            
+            console.log('🚀 Speed Quiz info:', result.speedInfo);
         }
 
         // Pokaż feedback
         this.showQuestionFeedback(result, app);
+        
+        console.log('📊 Answer submitted successfully');
     }
+
 
     /**
      * Przesłanie odpowiedzi zdaniowej
@@ -1017,13 +1354,16 @@ class QuizManager {
      * Przejście do następnego pytania
      */
     nextQuestion(app) {
-        // ✅ DODAJ: Ukryj feedback przed przejściem
+        // Ukryj feedback przed przejściem
         const feedbackEl = document.getElementById('quiz-feedback');
         if (feedbackEl) {
             feedbackEl.style.display = 'none';
         }
 
         if (this.isLastQuestion()) {
+            // ✨ NOWE: Zatrzymaj timer przed pokazaniem wyników
+            this.stopQuestionTimer();
+            this.hideTimer();
             this.showQuizResults(app);
         } else {
             this.currentQuestionIndex++;
@@ -1031,6 +1371,7 @@ class QuizManager {
             this.displayCurrentQuestion(app);
         }
     }
+
 
     /**
      * Pokazanie wyników quizu
@@ -1084,13 +1425,6 @@ class QuizManager {
         };
 
         return results;
-    }
-
-    displayAudioQuestion(question) {
-        // Odtwórz słowo i pozwól user wybrać odpowiedź
-        if (app.managers.audio && question.english) {
-            app.managers.audio.playAudio(question.english);
-        }
     }
 
     /**
@@ -1992,14 +2326,20 @@ class QuizManager {
     }
 
     cleanup() {
-        // NIE wywołuj this.reset() tutaj! Resetowanie usuwa dane z localStorage
-        // i powinno być wykonywane tylko na jawne żądanie użytkownika.
-        // this.reset(); // <-- USUWAMY TĘ LINIĘ
-
-        // Czyszczenie stanu w pamięci jest w porządku.
+        // ✨ NOWE: Zatrzymaj timer przy czyszczeniu
+        this.stopQuestionTimer();
+        
+        // Czyszczenie stanu w pamięci
         this.vocabulary = null;
         this.currentQuiz = null;
         this.allResults = {};
+        
+        // ✨ NOWE: Wyczyść właściwości timera
+        this.questionTimer = null;
+        this.questionTimeLeft = 0;
+        this.questionStartTime = null;
+        this.isTimerActive = false;
+        
         console.log('🧹 QuizManager cleanup: Wyczyściłem stan w pamięci (bez usuwania localStorage).');
     }
 }

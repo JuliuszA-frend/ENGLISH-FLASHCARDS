@@ -1331,7 +1331,7 @@ textarea:focus-visible {
   color: var(--white);
   font-size: var(--font-size-xl);
   font-weight: var(--font-weight-bold);
-  margin-bottom: var(--spacing-6);
+  margin: var(--spacing-4) 0;
   text-align: center;
 }
 
