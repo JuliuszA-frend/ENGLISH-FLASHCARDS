@@ -17,9 +17,9 @@ class EnglishFlashcardsApp {
             vocabulary: null,
             categories: null,
             settings: null,
-            bookmarksOnlyMode: false, // ✨ NOWE: Stan trybu ulubionych
-            bookmarkedWordsQueue: [], // ✨ NOWE: Kolejka ulubionych słów do nauki
-            bookmarksQueueIndex: 0,   // ✨ NOWE: Indeks w kolejce ulubionych
+            bookmarksOnlyMode: false,
+            bookmarkedWordsQueue: [],
+            bookmarksQueueIndex: 0,
             bookmarksController: null
         };
         this.selectedCategories = new Set();
@@ -55,68 +55,149 @@ class EnglishFlashcardsApp {
     }
 
     /**
-     * Inicjalizacja menedżerów - POPRAWIONA WERSJA
+     * 🔄 ZAKTUALIZOWANA METODA: Inicjalizacja menedżerów z modularnym QuizManager
      */
     async initializeManagers() {
-        // ThemeManager - sprawdź czy już istnieje instancja, jeśli nie - utwórz
-        if (window.themeManagerInstance) {
-            this.managers.theme = window.themeManagerInstance;
-            console.log('✅ Używam istniejącej instancji ThemeManager');
-        } else {
-            this.managers.theme = new ThemeManager();
-            this.managers.theme.init();
-            console.log('✅ Utworzono nową instancję ThemeManager');
-        }
-
-        // Ładowanie danych
-        this.managers.dataLoader = new DataLoader();
+        console.group('🏗️ Inicjalizacja menedżerów aplikacji');
         
-        // Menedżer postępu
-        this.managers.progress = new ProgressManager();
-        
-        // AUDIO MANAGER - WAŻNE: inicjalizuj przed FlashcardManager
-        console.log('🔊 Inicjalizuję AudioManager...');
-        this.managers.audio = new AudioManager();
-
-        // Test audio po inicjalizacji
-        setTimeout(async () => {
-            const testResults = await this.managers.audio.testAudio();
-            console.log('🧪 Wyniki testów audio:', testResults);
-            
-            const workingMethods = Object.entries(testResults)
-                .filter(([_, works]) => works)
-                .map(([method, _]) => method);
-                
-            if (workingMethods.length > 0) {
-                console.log(`✅ Działające metody audio: ${workingMethods.join(', ')}`);
+        try {
+            // ThemeManager - sprawdź czy już istnieje instancja, jeśli nie - utwórz
+            if (window.themeManagerInstance) {
+                this.managers.theme = window.themeManagerInstance;
+                console.log('✅ Używam istniejącej instancji ThemeManager');
             } else {
-                console.warn('⚠️ Żadna metoda audio nie działa - sprawdź ustawienia przeglądarki');
+                this.managers.theme = new ThemeManager();
+                this.managers.theme.init();
+                console.log('✅ Utworzono nową instancję ThemeManager');
             }
-        }, 2000);
-        
-        // Menedżer obrazków
-        this.managers.image = new ImageManager();
-        
-        // Menedżer fiszek
-        this.managers.flashcard = new FlashcardManager();
-        this.managers.flashcard.setManagers(this.managers.image, this.managers.audio);
-        
-        // Menedżer quizów
-        this.managers.quiz = new QuizManager();
-        
-        console.log('🔖 Inicjalizuję BookmarksController...');
 
-        // Sprawdź czy BookmarksController jest dostępny
-        if (typeof BookmarksController !== 'undefined') {
-            this.bookmarksController = new BookmarksController(this);
-            console.log('✅ BookmarksController zainicjalizowany');
-        } else {
-            console.warn('⚠️ BookmarksController nie jest dostępny');
+            // Ładowanie danych
+            console.log('📚 Inicjalizuję DataLoader...');
+            this.managers.dataLoader = new DataLoader();
+            
+            // Menedżer postępu
+            console.log('📊 Inicjalizuję ProgressManager...');
+            this.managers.progress = new ProgressManager();
+            
+            // AUDIO MANAGER - inicjalizuj przed FlashcardManager
+            console.log('🔊 Inicjalizuję AudioManager...');
+            this.managers.audio = new AudioManager();
+
+            // Test audio po inicjalizacji
+            setTimeout(async () => {
+                const testResults = await this.managers.audio.testAudio();
+                console.log('🧪 Wyniki testów audio:', testResults);
+                
+                const workingMethods = Object.entries(testResults)
+                    .filter(([_, works]) => works)
+                    .map(([method, _]) => method);
+                    
+                if (workingMethods.length > 0) {
+                    console.log(`✅ Działające metody audio: ${workingMethods.join(', ')}`);
+                } else {
+                    console.warn('⚠️ Żadna metoda audio nie działa - sprawdź ustawienia przeglądarki');
+                }
+            }, 2000);
+            
+            // Menedżer obrazków
+            console.log('🖼️ Inicjalizuję ImageManager...');
+            this.managers.image = new ImageManager();
+            
+            // Menedżer fiszek
+            console.log('📇 Inicjalizuję FlashcardManager...');
+            this.managers.flashcard = new FlashcardManager();
+            this.managers.flashcard.setManagers(this.managers.image, this.managers.audio);
+            
+            // 🎯 NOWY MODULARNY QUIZ MANAGER
+            console.log('🎯 Inicjalizuję modularny QuizManager...');
+            await this.initializeModularQuizManager();
+            
+            // BookmarksController
+            console.log('🔖 Inicjalizuję BookmarksController...');
+            if (typeof BookmarksController !== 'undefined') {
+                this.bookmarksController = new BookmarksController(this);
+                console.log('✅ BookmarksController zainicjalizowany');
+            } else {
+                console.warn('⚠️ BookmarksController nie jest dostępny');
+            }
+            
+            console.log('✅ Wszystkie menedżery zainicjalizowane');
+            console.groupEnd();
+            
+        } catch (error) {
+            console.error('❌ Błąd inicjalizacji menedżerów:', error);
+            console.groupEnd();
+            throw error;
         }
-        console.log('✅ Wszystkie menedżery zainicjalizowane');
-
-        
     }
+
+    /**
+     * 🎯 NOWA METODA: Inicjalizacja modularnego QuizManager
+     */
+    async initializeModularQuizManager() {
+        try {
+            console.log('🔄 Sprawdzam dostępność modułów quizu...');
+            
+            // Sprawdź czy QuizLoader jest dostępny
+            if (typeof loadQuizManager === 'undefined') {
+                console.error('❌ QuizLoader nie jest dostępny - używam fallback');
+                this.initializeFallbackQuizManager();
+                return;
+            }
+            
+            // Użyj QuizLoader do załadowania modularnego QuizManager
+            console.log('📦 Ładuję modularny QuizManager...');
+            this.managers.quiz = await loadQuizManager();
+            
+            console.log('✅ Modularny QuizManager załadowany pomyślnie');
+            
+            // Sprawdź czy wszystkie moduły są dostępne
+            if (typeof window.checkQuizModules === 'function') {
+                const diagnostics = window.checkQuizModules();
+                if (!diagnostics.loadingStatus.complete) {
+                    console.warn('⚠️ Niektóre moduły quizu nie są w pełni załadowane');
+                }
+            }
+            
+        } catch (error) {
+            console.error('❌ Błąd ładowania modularnego QuizManager:', error);
+            console.log('🔄 Przełączam na fallback QuizManager...');
+            this.initializeFallbackQuizManager();
+        }
+    }
+
+
+    /**
+     * 🔄 FALLBACK: Inicjalizacja tradycyjnego QuizManager
+     */
+    initializeFallbackQuizManager() {
+        try {
+            console.log('🔄 Inicjalizuję fallback QuizManager...');
+            
+            // Sprawdź czy klasa QuizManager jest dostępna (stara wersja)
+            if (typeof QuizManager !== 'undefined') {
+                this.managers.quiz = new QuizManager();
+                console.log('✅ Fallback QuizManager zainicjalizowany');
+            } else {
+                console.error('❌ Brak dostępnej implementacji QuizManager');
+                this.managers.quiz = null;
+                
+                // Pokaż ostrzeżenie użytkownikowi
+                setTimeout(() => {
+                    NotificationManager.show(
+                        'Moduł quizów nie jest dostępny. Niektóre funkcje mogą nie działać.', 
+                        'warning', 
+                        5000
+                    );
+                }, 3000);
+            }
+            
+        } catch (error) {
+            console.error('❌ Błąd inicjalizacji fallback QuizManager:', error);
+            this.managers.quiz = null;
+        }
+    }
+
 
     /**
      * Ładowanie danych słownictwa
@@ -137,8 +218,15 @@ class EnglishFlashcardsApp {
             
             // Przekazanie danych do menedżerów
             this.managers.flashcard.setVocabulary(this.state.vocabulary);
-            this.managers.quiz.setVocabulary(this.state.vocabulary);
             this.managers.progress.setVocabulary(this.state.vocabulary);
+            
+            // 🎯 PRZEKAZANIE DANYCH DO MODULARNEGO QUIZ MANAGER
+            if (this.managers.quiz && typeof this.managers.quiz.setVocabulary === 'function') {
+                this.managers.quiz.setVocabulary(this.state.vocabulary);
+                console.log('✅ Słownictwo przekazane do modularnego QuizManager');
+            } else {
+                console.warn('⚠️ QuizManager nie jest dostępny lub nie ma metody setVocabulary');
+            }
             
         } catch (error) {
             console.error('Błąd ładowania danych:', error);
@@ -438,63 +526,59 @@ class EnglishFlashcardsApp {
     }
 
     /**
-     * ✨ NOWA METODA: Przerwanie bieżącego quizu
+     * Przerwanie quizu
      */
     cancelQuiz() {
         console.log('🚫 Użytkownik chce przerwać quiz');
         
-        // Sprawdź czy quiz jest aktywny
-        if (!this.managers.quiz || !this.managers.quiz.currentQuiz) {
-            console.warn('⚠️ Brak aktywnego quizu do przerwania');
-            NotificationManager.show('Brak aktywnego quizu', 'info');
+        if (!this.managers.quiz) {
+            NotificationManager.show('Moduł quizów nie jest dostępny', 'error');
             return;
         }
         
-        const currentQuiz = this.managers.quiz.currentQuiz;
-        const currentQuestion = this.managers.quiz.currentQuestionIndex + 1;
-        const totalQuestions = this.managers.quiz.currentQuestions.length;
-        const currentScore = this.managers.quiz.score;
-        
-        // Przygotuj informacje o bieżącym postępie
-        const progressInfo = `
-            Quiz: ${currentQuiz.categoryName}
-            Pytanie: ${currentQuestion}/${totalQuestions}
-            Aktualny wynik: ${currentScore}/${currentQuestion - 1}
-        `;
-        
-        console.log('📊 Postęp quizu:', progressInfo);
-        
-        // Pokaż ostrzeżenie z informacją o utracie postępu
-        const confirmMessage = `
-    🚫 Czy na pewno chcesz przerwać quiz?
-
-    📋 Bieżący postęp:
-    - Quiz: ${currentQuiz.categoryName}
-    - Pytanie: ${currentQuestion} z ${totalQuestions}
-    - Wynik: ${currentScore}/${currentQuestion - 1}
-
-    ⚠️ UWAGA: Cały postęp zostanie utracony!
-    Quiz nie zostanie zapisany.
-
-    Czy chcesz kontynuować?`;
-
-        if (confirm(confirmMessage.trim())) {
-            console.log('✅ Użytkownik potwierdził przerwanie quizu');
+        try {
+            // Sprawdź czy quiz jest aktywny
+            if (!this.managers.quiz.currentQuiz) {
+                console.warn('⚠️ Brak aktywnego quizu do przerwania');
+                NotificationManager.show('Brak aktywnego quizu', 'info');
+                return;
+            }
             
-            // Przerwij quiz
-            this.managers.quiz.cancelQuiz(this);
+            // Pokaż potwierdzenie
+            const currentQuiz = this.managers.quiz.currentQuiz;
+            const confirmMessage = `
+🚫 Czy na pewno chcesz przerwać quiz "${currentQuiz.categoryName}"?
+
+⚠️ UWAGA: Cały postęp zostanie utracony!
+Quiz nie zostanie zapisany.
+
+Czy chcesz kontynuować?`;
+
+            if (confirm(confirmMessage.trim())) {
+                console.log('✅ Użytkownik potwierdził przerwanie quizu');
+                
+                // Przerwij quiz
+                const success = this.managers.quiz.cancelQuiz(this);
+                
+                if (success) {
+                    NotificationManager.show(
+                        `Quiz "${currentQuiz.categoryName}" został przerwany`, 
+                        'info', 
+                        3000
+                    );
+                } else {
+                    NotificationManager.show('Wystąpił błąd podczas przerywania quizu', 'error');
+                }
+                
+                console.log('🔄 Quiz przerwany - powrót do menu');
+            } else {
+                console.log('❌ Użytkownik anulował przerwanie quizu');
+                NotificationManager.show('Quiz kontynuowany', 'info', 2000);
+            }
             
-            // Pokaż notyfikację
-            NotificationManager.show(
-                `Quiz "${currentQuiz.categoryName}" został przerwany`, 
-                'info', 
-                3000
-            );
-            
-            console.log('🔄 Quiz przerwany - powrót do menu');
-        } else {
-            console.log('❌ Użytkownik anulował przerwanie quizu');
-            NotificationManager.show('Quiz kontynuowany', 'info', 2000);
+        } catch (error) {
+            console.error('❌ Błąd przerwania quizu:', error);
+            NotificationManager.show('Błąd przerwania quizu', 'error');
         }
     }
     
@@ -2149,98 +2233,264 @@ class EnglishFlashcardsApp {
     /**
      * Metody quizów - placeholder dla implementacji w QuizManager
      */
+    /**
+     * Rozpoczęcie quizu kategorii
+     */
     startCategoryQuiz(category) {
-        this.managers.quiz.startCategoryQuiz(category, this);
+        if (!this.managers.quiz) {
+            NotificationManager.show('Moduł quizów nie jest dostępny', 'error');
+            return false;
+        }
+        
+        try {
+            return this.managers.quiz.startCategoryQuiz(category, this);
+        } catch (error) {
+            console.error('❌ Błąd uruchamiania quizu kategorii:', error);
+            NotificationManager.show('Błąd uruchamiania quizu', 'error');
+            return false;
+        }
     }
 
+    /**
+     * Rozpoczęcie losowego quizu
+     */
     startRandomQuiz() {
-        this.managers.quiz.startRandomQuiz(this);
+        if (!this.managers.quiz) {
+            NotificationManager.show('Moduł quizów nie jest dostępny', 'error');
+            return false;
+        }
+        
+        try {
+            return this.managers.quiz.startRandomQuiz(this);
+        } catch (error) {
+            console.error('❌ Błąd uruchamiania losowego quizu:', error);
+            NotificationManager.show('Błąd uruchamiania quizu', 'error');
+            return false;
+        }
     }
 
     startDifficultWordsQuiz() {
         this.managers.quiz.startDifficultWordsQuiz(this);
     }
 
+    /**
+     * Quiz końcowy
+     */
     startFinalQuiz() {
-        this.managers.quiz.startFinalQuiz(this);
-    }
-
-    submitQuizAnswer() {
-        this.managers.quiz.submitAnswer(this);
-    }
-
-    submitSentenceAnswer() {
-        this.managers.quiz.submitSentenceAnswer(this);
-    }
-
-    nextQuizQuestion() {
-        this.managers.quiz.nextQuestion(this);
-    }
-
-    retryQuiz() {
-        this.managers.quiz.retryCurrentQuiz(this);
-    }
-
-    continueAfterQuiz() {
-        this.managers.quiz.continueAfterQuiz(this);
+        if (!this.managers.quiz) {
+            NotificationManager.show('Moduł quizów nie jest dostępny', 'error');
+            return false;
+        }
+        
+        try {
+            return this.managers.quiz.startFinalQuiz(this);
+        } catch (error) {
+            console.error('❌ Błąd uruchamiania quizu końcowego:', error);
+            NotificationManager.show('Błąd uruchamiania quizu', 'error');
+            return false;
+        }
     }
 
     /**
-     * ✨ NOWA METODA: Quiz trudnych słów
+     * Przesyłanie odpowiedzi w quizie
+     */
+    submitQuizAnswer() {
+        if (!this.managers.quiz) {
+            NotificationManager.show('Moduł quizów nie jest dostępny', 'error');
+            return;
+        }
+        
+        try {
+            this.managers.quiz.submitAnswer(this);
+        } catch (error) {
+            console.error('❌ Błąd przesyłania odpowiedzi:', error);
+            NotificationManager.show('Błąd przesyłania odpowiedzi', 'error');
+        }
+    }
+
+    /**
+     * Przesyłanie odpowiedzi zdaniowej
+     */
+    submitSentenceAnswer() {
+        if (!this.managers.quiz) {
+            NotificationManager.show('Moduł quizów nie jest dostępny', 'error');
+            return;
+        }
+        
+        try {
+            this.managers.quiz.submitSentenceAnswer(this);
+        } catch (error) {
+            console.error('❌ Błąd przesyłania odpowiedzi zdaniowej:', error);
+            NotificationManager.show('Błąd przesyłania odpowiedzi', 'error');
+        }
+    }
+
+    /**
+     * Następne pytanie w quizie
+     */
+    nextQuizQuestion() {
+        if (!this.managers.quiz) {
+            NotificationManager.show('Moduł quizów nie jest dostępny', 'error');
+            return;
+        }
+        
+        try {
+            this.managers.quiz.nextQuestion(this);
+        } catch (error) {
+            console.error('❌ Błąd przejścia do następnego pytania:', error);
+            NotificationManager.show('Błąd przejścia do następnego pytania', 'error');
+        }
+    }
+
+    /**
+     * Powtórzenie quizu
+     */
+    retryQuiz() {
+        if (!this.managers.quiz) {
+            NotificationManager.show('Moduł quizów nie jest dostępny', 'error');
+            return;
+        }
+        
+        try {
+            this.managers.quiz.retryCurrentQuiz(this);
+        } catch (error) {
+            console.error('❌ Błąd powtarzania quizu:', error);
+            NotificationManager.show('Błąd powtarzania quizu', 'error');
+        }
+    }
+
+
+    /**
+     * Kontynuacja po quizie
+     */
+    continueAfterQuiz() {
+        if (!this.managers.quiz) {
+            console.warn('⚠️ QuizManager nie jest dostępny dla continueAfterQuiz');
+            // Fallback - przełącz na tryb fiszek
+            this.switchMode('flashcards');
+            return;
+        }
+        
+        try {
+            this.managers.quiz.continueAfterQuiz(this);
+        } catch (error) {
+            console.error('❌ Błąd kontynuacji po quizie:', error);
+            // Fallback - przełącz na tryb fiszek
+            this.switchMode('flashcards');
+        }
+    }
+
+    /**
+     * Quiz trudnych słów
      */
     startHardWordsQuiz() {
-        if (!this.managers.quiz.startHardWordsQuiz(this)) {
-            console.error('❌ Nie udało się uruchomić quiz trudnych słów');
+        if (!this.managers.quiz) {
+            NotificationManager.show('Moduł quizów nie jest dostępny', 'error');
+            return false;
+        }
+        
+        try {
+            return this.managers.quiz.startHardWordsQuiz(this);
+        } catch (error) {
+            console.error('❌ Błąd uruchamiania quiz trudnych słów:', error);
+            NotificationManager.show('Błąd uruchamiania quizu', 'error');
+            return false;
         }
     }
 
     /**
-     * ✨ NOWA METODA: Quiz łatwych słów  
+     * Quiz łatwych słów  
      */
     startEasyWordsQuiz() {
-        if (!this.managers.quiz.startEasyWordsQuiz(this)) {
-            console.error('❌ Nie udało się uruchomić quiz łatwych słów');
+        if (!this.managers.quiz) {
+            NotificationManager.show('Moduł quizów nie jest dostępny', 'error');
+            return false;
+        }
+        
+        try {
+            return this.managers.quiz.startEasyWordsQuiz(this);
+        } catch (error) {
+            console.error('❌ Błąd uruchamiania quiz łatwych słów:', error);
+            NotificationManager.show('Błąd uruchamiania quizu', 'error');
+            return false;
         }
     }
 
     /**
-     * ✨ NOWA METODA: Quiz progresywny
+     * Quiz progresywny
      */
     startProgressiveQuiz() {
-        if (!this.managers.quiz.startProgressiveQuiz(this)) {
-            console.error('❌ Nie udało się uruchomić quiz progresywny');
+        if (!this.managers.quiz) {
+            NotificationManager.show('Moduł quizów nie jest dostępny', 'error');
+            return false;
+        }
+        
+        try {
+            return this.managers.quiz.startProgressiveQuiz(this);
+        } catch (error) {
+            console.error('❌ Błąd uruchamiania quiz progresywny:', error);
+            NotificationManager.show('Błąd uruchamiania quizu', 'error');
+            return false;
         }
     }
 
     /**
-     * ✨ NOWA METODA: Quiz adaptacyjny
+     * Quiz adaptacyjny
      */
     startAdaptiveQuiz() {
-        if (!this.managers.quiz.startAdaptiveQuiz(this)) {
-            console.error('❌ Nie udało się uruchomić quiz adaptacyjny');
+        if (!this.managers.quiz) {
+            NotificationManager.show('Moduł quizów nie jest dostępny', 'error');
+            return false;
+        }
+        
+        try {
+            return this.managers.quiz.startAdaptiveQuiz(this);
+        } catch (error) {
+            console.error('❌ Błąd uruchamiania quiz adaptacyjny:', error);
+            NotificationManager.show('Błąd uruchamiania quizu', 'error');
+            return false;
         }
     }
 
+
     /**
-     * ✨ NOWA METODA: Quiz z słów do powtórki
+     * Quiz z powtórek
      */
     startBookmarksQuiz() {
-        if (!this.managers.quiz.startBookmarksQuiz(this)) {
-            console.error('❌ Nie udało się uruchomić quiz z powtórek');
+        if (!this.managers.quiz) {
+            NotificationManager.show('Moduł quizów nie jest dostępny', 'error');
+            return false;
+        }
+        
+        try {
+            return this.managers.quiz.startBookmarksQuiz(this);
+        } catch (error) {
+            console.error('❌ Błąd uruchamiania quiz z powtórek:', error);
+            NotificationManager.show('Błąd uruchamiania quizu', 'error');
+            return false;
         }
     }
 
     /**
-     * ✨ NOWA METODA: Quiz szybki
+     * Quiz szybki
      */
     startSpeedQuiz() {
-        if (!this.managers.quiz.startSpeedQuiz(this)) {
-            console.error('❌ Nie udało się uruchomić quiz szybki');
+        if (!this.managers.quiz) {
+            NotificationManager.show('Moduł quizów nie jest dostępny', 'error');
+            return false;
+        }
+        
+        try {
+            return this.managers.quiz.startSpeedQuiz(this);
+        } catch (error) {
+            console.error('❌ Błąd uruchamiania speed quizu:', error);
+            NotificationManager.show('Błąd uruchamiania quizu', 'error');
+            return false;
         }
     }
 
     /**
-     * ✨ NOWA METODA: Quiz mieszany z wyborem kategorii
+     * Quiz mieszany z wyborem kategorii
      */
     startMixedQuiz() {
         console.log('🎯 Uruchamiam modal wyboru kategorii...');
@@ -2539,12 +2789,17 @@ class EnglishFlashcardsApp {
     }
 
     /**
-     * ✨ NOWA METODA: Uruchomienie quizu z wybranych kategorii
+     * Uruchomienie quizu z wybranych kategorii
      */
     startSelectedCategoriesQuiz() {
         if (!this.selectedCategories || this.selectedCategories.size < 2) {
             NotificationManager.show('Wybierz co najmniej 2 kategorie', 'warning');
             return;
+        }
+        
+        if (!this.managers.quiz) {
+            NotificationManager.show('Moduł quizów nie jest dostępny', 'error');
+            return false;
         }
         
         const selectedArray = Array.from(this.selectedCategories);
@@ -2553,21 +2808,30 @@ class EnglishFlashcardsApp {
         // Zamknij modal
         this.closeCategorySelectionModal();
         
-        // Uruchom quiz przez QuizManager
-        const success = this.managers.quiz.startMixedCategoriesQuiz(selectedArray, this);
-        
-        if (success) {
-            const categoryNames = selectedArray.map(key => 
-                this.state.vocabulary.categories[key].name
-            ).join(', ');
+        try {
+            // Uruchom quiz przez modularny QuizManager
+            const success = this.managers.quiz.startMixedCategoriesQuiz(selectedArray, this);
             
-            NotificationManager.show(
-                `🎯 Quiz mieszany z kategorii: ${categoryNames}`, 
-                'success', 
-                4000
-            );
-        } else {
-            NotificationManager.show('Nie udało się uruchomić quiz mieszany', 'error');
+            if (success) {
+                const categoryNames = selectedArray.map(key => 
+                    this.state.vocabulary.categories[key].name
+                ).join(', ');
+                
+                NotificationManager.show(
+                    `🎯 Quiz mieszany z kategorii: ${categoryNames}`, 
+                    'success', 
+                    4000
+                );
+            } else {
+                NotificationManager.show('Nie udało się uruchomić quiz mieszany', 'error');
+            }
+            
+            return success;
+            
+        } catch (error) {
+            console.error('❌ Błąd uruchamiania quiz mieszany:', error);
+            NotificationManager.show('Błąd uruchamiania quizu', 'error');
+            return false;
         }
     }
 
@@ -2698,7 +2962,7 @@ class EnglishFlashcardsApp {
     }
 
     /**
-     * Czyszczenie zasobów przed zamknięciem
+     * Cleanup aplikacji
      */
     cleanup() {
         // Czyszczenie nasłuchiwaczy zdarzeń
@@ -2715,22 +2979,26 @@ class EnglishFlashcardsApp {
         // Czyszczenie menedżerów
         Object.values(this.managers).forEach(manager => {
             if (manager && typeof manager.cleanup === 'function') {
-                manager.cleanup();
+                try {
+                    manager.cleanup();
+                } catch (error) {
+                    console.warn('⚠️ Błąd cleanup menedżera:', error);
+                }
             }
         });
 
-        // ✨ NOWE: Cleanup bookmarks controller
+        // Cleanup bookmarks controller
         if (this.bookmarksController) {
-            // BookmarksController nie ma jeszcze metody cleanup, ale gdyby miał:
-            // this.bookmarksController.cleanup();
             this.bookmarksController = null;
         }
         
-        // 🗑️ Usuń wskaźnik trybu ulubionych
+        // Usuń wskaźnik trybu ulubionych
         const indicator = document.getElementById('bookmarks-mode-indicator');
         if (indicator) {
             indicator.remove();
         }
+        
+        console.log('🧹 Aplikacja wyczyszczona');
     }
 
     // 3. NOWA METODA: setupAudioListeners()
@@ -2768,6 +3036,28 @@ class EnglishFlashcardsApp {
             }
         });
     }
+
+    /**
+     * 🔍 NOWA METODA: Diagnostyka modułów quizu
+     */
+    checkQuizModulesStatus() {
+        console.group('🔍 Status modułów quizu w aplikacji');
+        
+        const status = {
+            quizManagerAvailable: !!this.managers.quiz,
+            quizManagerType: this.managers.quiz ? this.managers.quiz.constructor.name : 'none',
+            hasSetVocabulary: this.managers.quiz && typeof this.managers.quiz.setVocabulary === 'function',
+            vocabularySet: !!this.state.vocabulary,
+            globalQuizLoader: typeof loadQuizManager !== 'undefined',
+            modulesCheck: typeof window.checkQuizModules === 'function' ? window.checkQuizModules() : null
+        };
+        
+        console.table(status);
+        console.groupEnd();
+        
+        return status;
+    }
+
 
     // 4. NOWA METODA: playCurrentWordAudio()
     async playCurrentWordAudio() {
@@ -2891,6 +3181,16 @@ class EnglishFlashcardsApp {
 // Inicjalizacja aplikacji po załadowaniu DOM
 document.addEventListener('DOMContentLoaded', () => {
     window.englishFlashcardsApp = new EnglishFlashcardsApp();
+    
+    // Debug tools
+    window.checkAppQuizStatus = () => {
+        if (window.englishFlashcardsApp) {
+            return window.englishFlashcardsApp.checkQuizModulesStatus();
+        } else {
+            console.error('❌ Aplikacja nie jest zainicjalizowana');
+            return null;
+        }
+    };
 });
 
 // Cleanup przed zamknięciem strony
@@ -2904,6 +3204,9 @@ window.addEventListener('beforeunload', () => {
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = EnglishFlashcardsApp;
 }
+
+console.log('✅ EnglishFlashcardsApp załadowana z modularnym QuizManager');
+console.log('💡 Użyj window.checkAppQuizStatus() aby sprawdzić status quizów w aplikacji');
 
 /**
  * DEBUG TOOLS dla systemu trudności
