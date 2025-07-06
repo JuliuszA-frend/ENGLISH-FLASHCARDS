@@ -7,6 +7,7 @@
  */
 import { FlashcardManager } from './modules/flashcard/index.js';
 import { ImageManager } from './modules/image/index.js';
+import { BookmarksController } from './modules/bookmarks/index.js';
 
 class EnglishFlashcardsApp {
     constructor() {
@@ -114,13 +115,27 @@ class EnglishFlashcardsApp {
             console.log('🎯 Inicjalizuję modularny QuizManager...');
             await this.initializeModularQuizManager();
             
-            // BookmarksController
-            console.log('🔖 Inicjalizuję BookmarksController...');
-            if (typeof BookmarksController !== 'undefined') {
+            // Modularny Bookmarks Manager
+            console.log('🔖 Inicjalizuję modularny BookmarksController...');
+            try {
                 this.bookmarksController = new BookmarksController(this);
-                console.log('✅ BookmarksController zainicjalizowany');
-            } else {
-                console.warn('⚠️ BookmarksController nie jest dostępny');
+                await this.bookmarksController.init();
+                console.log('✅ Modularny BookmarksController zainicjalizowany');
+            } catch (error) {
+                console.error('❌ Błąd inicjalizacji modularnego BookmarksController:', error);
+                
+                // 🔄 Fallback do starej wersji jeśli jest dostępna (opcjonalne)
+                if (typeof window.BookmarksController !== 'undefined') {
+                    console.log('🔄 Używam fallback BookmarksController...');
+                    this.bookmarksController = new window.BookmarksController(this);
+                    // Dodaj metodę init jeśli nie istnieje w starej wersji
+                    if (typeof this.bookmarksController.init === 'function') {
+                        this.bookmarksController.init();
+                    }
+                } else {
+                    // Jeśli zupełnie brak bookmarks, stwórz mock
+                    this.bookmarksController = this.createMockBookmarksController();
+                }
             }
             
             console.log('✅ Wszystkie menedżery zainicjalizowane');
