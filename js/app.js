@@ -6,6 +6,8 @@
  * @author English Learning App
  */
 import { FlashcardManager } from './modules/flashcard/index.js';
+import { ImageManager } from './modules/image-manager.js';
+
 class EnglishFlashcardsApp {
     constructor() {
         this.state = {

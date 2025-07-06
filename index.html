@@ -714,9 +714,9 @@
     <script src="js/utils/notification-manager.js"></script>
     
     <!-- 4. POZOSTAŁE MANAGER MODULES - W KOLEJNOŚCI ZALEŻNOŚCI -->
+    
     <script src="js/modules/data-loader.js"></script>
     <script src="js/modules/audio-manager.js"></script>
-    
     <script src="js/modules/progress-manager.js"></script>
     
     <script src="js/modules/quiz/quiz-timer.js"></script>
@@ -734,7 +734,7 @@
     <!-- 6. MAIN APPLICATION - Główna aplikacja -->
     <script type="module" src="js/app.js"></script>
 
-    <!-- Service Worker Registration - TYLKO DLA HTTP/HTTPS -->
+    <!-- Service Worker Registration - TYLKO DLA HTTP/HTTPS 
     <script>
         if ('serviceWorker' in navigator && window.location.protocol !== 'file:') {
             window.addEventListener('load', async () => {
@@ -761,6 +761,6 @@
                 }
             });
         }
-    </script>
+    </script>-->
 </body>
 </html>
