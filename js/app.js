@@ -5,7 +5,7 @@
  * @version 1.0.0
  * @author English Learning App
  */
-
+import { FlashcardManager } from './modules/flashcard/index.js';
 class EnglishFlashcardsApp {
     constructor() {
         this.state = {
@@ -106,7 +106,7 @@ class EnglishFlashcardsApp {
             // Menedżer fiszek
             console.log('📇 Inicjalizuję FlashcardManager...');
             this.managers.flashcard = new FlashcardManager();
-            this.managers.flashcard.setManagers(this.managers.image, this.managers.audio);
+            this.managers.flashcard.setManagers(this.managers.image, this.managers.audio, this.managers.progress);
             
             // 🎯 NOWY MODULARNY QUIZ MANAGER
             console.log('🎯 Inicjalizuję modularny QuizManager...');
