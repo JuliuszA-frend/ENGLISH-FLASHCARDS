@@ -1,0 +1,477 @@
+/* 
+ * Stylizacja modala obrazków - CSS dla zrefaktoryzowanego ImageManager
+ * Nowoczesny design z animacjami i responsywnością
+ */
+
+/* ========================================== */
+/* GŁÓWNY KONTENER MODALA */
+/* ========================================== */
+
+#image-manager-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+#image-manager-modal.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* ========================================== */
+/* KONTENER MODALA */
+/* ========================================== */
+
+.modal-container {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+    max-width: 500px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    transform: scale(0.9) translateY(20px);
+    transition: all 0.3s ease;
+}
+
+#image-manager-modal.active .modal-container {
+    transform: scale(1) translateY(0);
+}
+
+/* ========================================== */
+/* HEADER MODALA */
+/* ========================================== */
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px;
+    border-bottom: 1px solid #e5e7eb;
+    background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+    color: white;
+    border-radius: 16px 16px 0 0;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.modal-close {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+}
+
+.modal-close:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.1);
+}
+
+/* ========================================== */
+/* ZAWARTOŚĆ MODALA */
+/* ========================================== */
+
+.modal-content {
+    padding: 24px;
+}
+
+.word-info {
+    background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
+    padding: 16px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    text-align: center;
+    font-size: 1.1rem;
+    border: 2px solid #d1d5db;
+}
+
+.word-info strong {
+    color: #1e3a8a;
+    font-weight: 600;
+}
+
+/* ========================================== */
+/* SEKCJA ISTNIEJĄCEGO OBRAZKA */
+/* ========================================== */
+
+.existing-image-section {
+    margin-bottom: 24px;
+    padding: 16px;
+    background: #f9fafb;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+}
+
+.existing-image-section h4 {
+    margin: 0 0 12px 0;
+    color: #374151;
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.current-image {
+    position: relative;
+    text-align: center;
+}
+
+.current-image img {
+    max-width: 100%;
+    max-height: 200px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border: 2px solid #e5e7eb;
+}
+
+.image-actions {
+    margin-top: 12px;
+}
+
+/* ========================================== */
+/* SEKCJA UPLOAD */
+/* ========================================== */
+
+.upload-section {
+    position: relative;
+}
+
+.drop-zone {
+    border: 2px dashed #d1d5db;
+    border-radius: 12px;
+    padding: 40px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: linear-gradient(135deg, #f9fafb, #f3f4f6);
+    position: relative;
+    overflow: hidden;
+}
+
+.drop-zone:hover {
+    border-color: #3b82f6;
+    background: linear-gradient(135deg, #eff6ff, #dbeafe);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(59, 130, 246, 0.15);
+}
+
+.drop-zone.drag-over {
+    border-color: #22c55e;
+    background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+    transform: scale(1.02);
+    box-shadow: 0 12px 24px rgba(34, 197, 94, 0.2);
+}
+
+.drop-zone-content {
+    pointer-events: none;
+}
+
+.upload-icon {
+    font-size: 3rem;
+    margin-bottom: 12px;
+    opacity: 0.7;
+}
+
+.drop-zone p {
+    margin: 8px 0;
+    color: #6b7280;
+    font-weight: 500;
+}
+
+.upload-hint {
+    font-size: 0.875rem !important;
+    color: #9ca3af !important;
+    font-weight: 400 !important;
+}
+
+/* ========================================== */
+/* SEKCJA PODGLĄDU */
+/* ========================================== */
+
+.preview-section {
+    text-align: center;
+    padding: 20px;
+    background: #f9fafb;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+}
+
+#image-preview {
+    max-width: 100%;
+    max-height: 250px;
+    border-radius: 8px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    border: 2px solid #e5e7eb;
+    margin-bottom: 16px;
+}
+
+.preview-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+/* ========================================== */
+/* PRZYCISKI */
+/* ========================================== */
+
+.btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.btn:active {
+    transform: translateY(0);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    color: white;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #2563eb, #1e40af);
+}
+
+.btn-secondary {
+    background: linear-gradient(135deg, #6b7280, #4b5563);
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: linear-gradient(135deg, #4b5563, #374151);
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+}
+
+.btn-danger:hover {
+    background: linear-gradient(135deg, #dc2626, #b91c1c);
+}
+
+/* ========================================== */
+/* RESPONSIVE DESIGN */
+/* ========================================== */
+
+@media (max-width: 640px) {
+    .modal-container {
+        width: 95%;
+        margin: 20px;
+        max-height: calc(100vh - 40px);
+    }
+    
+    .modal-content {
+        padding: 16px;
+    }
+    
+    .modal-header {
+        padding: 16px 20px;
+    }
+    
+    .modal-header h3 {
+        font-size: 1.1rem;
+    }
+    
+    .drop-zone {
+        padding: 30px 15px;
+    }
+    
+    .upload-icon {
+        font-size: 2.5rem;
+    }
+    
+    .btn {
+        padding: 10px 20px;
+        font-size: 0.875rem;
+    }
+    
+    .preview-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .btn {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .modal-container {
+        width: 100%;
+        height: 100%;
+        border-radius: 0;
+        max-height: 100vh;
+    }
+    
+    .modal-header {
+        border-radius: 0;
+    }
+    
+    .word-info {
+        font-size: 1rem;
+        padding: 12px;
+    }
+    
+    .drop-zone {
+        padding: 25px 10px;
+    }
+    
+    .upload-icon {
+        font-size: 2rem;
+    }
+    
+    .drop-zone p {
+        font-size: 0.9rem;
+    }
+    
+    .upload-hint {
+        font-size: 0.8rem !important;
+    }
+}
+
+/* ========================================== */
+/* ANIMACJE I EFEKTY */
+/* ========================================== */
+
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9) translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+@keyframes dragPulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.02);
+    }
+}
+
+.drop-zone.drag-over {
+    animation: dragPulse 0.6s ease-in-out infinite;
+}
+
+/* ========================================== */
+/* DARK MODE SUPPORT (OPCJONALNE) */
+/* ========================================== */
+
+[data-theme="dark"] #image-manager-modal {
+    background: rgba(0, 0, 0, 0.8);
+}
+
+[data-theme="dark"] .modal-container {
+    background: #1f2937;
+    color: #f9fafb;
+}
+
+[data-theme="dark"] .modal-header {
+    border-bottom-color: #374151;
+}
+
+[data-theme="dark"] .word-info {
+    background: linear-gradient(135deg, #374151, #4b5563);
+    border-color: #4b5563;
+    color: #f9fafb;
+}
+
+[data-theme="dark"] .existing-image-section {
+    background: #374151;
+    border-color: #4b5563;
+}
+
+[data-theme="dark"] .existing-image-section h4 {
+    color: #f9fafb;
+}
+
+[data-theme="dark"] .drop-zone {
+    border-color: #4b5563;
+    background: linear-gradient(135deg, #374151, #4b5563);
+    color: #f9fafb;
+}
+
+[data-theme="dark"] .drop-zone:hover {
+    border-color: #3b82f6;
+    background: linear-gradient(135deg, #1e40af, #3b82f6);
+}
+
+[data-theme="dark"] .preview-section {
+    background: #374151;
+    border-color: #4b5563;
+}
+
+[data-theme="dark"] .current-image img,
+[data-theme="dark"] #image-preview {
+    border-color: #4b5563;
+}
+
+/* ========================================== */
+/* ACCESSIBILITY */
+/* ========================================== */
+
+.btn:focus {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+}
+
+.modal-close:focus {
+    outline: 2px solid white;
+    outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
