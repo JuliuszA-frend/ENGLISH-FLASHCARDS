@@ -226,6 +226,21 @@ if (typeof window !== 'undefined') {
     
     // Dodaj factory function
     window.createBookmarksController = createBookmarksController;
+
+    /**
+     * 📂 Globalna funkcja zamykania modala bookmarks
+     */
+    window.closeBookmarksModal = function() {
+        console.log('🌐 closeBookmarksModal() wywołana globalnie');
+        
+        const app = window.englishFlashcardsApp;
+        if (app?.bookmarksController) {
+            return app.bookmarksController.closeModal();
+        } else {
+            console.error('❌ BookmarksController nie jest dostępny w closeBookmarksModal()');
+            return false;
+        }
+    };
     
     // Dodaj wszystkie komponenty dla zaawansowanego użycia
     window.BookmarksModule = {
