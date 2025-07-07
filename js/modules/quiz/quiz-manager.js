@@ -3,6 +3,14 @@
  * Orchestruje współpracę między różnymi modułami quizu
  */
 
+// ✅ DODAJ TE IMPORTY NA POCZĄTKU PLIKU
+import QuizStorage from './quiz-storage.js';
+import QuestionGenerator from './question-generator.js';
+import AnswerChecker from './answer-checker.js';
+import QuizUI from './quiz-ui.js';
+import QuizTimer from './quiz-timer.js';
+import QuizTypes from './quiz-types.js';
+
 class QuizManager {
     constructor() {
         // Stan quizu

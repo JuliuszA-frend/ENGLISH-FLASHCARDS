@@ -1,6 +1,7 @@
 /**
  * QuizTypes - Zarządzanie różnymi typami quizów
  */
+
 class QuizTypes {
     constructor(vocabulary, questionGenerator, storage) {
         this.vocabulary = vocabulary;
