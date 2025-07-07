@@ -8,6 +8,7 @@
 import { FlashcardManager } from './modules/flashcard/index.js';
 import { ImageManager } from './modules/image/index.js';
 import { BookmarksController } from './modules/bookmarks/index.js';
+import { ProgressManager } from './modules/progress/index.js';
 
 class EnglishFlashcardsApp {
     constructor() {
