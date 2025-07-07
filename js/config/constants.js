@@ -1,9 +1,9 @@
 /**
- * constants.js - Stałe aplikacji
+ * constants.js - Stałe aplikacji ES6
  * Centralne miejsce dla wszystkich stałych używanych w aplikacji
  */
 
-const AppConstants = {
+export const AppConstants = {
     // Wersja aplikacji
     VERSION: '1.0.0',
     BUILD_DATE: '2025-01-22',
@@ -500,7 +500,7 @@ const AppConstants = {
 };
 
 // Funkcje pomocnicze dla stałych
-const AppUtils = {
+export const AppUtils = {
     /**
      * Pobierz konfigurację poziomu trudności
      */
@@ -668,12 +668,42 @@ const AppUtils = {
     }
 };
 
-// Export dla modułów
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { AppConstants, AppUtils };
-}
+// Funkcje pomocnicze do eksportu jako named exports
+export const getDifficultyConfig = AppUtils.getDifficultyConfig.bind(AppUtils);
+export const isImageFormatSupported = AppUtils.isImageFormatSupported.bind(AppUtils);
+export const getCurrentBreakpoint = AppUtils.getCurrentBreakpoint.bind(AppUtils);
+export const isFeatureEnabled = AppUtils.isFeatureEnabled.bind(AppUtils);
+export const getStorageKey = AppUtils.getStorageKey.bind(AppUtils);
+export const getQuizConfig = AppUtils.getQuizConfig.bind(AppUtils);
+export const validateFileSize = AppUtils.validateFileSize.bind(AppUtils);
+export const formatFileSize = AppUtils.formatFileSize.bind(AppUtils);
+export const isStorageAvailable = AppUtils.isStorageAvailable.bind(AppUtils);
+export const getStorageUsage = AppUtils.getStorageUsage.bind(AppUtils);
+export const isMobile = AppUtils.isMobile.bind(AppUtils);
+export const isTouchDevice = AppUtils.isTouchDevice.bind(AppUtils);
+export const debugInfo = AppUtils.debugInfo.bind(AppUtils);
 
-// Globalne obiekty
+// Default export dla kompatybilności
+export default {
+    AppConstants,
+    AppUtils,
+    // Re-export named functions
+    getDifficultyConfig,
+    isImageFormatSupported,
+    getCurrentBreakpoint,
+    isFeatureEnabled,
+    getStorageKey,
+    getQuizConfig,
+    validateFileSize,
+    formatFileSize,
+    isStorageAvailable,
+    getStorageUsage,
+    isMobile,
+    isTouchDevice,
+    debugInfo
+};
+
+// 🔧 KOMPATYBILNOŚĆ WSTECZNA: Eksport globalny dla starszego kodu
 if (typeof window !== 'undefined') {
     window.AppConstants = AppConstants;
     window.AppUtils = AppUtils;

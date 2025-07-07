@@ -1,6 +1,12 @@
 /**
- * NotificationManager - Zarządzanie powiadomieniami
- * Wersja bezpieczna - nie wywala się gdy ThemeManager nie jest dostępny
+ * NotificationManager - Zarządzanie powiadomieniami ES6
+ * Bezpieczna wersja z singleton pattern
+ */
+
+import { AppConstants } from '../config/constants.js';
+
+/**
+ * Klasa zarządzająca powiadomieniami
  */
 class NotificationManager {
     static instance = null;
@@ -12,8 +18,8 @@ class NotificationManager {
         
         this.container = null;
         this.notifications = new Map();
-        this.defaultDuration = 4000;
-        this.maxNotifications = 5;
+        this.defaultDuration = AppConstants?.DEFAULTS?.NOTIFICATION_DURATION || 4000;
+        this.maxNotifications = AppConstants?.LIMITS?.MAX_NOTIFICATIONS || 5;
         this.init();
         
         NotificationManager.instance = this;
@@ -25,6 +31,7 @@ class NotificationManager {
     init() {
         this.createContainer();
         this.injectStyles();
+        console.log('✅ NotificationManager zainicjalizowany');
     }
 
     /**
@@ -46,6 +53,11 @@ class NotificationManager {
 
     /**
      * Pokazanie powiadomienia - STATYCZNA METODA
+     * @param {string} message - Wiadomość do wyświetlenia
+     * @param {string} type - Typ powiadomienia ('success'|'error'|'warning'|'info')
+     * @param {number|null} duration - Czas wyświetlania w ms (null = domyślny, 0 = persistent)
+     * @param {Object} options - Dodatkowe opcje
+     * @returns {string} ID powiadomienia
      */
     static show(message, type = 'info', duration = null, options = {}) {
         return NotificationManager.getInstance().show(message, type, duration, options);
@@ -53,6 +65,7 @@ class NotificationManager {
 
     /**
      * Pobranie instancji (singleton)
+     * @returns {NotificationManager} Instancja
      */
     static getInstance() {
         if (!NotificationManager.instance) {
@@ -63,17 +76,30 @@ class NotificationManager {
 
     /**
      * Pokazanie powiadomienia (instancyjna)
+     * @param {string} message - Wiadomość
+     * @param {string} type - Typ powiadomienia
+     * @param {number|null} duration - Czas wyświetlania
+     * @param {Object} options - Opcje
+     * @returns {string} ID powiadomienia
      */
     show(message, type = 'info', duration = null, options = {}) {
         const id = this.generateId();
         const actualDuration = duration !== null ? duration : 
                              (duration === 0 ? 0 : this.defaultDuration);
         
+        // Walidacja typu
+        const validTypes = ['success', 'error', 'warning', 'info', 'loading'];
+        if (!validTypes.includes(type)) {
+            console.warn(`Nieprawidłowy typ powiadomienia: ${type}, używam 'info'`);
+            type = 'info';
+        }
+        
         // Opcje powiadomienia
         const {
             closable = true,
             persistent = duration === 0,
-            position = 'top-right'
+            position = 'top-right',
+            showProgress = actualDuration > 0
         } = options;
 
         // Ogranicz liczbę powiadomień
@@ -81,12 +107,17 @@ class NotificationManager {
 
         // Stwórz element powiadomienia
         const notification = this.createNotificationElement(
-            id, message, type, actualDuration, closable
+            id, message, type, actualDuration, closable, showProgress
         );
 
         // Dodaj do kontenera
         this.container.appendChild(notification);
-        this.notifications.set(id, notification);
+        this.notifications.set(id, {
+            element: notification,
+            type: type,
+            timestamp: Date.now(),
+            persistent: persistent
+        });
 
         // Pokaż z animacją
         setTimeout(() => {
@@ -100,13 +131,23 @@ class NotificationManager {
             }, actualDuration);
         }
 
+        // Emit event
+        this.emitEvent('notificationShown', { id, message, type, duration: actualDuration });
+
         return id;
     }
 
     /**
      * Tworzenie elementu powiadomienia
+     * @param {string} id - ID powiadomienia
+     * @param {string} message - Wiadomość
+     * @param {string} type - Typ
+     * @param {number} duration - Czas trwania
+     * @param {boolean} closable - Czy można zamknąć
+     * @param {boolean} showProgress - Czy pokazywać progress bar
+     * @returns {HTMLElement} Element powiadomienia
      */
-    createNotificationElement(id, message, type, duration, closable) {
+    createNotificationElement(id, message, type, duration, closable, showProgress) {
         const notification = document.createElement('div');
         notification.className = `notification notification-${type}`;
         notification.setAttribute('data-id', id);
@@ -117,16 +158,17 @@ class NotificationManager {
             success: '✅',
             error: '❌',
             warning: '⚠️',
-            info: 'ℹ️'
+            info: 'ℹ️',
+            loading: '⏳'
         };
 
         notification.innerHTML = `
             <div class="notification-content">
                 <span class="notification-icon" aria-hidden="true">${icons[type] || icons.info}</span>
                 <div class="notification-message">${this.sanitizeMessage(message)}</div>
-                ${closable ? '<button class="notification-close" aria-label="Zamknij powiadomienie">×</button>' : ''}
+                ${closable ? '<button class="notification-close" aria-label="Zamknij powiadomienie" tabindex="0">×</button>' : ''}
             </div>
-            ${duration > 0 ? '<div class="notification-progress"><div class="notification-progress-bar" style="animation-duration: ' + duration + 'ms"></div></div>' : ''}
+            ${showProgress ? `<div class="notification-progress"><div class="notification-progress-bar" style="animation-duration: ${duration}ms"></div></div>` : ''}
         `;
 
         // Obsługa zamykania
@@ -135,6 +177,14 @@ class NotificationManager {
             closeBtn.addEventListener('click', () => {
                 this.hide(id);
             });
+            
+            // Obsługa klawiatury
+            closeBtn.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    this.hide(id);
+                }
+            });
         }
 
         return notification;
@@ -142,6 +192,8 @@ class NotificationManager {
 
     /**
      * Bezpieczne sanityzowanie wiadomości
+     * @param {any} message - Wiadomość do sanityzacji
+     * @returns {string} Bezpieczna wiadomość
      */
     sanitizeMessage(message) {
         if (typeof message !== 'string') {
@@ -159,11 +211,17 @@ class NotificationManager {
 
     /**
      * Ukrycie powiadomienia
+     * @param {string} id - ID powiadomienia
+     * @returns {boolean} True jeśli ukryto pomyślnie
      */
     hide(id) {
-        const notification = this.notifications.get(id);
-        if (!notification) return;
+        const notificationData = this.notifications.get(id);
+        if (!notificationData) {
+            console.warn(`Powiadomienie ${id} nie zostało znalezione`);
+            return false;
+        }
 
+        const notification = notificationData.element;
         notification.classList.add('hide');
         
         setTimeout(() => {
@@ -172,15 +230,30 @@ class NotificationManager {
             }
             this.notifications.delete(id);
         }, 300);
+
+        // Emit event
+        this.emitEvent('notificationHidden', { id });
+        
+        return true;
     }
 
     /**
      * Wyczyszczenie wszystkich powiadomień
+     * @param {string} typeFilter - Opcjonalny filtr typu
+     * @returns {number} Liczba usuniętych powiadomień
      */
-    clear() {
-        this.notifications.forEach((notification, id) => {
-            this.hide(id);
+    clear(typeFilter = null) {
+        let count = 0;
+        
+        this.notifications.forEach((data, id) => {
+            if (!typeFilter || data.type === typeFilter) {
+                this.hide(id);
+                count++;
+            }
         });
+        
+        console.log(`🧹 Wyczyszczono ${count} powiadomień${typeFilter ? ` typu ${typeFilter}` : ''}`);
+        return count;
     }
 
     /**
@@ -188,13 +261,21 @@ class NotificationManager {
      */
     limitNotifications() {
         if (this.notifications.size >= this.maxNotifications) {
-            const oldestId = this.notifications.keys().next().value;
-            this.hide(oldestId);
+            // Usuń najstarsze niepersistentne powiadomienie
+            const sortedNotifications = Array.from(this.notifications.entries())
+                .filter(([id, data]) => !data.persistent)
+                .sort((a, b) => a[1].timestamp - b[1].timestamp);
+            
+            if (sortedNotifications.length > 0) {
+                const [oldestId] = sortedNotifications[0];
+                this.hide(oldestId);
+            }
         }
     }
 
     /**
      * Generowanie unikalnego ID
+     * @returns {string} Unikalny ID
      */
     generateId() {
         return 'notification-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
@@ -202,6 +283,7 @@ class NotificationManager {
 
     /**
      * Sprawdzenie czy aktualnie jest ciemny motyw (BEZPIECZNE)
+     * @returns {boolean} True jeśli ciemny motyw
      */
     isDarkMode() {
         try {
@@ -237,6 +319,102 @@ class NotificationManager {
             console.warn('Błąd sprawdzania trybu ciemnego:', error);
             return false;
         }
+    }
+
+    /**
+     * Emit custom event
+     * @param {string} eventName - Nazwa eventu
+     * @param {Object} detail - Detale eventu
+     */
+    emitEvent(eventName, detail) {
+        try {
+            const event = new CustomEvent(eventName, { detail });
+            document.dispatchEvent(event);
+        } catch (error) {
+            console.warn(`Błąd emitowania eventu ${eventName}:`, error);
+        }
+    }
+
+    /**
+     * Pobranie wszystkich aktywnych powiadomień
+     * @returns {Array} Tablica informacji o powiadomieniach
+     */
+    getActiveNotifications() {
+        return Array.from(this.notifications.entries()).map(([id, data]) => ({
+            id,
+            type: data.type,
+            timestamp: data.timestamp,
+            persistent: data.persistent,
+            message: data.element.querySelector('.notification-message')?.textContent || ''
+        }));
+    }
+
+    /**
+     * Zaktualizuj powiadomienie
+     * @param {string} id - ID powiadomienia
+     * @param {string} newMessage - Nowa wiadomość
+     * @param {string} newType - Nowy typ (opcjonalnie)
+     * @returns {boolean} True jeśli zaktualizowano
+     */
+    update(id, newMessage, newType = null) {
+        const notificationData = this.notifications.get(id);
+        if (!notificationData) return false;
+
+        const notification = notificationData.element;
+        const messageEl = notification.querySelector('.notification-message');
+        const iconEl = notification.querySelector('.notification-icon');
+
+        if (messageEl) {
+            messageEl.innerHTML = this.sanitizeMessage(newMessage);
+        }
+
+        if (newType && newType !== notificationData.type) {
+            // Zmień typ
+            notification.className = notification.className.replace(
+                `notification-${notificationData.type}`, 
+                `notification-${newType}`
+            );
+            
+            // Zmień ikonę
+            const icons = {
+                success: '✅',
+                error: '❌',
+                warning: '⚠️',
+                info: 'ℹ️',
+                loading: '⏳'
+            };
+            
+            if (iconEl) {
+                iconEl.textContent = icons[newType] || icons.info;
+            }
+            
+            notificationData.type = newType;
+        }
+
+        return true;
+    }
+
+    /**
+     * Metody skrótowe dla różnych typów powiadomień
+     */
+    success(message, duration = null, options = {}) {
+        return this.show(message, 'success', duration, options);
+    }
+
+    error(message, duration = 0, options = {}) {
+        return this.show(message, 'error', duration, options);
+    }
+
+    warning(message, duration = null, options = {}) {
+        return this.show(message, 'warning', duration, options);
+    }
+
+    info(message, duration = null, options = {}) {
+        return this.show(message, 'info', duration, options);
+    }
+
+    loading(message, options = {}) {
+        return this.show(message, 'loading', 0, { ...options, closable: false });
     }
 
     /**
@@ -311,6 +489,12 @@ class NotificationManager {
             color: white;
         }
         
+        .notification-loading {
+            background: rgba(156, 163, 175, 0.95);
+            border-color: rgba(156, 163, 175, 0.3);
+            color: white;
+        }
+        
         .notification-content {
             display: flex;
             align-items: flex-start;
@@ -347,8 +531,10 @@ class NotificationManager {
             flex-shrink: 0;
         }
         
-        .notification-close:hover {
+        .notification-close:hover,
+        .notification-close:focus {
             background: rgba(255, 255, 255, 0.2);
+            outline: none;
         }
         
         .notification-progress {
@@ -397,12 +583,25 @@ class NotificationManager {
                 padding: 12px;
             }
         }
+        
+        /* Accessibility improvements */
+        @media (prefers-reduced-motion: reduce) {
+            .notification {
+                transition: opacity 0.2s ease;
+            }
+            
+            .notification-progress-bar {
+                animation: none;
+                transform: scaleX(0);
+            }
+        }
     `;
         document.head.appendChild(styles);
     }
 
     /**
      * Sprawdzenie dostępności ThemeManager (diagnostyka)
+     * @returns {Object} Informacje o dostępności
      */
     checkThemeManagerAvailability() {
         return {
@@ -411,341 +610,52 @@ class NotificationManager {
             hasInstance: !!(window.themeManagerInstance)
         };
     }
-}
-
-/**
- * ImageManager - Zarządzanie obrazkami dla słówek
- */
-class ImageManager {
-    constructor() {
-        this.storageKey = 'english-flashcards-images';
-        this.defaultImageSize = { width: 300, height: 200 };
-        this.supportedFormats = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-        this.maxFileSize = 5 * 1024 * 1024; // 5MB
-    }
 
     /**
-     * Dodanie obrazka dla słówka
+     * Cleanup - usunięcie wszystkich powiadomień i event listenerów
      */
-    async addImage(wordId, file) {
-        try {
-            // Walidacja pliku
-            this.validateImageFile(file);
-
-            // Konwersja do base64
-            const base64 = await this.fileToBase64(file);
-
-            // Optymalizacja obrazka
-            const optimizedImage = await this.optimizeImage(base64, file.type);
-
-            // Zapisz obrazek
-            const imageData = {
-                id: wordId,
-                data: optimizedImage,
-                type: file.type,
-                size: optimizedImage.length,
-                timestamp: new Date().toISOString(),
-                filename: file.name
-            };
-
-            this.saveImage(wordId, imageData);
-            
-            // Pokaż powiadomienie o sukcesie - BEZPIECZNE WYWOŁANIE
-            if (typeof NotificationManager !== 'undefined') {
-                NotificationManager.show('Obrazek został dodany pomyślnie!', 'success');
-            }
-
-            return imageData;
-
-        } catch (error) {
-            console.error('Błąd dodawania obrazka:', error);
-            
-            // Pokaż powiadomienie o błędzie - BEZPIECZNE WYWOŁANIE
-            if (typeof NotificationManager !== 'undefined') {
-                NotificationManager.show('Błąd dodawania obrazka: ' + error.message, 'error');
-            }
-            
-            throw error;
-        }
-    }
-
-    /**
-     * Pobranie obrazka dla słówka
-     */
-    getImage(wordId) {
-        const images = this.loadImages();
-        return images[wordId] || null;
-    }
-
-    /**
-     * Usunięcie obrazka
-     */
-    removeImage(wordId) {
-        const images = this.loadImages();
+    cleanup() {
+        this.clear();
         
-        if (images[wordId]) {
-            delete images[wordId];
-            this.saveImages(images);
-            
-            // BEZPIECZNE WYWOŁANIE
-            if (typeof NotificationManager !== 'undefined') {
-                NotificationManager.show('Obrazek został usunięty', 'info');
-            }
-            
-            return true;
+        if (this.container && this.container.parentNode) {
+            this.container.parentNode.removeChild(this.container);
         }
         
-        return false;
-    }
-
-    /**
-     * Walidacja pliku obrazka
-     */
-    validateImageFile(file) {
-        if (!file) {
-            throw new Error('Nie wybrano pliku');
-        }
-
-        if (!this.supportedFormats.includes(file.type)) {
-            throw new Error('Nieobsługiwany format pliku. Wybierz JPG, PNG, GIF lub WebP.');
-        }
-
-        if (file.size > this.maxFileSize) {
-            throw new Error('Plik jest za duży. Maksymalny rozmiar to 5MB.');
-        }
-    }
-
-    /**
-     * Konwersja pliku do base64
-     */
-    fileToBase64(file) {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = () => resolve(reader.result);
-            reader.onerror = reject;
-            reader.readAsDataURL(file);
-        });
-    }
-
-    /**
-     * Optymalizacja obrazka
-     */
-    async optimizeImage(base64, type) {
-        return new Promise((resolve) => {
-            const img = new Image();
-            img.onload = () => {
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
-
-                // Oblicz nowe wymiary zachowując proporcje
-                const { width, height } = this.calculateOptimalSize(
-                    img.width, 
-                    img.height, 
-                    this.defaultImageSize.width, 
-                    this.defaultImageSize.height
-                );
-
-                canvas.width = width;
-                canvas.height = height;
-
-                // Narysuj zoptymalizowany obrazek
-                ctx.drawImage(img, 0, 0, width, height);
-
-                // Konwertuj z kompresją
-                const quality = type === 'image/jpeg' ? 0.8 : undefined;
-                const optimized = canvas.toDataURL(type, quality);
-                
-                resolve(optimized);
-            };
-            img.src = base64;
-        });
-    }
-
-    /**
-     * Obliczenie optymalnego rozmiaru
-     */
-    calculateOptimalSize(originalWidth, originalHeight, maxWidth, maxHeight) {
-        const ratio = Math.min(maxWidth / originalWidth, maxHeight / originalHeight);
-        
-        if (ratio >= 1) {
-            return { width: originalWidth, height: originalHeight };
+        const styles = document.getElementById('notification-styles');
+        if (styles) {
+            styles.remove();
         }
         
-        return {
-            width: Math.round(originalWidth * ratio),
-            height: Math.round(originalHeight * ratio)
-        };
-    }
-
-    /**
-     * Zapis/odczyt obrazków z localStorage
-     */
-    saveImage(wordId, imageData) {
-        const images = this.loadImages();
-        images[wordId] = imageData;
-        this.saveImages(images);
-    }
-
-    loadImages() {
-        try {
-            const data = localStorage.getItem(this.storageKey);
-            return data ? JSON.parse(data) : {};
-        } catch (error) {
-            console.warn('Błąd ładowania obrazków:', error);
-            return {};
-        }
-    }
-
-    saveImages(images) {
-        try {
-            localStorage.setItem(this.storageKey, JSON.stringify(images));
-        } catch (error) {
-            console.error('Błąd zapisywania obrazków:', error);
-            
-            if (typeof NotificationManager !== 'undefined') {
-                NotificationManager.show('Błąd zapisywania obrazków. Sprawdź miejsce w pamięci.', 'error');
-            }
-        }
-    }
-
-    /**
-     * Pobranie listy wszystkich obrazków
-     */
-    getAllImages() {
-        return this.loadImages();
-    }
-
-    /**
-     * Sprawdzenie rozmiaru zajętego przez obrazki
-     */
-    getStorageInfo() {
-        const images = this.loadImages();
-        const imageKeys = Object.keys(images);
-        const totalSize = JSON.stringify(images).length;
-        
-        return {
-            count: imageKeys.length,
-            totalSize: totalSize,
-            averageSize: imageKeys.length > 0 ? Math.round(totalSize / imageKeys.length) : 0
-        };
+        NotificationManager.instance = null;
+        console.log('🧹 NotificationManager wyczyszczony');
     }
 }
 
-// =====================================
-// BEZPIECZNY EKSPORT GLOBALNY - POPRAWIONY
-// =====================================
+// Named exports
+export { NotificationManager };
 
-/**
- * Bezpieczne przypisywanie klas do window
- * Sprawdza czy klasa istnieje przed przypisaniem
- */
-function safeGlobalExport() {
-    if (typeof window === 'undefined') return;
-
-    // NotificationManager - zawsze dostępny w tym pliku
-    if (typeof NotificationManager !== 'undefined') {
-        window.NotificationManager = NotificationManager;
-        console.log('✅ NotificationManager → window.NotificationManager');
-    }
-
-    // ImageManager - jeśli istnieje w tym pliku
-    if (typeof ImageManager !== 'undefined') {
-        window.ImageManager = ImageManager;
-        console.log('✅ ImageManager → window.ImageManager');
-    }
-
-    // ThemeManager - BEZPIECZNE SPRAWDZENIE BEZ WYWOŁYWANIA BŁĘDU
-    try {
-        if (typeof window.ThemeManager !== 'undefined') {
-            console.log('✅ ThemeManager już dostępny');
-        } else {
-            console.log('⏳ ThemeManager zostanie załadowany później');
-        }
-    } catch (error) {
-        console.log('⏳ ThemeManager nie jest jeszcze dostępny');
-    }
+// Singleton instance getter
+export function getNotificationManager() {
+    return NotificationManager.getInstance();
 }
 
-// Bezpieczny eksport do window
+// Convenience functions jako named exports
+export const showNotification = (message, type, duration, options) => 
+    NotificationManager.show(message, type, duration, options);
+
+export const hideNotification = (id) => 
+    NotificationManager.getInstance().hide(id);
+
+export const clearNotifications = (typeFilter) => 
+    NotificationManager.getInstance().clear(typeFilter);
+
+// Default export
+export default NotificationManager;
+
+// 🔧 KOMPATYBILNOŚĆ WSTECZNA: Eksport globalny
 if (typeof window !== 'undefined') {
-    // NotificationManager - zawsze dostępny
     window.NotificationManager = NotificationManager;
     
-    // ImageManager - zawsze dostępny
-    window.ImageManager = ImageManager;
-    
-    console.log('✅ NotificationManager i ImageManager załadowane');
+    // Auto-inicjalizacja dla kompatybilności
+    window.notificationManagerInstance = NotificationManager.getInstance();
 }
-
-// Export dla modułów Node.js
-if (typeof module !== 'undefined' && module.exports) {
-    // Eksportuj tylko to co istnieje
-    const exports = {};
-    if (typeof NotificationManager !== 'undefined') exports.NotificationManager = NotificationManager;
-    if (typeof ImageManager !== 'undefined') exports.ImageManager = ImageManager;
-    module.exports = exports;
-}
-
-// Uruchom bezpieczny eksport
-safeGlobalExport();
-
-// =====================================
-// AUTO-INICJALIZACJA NOTIFICATION MANAGER
-// =====================================
-
-/**
- * Automatyczna inicjalizacja NotificationManager
- */
-function initNotificationManager() {
-    if (typeof window !== 'undefined' && !window.notificationManagerInstance) {
-        try {
-            window.notificationManagerInstance = new NotificationManager();
-            console.log('✅ NotificationManager zainicjalizowany automatycznie');
-        } catch (error) {
-            console.error('❌ Błąd inicjalizacji NotificationManager:', error);
-        }
-    }
-}
-
-// Inicjalizacja gdy DOM będzie gotowy
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initNotificationManager);
-} else {
-    // DOM już gotowy
-    initNotificationManager();
-}
-
-// =====================================
-// DIAGNOSTYKA - POMOCNE DO DEBUGOWANIA
-// =====================================
-
-/**
- * Sprawdzenie dostępności klas (uruchom w konsoli)
- */
-window.checkClassAvailability = function() {
-    console.log('🔍 SPRAWDZENIE DOSTĘPNOŚCI KLAS:');
-    
-    const classes = [
-        'NotificationManager',
-        'ImageManager', 
-        'ThemeManager',
-        'DataLoader',
-        'AudioManager',
-        'ProgressManager',
-        'FlashcardManager',
-        'QuizManager'
-    ];
-    
-    classes.forEach(className => {
-        const isAvailable = typeof window[className] !== 'undefined';
-        const status = isAvailable ? '✅' : '❌';
-        const type = typeof window[className];
-        console.log(`${status} ${className}: ${type}`);
-    });
-    
-    console.log('\n📋 Instancje:');
-    console.log(`notificationManagerInstance: ${typeof window.notificationManagerInstance}`);
-    console.log(`themeManagerInstance: ${typeof window.themeManagerInstance}`);
-};
-
-console.log('💡 Uruchom window.checkClassAvailability() w konsoli aby sprawdzić dostępność klas');

@@ -1,12 +1,32 @@
 /**
- * English Flashcards B1/B2 - Main Application
- * Główna aplikacja do nauki angielskiego
+ * English Flashcards B1/B2 - Main Application ES6
+ * Główna aplikacja do nauki angielskiego z modularną architekturą
  * 
  * @version 1.0.0
  * @author English Learning App
  */
+
+// ===== ES6 IMPORTS =====
+// Core utilities and configuration
+import { AppConstants, AppUtils } from './config/constants.js';
+import { 
+    debounce, 
+    shuffle as shuffleArray, 
+    formatDate, 
+    isMobile,
+    generateId,
+    delay 
+} from './utils/utils.js';
+import { getStorageManager, storage } from './utils/storage-manager.js';
+import { 
+    NotificationManager, 
+    showNotification, 
+    getNotificationManager 
+} from './utils/notification-manager.js';
+import { getImageManager, imageUtils } from './utils/image-manager.js';
+
+// Application modules
 import { FlashcardManager } from './modules/flashcard/index.js';
-import { ImageManager } from './modules/image/index.js';
 import { BookmarksController } from './modules/bookmarks/index.js';
 import QuizManager, { 
     createQuizSystem, 
@@ -14,9 +34,15 @@ import QuizManager, {
     loadQuizManager 
 } from './modules/quiz/index.js';
 import { ProgressManager } from './modules/progress/index.js';
+import { ImageManager } from './modules/image/index.js';
 import { createProductionDataLoader } from './modules/data/index.js';
+import { ThemeManager } from './modules/theme/index.js';
+import { AudioManager } from './modules/audio/index.js';
+import { ModuleLoader } from './modules/loader/index.js';
 
-
+/**
+ * Główna klasa aplikacji English Flashcards
+ */
 class EnglishFlashcardsApp {
     constructor() {
         this.state = {
@@ -31,7 +57,8 @@ class EnglishFlashcardsApp {
             bookmarksOnlyMode: false,
             bookmarkedWordsQueue: [],
             bookmarksQueueIndex: 0,
-            bookmarksController: null
+            bookmarksController: null,
+            currentWord: null // ✅ DODANE: stan obecnego słowa
         };
         this.selectedCategories = new Set();
         this.categoryCloseHandler = null;
@@ -42,6 +69,11 @@ class EnglishFlashcardsApp {
         this.startMixedHandler = null;
         this.managers = {};
         this.eventListeners = new Map();
+        
+        // ✅ NOWE: Referencje do menedżerów ES6
+        this.storageManager = getStorageManager();
+        this.notificationManager = getNotificationManager();
+        this.imageManager = getImageManager();
         
         this.init();
     }
@@ -61,69 +93,51 @@ class EnglishFlashcardsApp {
             this.showWelcomeMessage();
         } catch (error) {
             console.error('Błąd inicjalizacji aplikacji:', error);
-            NotificationManager.show('Błąd podczas ładowania aplikacji', 'error');
+            showNotification('Błąd podczas ładowania aplikacji', 'error');
         }
     }
 
     /**
-     * 🔄 ZAKTUALIZOWANA METODA: Inicjalizacja menedżerów z modularnym QuizManager
+     * ✅ ZAKTUALIZOWANA: Inicjalizacja menedżerów z ES6 modules
      */
     async initializeManagers() {
-        console.group('🏗️ Inicjalizacja menedżerów aplikacji');
+        console.group('🏗️ Inicjalizacja menedżerów aplikacji (ES6 Updated)');
         
         try {
-            // ThemeManager - sprawdź czy już istnieje instancja, jeśli nie - utwórz
-            if (window.themeManagerInstance) {
-                this.managers.theme = window.themeManagerInstance;
-                console.log('✅ Używam istniejącej instancji ThemeManager');
-            } else {
-                this.managers.theme = new ThemeManager();
-                this.managers.theme.init();
-                console.log('✅ Utworzono nową instancję ThemeManager');
-            }
+            // 🎨 ThemeManager - ES6 module
+            console.log('🎨 Inicjalizuję ThemeManager (ES6)...');
+            this.managers.theme = new ThemeManager();
+            this.managers.theme.init();
+            console.log('✅ ThemeManager (ES6) zainicjalizowany');
 
-            // Ładowanie danych
+            // 📚 Ładowanie danych
             console.log('📚 Inicjalizuję DataLoader...');
             this.managers.dataLoader = createProductionDataLoader();
             
-            // Menedżer postępu
+            // 📊 Menedżer postępu
             console.log('📊 Inicjalizuję ProgressManager...');
             this.managers.progress = new ProgressManager();
             
-            // AUDIO MANAGER - inicjalizuj przed FlashcardManager
-            console.log('🔊 Inicjalizuję AudioManager...');
+            // 🔊 AUDIO MANAGER - ES6 module
+            console.log('🔊 Inicjalizuję AudioManager (ES6)...');
             this.managers.audio = new AudioManager();
-
-            // Test audio po inicjalizacji
-            setTimeout(async () => {
-                const testResults = await this.managers.audio.testAudio();
-                console.log('🧪 Wyniki testów audio:', testResults);
-                
-                const workingMethods = Object.entries(testResults)
-                    .filter(([_, works]) => works)
-                    .map(([method, _]) => method);
-                    
-                if (workingMethods.length > 0) {
-                    console.log(`✅ Działające metody audio: ${workingMethods.join(', ')}`);
-                } else {
-                    console.warn('⚠️ Żadna metoda audio nie działa - sprawdź ustawienia przeglądarki');
-                }
-            }, 2000);
+            await this.managers.audio.initialize();
+            console.log('✅ AudioManager (ES6) zainicjalizowany');
             
-            // Menedżer obrazków
-            console.log('🖼️ Inicjalizuję ImageManager...');
-            this.managers.image = new ImageManager();
+            // 🖼️ Menedżer obrazków - używaj ES6 instancji
+            console.log('🖼️ Używam ES6 ImageManager...');
+            this.managers.image = this.imageManager;
             
-            // Menedżer fiszek
+            // 📇 Menedżer fiszek
             console.log('📇 Inicjalizuję FlashcardManager...');
             this.managers.flashcard = new FlashcardManager();
             this.managers.flashcard.setManagers(this.managers.image, this.managers.audio, this.managers.progress);
             
-            // 🎯 NOWY MODULARNY QUIZ MANAGER
+            // 🎯 Modularny Quiz Manager
             console.log('🎯 Inicjalizuję modularny QuizManager...');
             await this.initializeModularQuizManager();
             
-            // Modularny Bookmarks Manager
+            // 🔖 Modularny Bookmarks Manager
             console.log('🔖 Inicjalizuję modularny BookmarksController...');
             try {
                 this.bookmarksController = new BookmarksController(this);
@@ -131,22 +145,14 @@ class EnglishFlashcardsApp {
                 console.log('✅ Modularny BookmarksController zainicjalizowany');
             } catch (error) {
                 console.error('❌ Błąd inicjalizacji modularnego BookmarksController:', error);
-                
-                // 🔄 Fallback do starej wersji jeśli jest dostępna (opcjonalne)
-                if (typeof window.BookmarksController !== 'undefined') {
-                    console.log('🔄 Używam fallback BookmarksController...');
-                    this.bookmarksController = new window.BookmarksController(this);
-                    // Dodaj metodę init jeśli nie istnieje w starej wersji
-                    if (typeof this.bookmarksController.init === 'function') {
-                        this.bookmarksController.init();
-                    }
-                } else {
-                    // Jeśli zupełnie brak bookmarks, stwórz mock
-                    this.bookmarksController = this.createMockBookmarksController();
-                }
+                this.bookmarksController = this.createMockBookmarksController();
             }
             
-            console.log('✅ Wszystkie menedżery zainicjalizowane');
+            // ✅ NOWE: Przypisz menedżery ES6 do globalnych referencji dla kompatybilności
+            this.managers.storage = this.storageManager;
+            this.managers.notification = this.notificationManager;
+            
+            console.log('✅ Wszystkie menedżery zainicjalizowane (ES6 Updated)');
             console.groupEnd();
             
         } catch (error) {
@@ -210,8 +216,6 @@ class EnglishFlashcardsApp {
         }
     }
 
-
-
     /**
      * 🔄 FALLBACK: Inicjalizacja tradycyjnego QuizManager
      */
@@ -259,9 +263,7 @@ class EnglishFlashcardsApp {
             
             startCategoryQuiz: (category, app) => {
                 console.warn('🔇 Mock: Quiz nie jest dostępny');
-                if (window.NotificationManager) {
-                    NotificationManager.show('Moduł quizów nie jest dostępny', 'error');
-                }
+                showNotification('Moduł quizów nie jest dostępny', 'error');
                 return false;
             },
             
@@ -292,13 +294,11 @@ class EnglishFlashcardsApp {
         
         // Pokaż ostrzeżenie użytkownikowi
         setTimeout(() => {
-            if (window.NotificationManager) {
-                NotificationManager.show(
-                    'Moduł quizów nie jest w pełni dostępny. Niektóre funkcje mogą nie działać.', 
-                    'warning', 
-                    8000
-                );
-            }
+            showNotification(
+                'Moduł quizów nie jest w pełni dostępny. Niektóre funkcje mogą nie działać.', 
+                'warning', 
+                8000
+            );
         }, 3000);
         
         console.log('🆘 Mock QuizManager utworzony');
@@ -340,7 +340,7 @@ class EnglishFlashcardsApp {
     }
     
     /**
-     * Konfiguracja nasłuchiwaczy zdarzeń
+     * ✅ ZAKTUALIZOWANA: Konfiguracja nasłuchiwaczy zdarzeń z ES6 utilities
      */
     setupEventListeners() {
         // Mode switching
@@ -381,9 +381,9 @@ class EnglishFlashcardsApp {
             ['quiz-language', 'change', (e) => this.updateSetting('quizLanguage', e.target.value)]
         ]);
 
-        // Search
+        // ✅ ZAKTUALIZOWANE: Search z ES6 debounce
         this.addEventListener('category-search', 'input', 
-            Utils.debounce((e) => this.filterCategories(e.target.value), 300)
+            debounce((e) => this.filterCategories(e.target.value), 300)
         );
 
         // Keyboard shortcuts
@@ -418,7 +418,7 @@ class EnglishFlashcardsApp {
             ['study-bookmarks-quick', 'click', () => this.startBookmarksOnlyMode()],
             ['browse-bookmarks-quick', 'click', () => this.openBookmarks()],
             ['quiz-bookmarks-quick', 'click', () => {
-                NotificationManager.show('Quiz z słownictwa do powtórzenia - wkrótce!', 'info');
+                showNotification('Quiz z słownictwa do powtórzenia - wkrótce!', 'info');
             }]
         ]);
         // ✨✨✨ KONIEC NOWEGO KODU DO DODANIA ✨✨✨
@@ -637,7 +637,7 @@ class EnglishFlashcardsApp {
         console.log('🚫 Użytkownik chce przerwać quiz');
         
         if (!this.managers.quiz) {
-            NotificationManager.show('Moduł quizów nie jest dostępny', 'error');
+            showNotification('Moduł quizów nie jest dostępny', 'error');
             return;
         }
         
@@ -645,7 +645,7 @@ class EnglishFlashcardsApp {
             // Sprawdź czy quiz jest aktywny
             if (!this.managers.quiz.currentQuiz) {
                 console.warn('⚠️ Brak aktywnego quizu do przerwania');
-                NotificationManager.show('Brak aktywnego quizu', 'info');
+                showNotification('Brak aktywnego quizu', 'info');
                 return;
             }
             
@@ -666,24 +666,24 @@ Czy chcesz kontynuować?`;
                 const success = this.managers.quiz.cancelQuiz(this);
                 
                 if (success) {
-                    NotificationManager.show(
+                    showNotification(
                         `Quiz "${currentQuiz.categoryName}" został przerwany`, 
                         'info', 
                         3000
                     );
                 } else {
-                    NotificationManager.show('Wystąpił błąd podczas przerywania quizu', 'error');
+                    showNotification('Wystąpił błąd podczas przerywania quizu', 'error');
                 }
                 
                 console.log('🔄 Quiz przerwany - powrót do menu');
             } else {
                 console.log('❌ Użytkownik anulował przerwanie quizu');
-                NotificationManager.show('Quiz kontynuowany', 'info', 2000);
+                showNotification('Quiz kontynuowany', 'info', 2000);
             }
             
         } catch (error) {
             console.error('❌ Błąd przerwania quizu:', error);
-            NotificationManager.show('Błąd przerwania quizu', 'error');
+            showNotification('Błąd przerwania quizu', 'error');
         }
     }
     
@@ -709,7 +709,7 @@ Czy chcesz kontynuować?`;
     }
 
     /**
-     * Renderowanie kategorii
+     * ✅ ZAKTUALIZOWANA: Renderowanie kategorii z ES6 utilities
      */
     renderCategories() {
         const grid = document.getElementById('category-grid');
@@ -881,7 +881,7 @@ Czy chcesz kontynuować?`;
         this.updateModeDisplay();
         this.saveState();
 
-        NotificationManager.show(`Przełączono na tryb: ${this.getModeDisplayName(mode)}`, 'info');
+        showNotification(`Przełączono na tryb: ${this.getModeDisplayName(mode)}`, 'info');
     }
 
     /**
@@ -932,7 +932,7 @@ Czy chcesz kontynuować?`;
         this.saveState();
 
         const categoryName = this.state.vocabulary.categories[category].name;
-        NotificationManager.show(`Przełączono na kategorię: ${categoryName}`, 'info');
+        showNotification(`Przełączono na kategorię: ${categoryName}`, 'info');
     }
 
     /**
@@ -977,6 +977,9 @@ Czy chcesz kontynuować?`;
             console.warn('⚠️ Nie można znaleźć słowa do wyświetlenia');
             return;
         }
+
+        // ✅ DODANE: Zapisz obecne słowo do state
+        this.state.currentWord = word;
 
         // Wyświetl słowo
         this.managers.flashcard.displayWord(word, this.state.currentMode);
@@ -1081,9 +1084,10 @@ Czy chcesz kontynuować?`;
             console.log(`🔄 Odświeżono progress kategorii ${categoryKey}: ${progress.studied}/${progress.total}`);
         }
     }
-/**
- * ✅ POPRAWIONA METODA: nextCard() z lepszą obsługą ulubionych
- */
+
+    /**
+     * ✅ POPRAWIONA METODA: nextCard() z lepszą obsługą ulubionych
+     */
     nextCard() {
         // 🔖 Sprawdź tryb ulubionych
         if (this.state.bookmarksOnlyMode) {
@@ -1091,7 +1095,7 @@ Czy chcesz kontynuować?`;
                 this.state.bookmarksQueueIndex++;
                 this.updateCard();
             } else {
-                NotificationManager.show('To ostatnie ulubione słowo!', 'info');
+                showNotification('To ostatnie ulubione słowo!', 'info');
                 if (confirm('Przejrzałeś wszystkie ulubione. Chcesz zacząć od nowa?')) {
                     this.state.bookmarksQueueIndex = 0;
                     this.updateCard();
@@ -1109,7 +1113,7 @@ Czy chcesz kontynuować?`;
             this.updateCard();
             this.saveState();
         } else {
-            NotificationManager.show('To jest ostatnia karta w kategorii', 'info');
+            showNotification('To jest ostatnia karta w kategorii', 'info');
         }
     }
 
@@ -1123,7 +1127,7 @@ Czy chcesz kontynuować?`;
                 this.state.bookmarksQueueIndex--;
                 this.updateCard();
             } else {
-                NotificationManager.show('To pierwsze ulubione słowo!', 'info');
+                showNotification('To pierwsze ulubione słowo!', 'info');
             }
             return;
         }
@@ -1134,21 +1138,21 @@ Czy chcesz kontynuować?`;
             this.updateCard();
             this.saveState();
         } else {
-            NotificationManager.show('To jest pierwsza karta w kategorii', 'info');
+            showNotification('To jest pierwsza karta w kategorii', 'info');
         }
     }
 
     /**
-     * Mieszanie kart
+     * ✅ ZAKTUALIZOWANA: Mieszanie kart z ES6 shuffle
      */
     shuffleCards() {
         const category = this.state.vocabulary.categories[this.state.currentCategory];
-        category.words = Utils.shuffle(category.words);
+        category.words = shuffleArray(category.words);
         this.state.currentWordIndex = 0;
         this.updateCard();
         this.updateProgress();
         
-        NotificationManager.show('Karty zostały wymieszane', 'info');
+        showNotification('Karty zostały wymieszane', 'info');
     }
 
     /**
@@ -1188,10 +1192,10 @@ Czy chcesz kontynuować?`;
                 
                 console.log(`🎯 UI zaktualizowane po resecie kategorii ${this.state.currentCategory}`);
                 
-                NotificationManager.show('Postęp kategorii został zresetowany', 'info');
+                showNotification('Postęp kategorii został zresetowany', 'info');
             } else {
                 console.error(`❌ Błąd resetowania kategorii ${this.state.currentCategory}`);
-                NotificationManager.show('Błąd podczas resetowania kategorii', 'error');
+                showNotification('Błąd podczas resetowania kategorii', 'error');
             }
         }
     }
@@ -1311,7 +1315,7 @@ Czy chcesz kontynuować?`;
                 console.log('✅ BookmarksController utworzony:', !!this.bookmarksController);
             } else {
                 console.error('❌ BookmarksController nie jest dostępny');
-                NotificationManager.show('Nie można otworzyć powtórek - brak modułu', 'error');
+                showNotification('Nie można otworzyć powtórek - brak modułu', 'error');
                 return;
             }
         }
@@ -1503,19 +1507,19 @@ Czy chcesz kontynuować?`;
         console.log('🎯 Rozpoczynam tryb nauki tylko ulubionych...');
         
         if (!this.managers.progress) {
-            NotificationManager.show('Nie można uruchomić trybu powtórki', 'error');
+            showNotification('Nie można uruchomić trybu powtórki', 'error');
             return false;
         }
         
         const bookmarkedWords = this.managers.progress.getAllBookmarkedWords();
         
         if (bookmarkedWords.length === 0) {
-            NotificationManager.show('Brak słowek do powtórzenia', 'info');
+            showNotification('Brak słowek do powtórzenia', 'info');
             return false;
         }
         
-        // 🎲 Wymieszaj ulubione słowa dla lepszego efektu nauki
-        const shuffledBookmarks = Utils.shuffle(bookmarkedWords);
+        // 🎲 Wymieszaj ulubione słowa dla lepszego efektu nauki - używaj ES6 shuffle
+        const shuffledBookmarks = shuffleArray(bookmarkedWords);
         
         // 💾 Zapisz stan trybu ulubionych
         this.state.bookmarksOnlyMode = true;
@@ -1528,7 +1532,7 @@ Czy chcesz kontynuować?`;
         // 🎨 Zaktualizuj UI
         this.updateBookmarksModeUI(true);
         
-        NotificationManager.show(
+        showNotification(
             `🔖 Tryb powtórki: ${bookmarkedWords.length} słów`, 
             'success', 
             4000
@@ -1561,7 +1565,7 @@ Czy chcesz kontynuować?`;
         // 🔄 Odśwież kartę (wróci do normalnego trybu)
         this.updateCard();
         
-        NotificationManager.show('Zakończono tryb powtórek', 'info');
+        showNotification('Zakończono tryb powtórek', 'info');
     }
 
     /**
@@ -1607,9 +1611,7 @@ Czy chcesz kontynuować?`;
             this.state.bookmarksQueueIndex--;
             this.updateCard();
         } else {
-            if (window.NotificationManager) {
-                window.NotificationManager.show('To pierwsze słowo do powtórki', 'info');
-            }
+            showNotification('To pierwsze słowo do powtórki', 'info');
         }
     }
 
@@ -1694,18 +1696,6 @@ Czy chcesz kontynuować?`;
         if (indicator) {
             indicator.remove();
         }
-    }
-
-    /**
-     * ✅ POMOCNICZA METODA: Mieszanie tablicy
-     */
-    shuffleArray(array) {
-        const newArray = [...array];
-        for (let i = newArray.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
-        }
-        return newArray;
     }
 
     /**
@@ -1922,7 +1912,7 @@ Czy chcesz kontynuować?`;
     }
 
     /**
-     * Filtrowanie kategorii
+     * ✅ ZAKTUALIZOWANA: Filtrowanie kategorii z ES6 debounce
      */
     filterCategories(searchTerm) {
         const cards = document.querySelectorAll('.category-card');
@@ -1938,8 +1928,8 @@ Czy chcesz kontynuować?`;
     }
 
     /**
- * Zastosowanie ustawień do menedżerów - BEZPIECZNA WERSJA
- */
+     * ✅ ZAKTUALIZOWANA: Zastosowanie ustawień z ES6 storage
+     */
     applySettings(settings) {
         console.log('🔧 Stosowanie ustawień...', settings);
 
@@ -2010,7 +2000,7 @@ Czy chcesz kontynuować?`;
             console.log('⏭️ QuizManager nie jest dostępny - pomijam ustawienia quizów');
         }
 
-        // Zapisz skonsolidowane ustawienia - tylko jeśli wszystko poszło OK
+        // ✅ ZAKTUALIZOWANE: Zapisz skonsolidowane ustawienia z ES6 storage
         try {
             this.saveSettings(settings);
         } catch (error) {
@@ -2019,7 +2009,7 @@ Czy chcesz kontynuować?`;
     }
 
     /**
-     * Zapisywanie ustawień - BEZPIECZNA WERSJA
+     * ✅ ZAKTUALIZOWANA: Zapisywanie ustawień z ES6 storage
      */
     saveSettings(settings) {
         if (!settings) {
@@ -2028,16 +2018,16 @@ Czy chcesz kontynuować?`;
         }
 
         try {
-            // Zapisz główne ustawienia
-            localStorage.setItem('english-flashcards-settings', JSON.stringify(settings));
+            // ✅ NOWE: Używaj ES6 storage manager
+            this.storageManager.set('settings', settings);
             
             // Zachowaj kompatybilność z poprzednią wersją - zapisz również osobno
-            localStorage.setItem('audioAutoPlay', settings.audioAutoPlay.toString());
-            localStorage.setItem('audioVolume', settings.audioVolume.toString());
-            localStorage.setItem('audioRate', settings.audioRate.toString());
-            localStorage.setItem('english-flashcards-theme', settings.theme);
+            storage.set('audioAutoPlay', settings.audioAutoPlay);
+            storage.set('audioVolume', settings.audioVolume);
+            storage.set('audioRate', settings.audioRate);
+            storage.set('theme', settings.theme);
             
-            console.log('💾 Ustawienia zapisane pomyślnie');
+            console.log('💾 Ustawienia zapisane pomyślnie (ES6 storage)');
         } catch (error) {
             console.error('❌ Błąd zapisywania ustawień:', error);
             
