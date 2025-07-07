@@ -14,6 +14,7 @@ import QuizManager, {
     loadQuizManager 
 } from './modules/quiz/index.js';
 import { ProgressManager } from './modules/progress/index.js';
+import { createProductionDataLoader } from './modules/data/index.js';
 
 
 class EnglishFlashcardsApp {
@@ -83,7 +84,7 @@ class EnglishFlashcardsApp {
 
             // Ładowanie danych
             console.log('📚 Inicjalizuję DataLoader...');
-            this.managers.dataLoader = new DataLoader();
+            this.managers.dataLoader = createProductionDataLoader();
             
             // Menedżer postępu
             console.log('📊 Inicjalizuję ProgressManager...');
