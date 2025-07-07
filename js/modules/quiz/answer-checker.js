@@ -293,7 +293,10 @@ class AnswerChecker {
     }
 }
 
-// Export
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = AnswerChecker;
-}
+// Export dla ES6 modules
+export { AnswerChecker };
+
+// Export default dla wygody
+export default AnswerChecker;
+
+console.log('✅ AnswerChecker załadowany');

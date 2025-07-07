@@ -594,7 +594,11 @@ class QuizUI {
     }
 }
 
-// Export
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = QuizUI;
-}
+
+// Export dla ES6 modules
+export { QuizUI };
+
+// Export default dla wygody
+export default QuizUI;
+
+console.log('✅ QuizUI załadowany');

@@ -660,7 +660,10 @@ class QuizManager {
     }
 }
 
-// Export dla modułów
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = QuizManager;
-}
+// Export dla ES6 modules
+export { QuizManager };
+
+// Export default dla wygody
+export default QuizManager;
+
+console.log('✅ QuizManager załadowany');

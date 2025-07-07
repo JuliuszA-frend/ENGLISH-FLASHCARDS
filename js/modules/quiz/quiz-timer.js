@@ -155,7 +155,10 @@ class QuizTimer {
     }
 }
 
-// Export
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = QuizTimer;
-}
+// Export dla ES6 modules
+export { QuizTimer };
+
+// Export default dla wygody
+export default QuizTimer;
+
+console.log('✅ QuizTimer załadowany');

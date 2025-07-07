@@ -520,7 +520,11 @@ class QuizTypes {
     }
 }
 
-// Export
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = QuizTypes;
-}
+
+// Export dla ES6 modules
+export { QuizTypes };
+
+// Export default dla wygody
+export default QuizTypes;
+
+console.log('✅ QuizTypes załadowany');

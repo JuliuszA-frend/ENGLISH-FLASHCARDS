@@ -8,7 +8,13 @@
 import { FlashcardManager } from './modules/flashcard/index.js';
 import { ImageManager } from './modules/image/index.js';
 import { BookmarksController } from './modules/bookmarks/index.js';
+import QuizManager, { 
+    createQuizSystem, 
+    verifyQuizModules,
+    loadQuizManager 
+} from './modules/quiz/index.js';
 import { ProgressManager } from './modules/progress/index.js';
+
 
 class EnglishFlashcardsApp {
     constructor() {
@@ -154,35 +160,55 @@ class EnglishFlashcardsApp {
      */
     async initializeModularQuizManager() {
         try {
-            console.log('🔄 Sprawdzam dostępność modułów quizu...');
+            console.log('🔄 Ładuję nowoczesny ES6 QuizManager...');
             
-            // Sprawdź czy QuizLoader jest dostępny
-            if (typeof loadQuizManager === 'undefined') {
-                console.error('❌ QuizLoader nie jest dostępny - używam fallback');
+            // 🆕 Weryfikuj dostępność modułów ES6
+            const verification = verifyQuizModules();
+            console.log('📊 Weryfikacja modułów ES6:', verification);
+            
+            if (!verification.allAvailable) {
+                console.error('❌ Brakuje modułów quizu ES6:', verification.missing);
+                console.log('🔄 Próbuję użyć fallback QuizManager...');
                 this.initializeFallbackQuizManager();
                 return;
             }
             
-            // Użyj QuizLoader do załadowania modularnego QuizManager
-            console.log('📦 Ładuję modularny QuizManager...');
-            this.managers.quiz = await loadQuizManager();
+            // 🆕 Utwórz QuizManager z ES6 modules
+            console.log('📦 Tworzę ES6 QuizManager...');
+            this.managers.quiz = new QuizManager();
             
-            console.log('✅ Modularny QuizManager załadowany pomyślnie');
+            // ✅ Sprawdź czy QuizManager został utworzony poprawnie
+            if (!this.managers.quiz) {
+                throw new Error('QuizManager nie został utworzony');
+            }
             
-            // Sprawdź czy wszystkie moduły są dostępne
-            if (typeof window.checkQuizModules === 'function') {
-                const diagnostics = window.checkQuizModules();
-                if (!diagnostics.loadingStatus.complete) {
-                    console.warn('⚠️ Niektóre moduły quizu nie są w pełni załadowane');
+            // 🧪 Test podstawowych metod QuizManager
+            const hasRequiredMethods = typeof this.managers.quiz.setVocabulary === 'function' &&
+                                    typeof this.managers.quiz.startCategoryQuiz === 'function';
+            
+            if (!hasRequiredMethods) {
+                throw new Error('QuizManager nie ma wymaganych metod');
+            }
+            
+            console.log('✅ ES6 QuizManager załadowany pomyślnie');
+            
+            // 🎯 Sprawdź czy wszystkie moduły są dostępne (dodatkowa weryfikacja)
+            if (typeof window.testQuizSystem === 'function') {
+                const systemTest = window.testQuizSystem();
+                if (systemTest) {
+                    console.log('🎉 Test systemu quizów ES6 - PASSED');
+                } else {
+                    console.warn('⚠️ Test systemu quizów ES6 - WARNING (ale kontynuuję)');
                 }
             }
             
         } catch (error) {
-            console.error('❌ Błąd ładowania modularnego QuizManager:', error);
+            console.error('❌ Błąd ładowania ES6 QuizManager:', error);
             console.log('🔄 Przełączam na fallback QuizManager...');
             this.initializeFallbackQuizManager();
         }
     }
+
 
 
     /**
@@ -192,30 +218,90 @@ class EnglishFlashcardsApp {
         try {
             console.log('🔄 Inicjalizuję fallback QuizManager...');
             
-            // Sprawdź czy klasa QuizManager jest dostępna (stara wersja)
-            if (typeof QuizManager !== 'undefined') {
-                this.managers.quiz = new QuizManager();
-                console.log('✅ Fallback QuizManager zainicjalizowany');
-            } else {
+            // Sprawdź czy stara wersja QuizManager jest dostępna (globalna)
+            if (typeof QuizManager !== 'undefined' && QuizManager !== this.managers.quiz?.constructor) {
+                console.log('📦 Używam globalnego QuizManager (stara wersja)...');
+                this.managers.quiz = new window.QuizManager();
+                console.log('✅ Fallback QuizManager (globalny) zainicjalizowany');
+            }
+            // Sprawdź czy jest dostępna przez loadQuizManager
+            else if (typeof loadQuizManager === 'function') {
+                console.log('📦 Próbuję załadować przez loadQuizManager...');
+                loadQuizManager().then(quizManager => {
+                    this.managers.quiz = quizManager;
+                    console.log('✅ Fallback QuizManager (loader) zainicjalizowany');
+                }).catch(loaderError => {
+                    console.error('❌ Błąd loadQuizManager:', loaderError);
+                    this.createMockQuizManager();
+                });
+            }
+            // Ostateczny fallback - mock
+            else {
                 console.error('❌ Brak dostępnej implementacji QuizManager');
-                this.managers.quiz = null;
-                
-                // Pokaż ostrzeżenie użytkownikowi
-                setTimeout(() => {
-                    NotificationManager.show(
-                        'Moduł quizów nie jest dostępny. Niektóre funkcje mogą nie działać.', 
-                        'warning', 
-                        5000
-                    );
-                }, 3000);
+                this.createMockQuizManager();
             }
             
         } catch (error) {
             console.error('❌ Błąd inicjalizacji fallback QuizManager:', error);
-            this.managers.quiz = null;
+            this.createMockQuizManager();
         }
     }
 
+    createMockQuizManager() {
+        console.warn('🆘 Tworzę mock QuizManager - funkcjonalność ograniczona');
+        
+        this.managers.quiz = {
+            // Podstawowe metody które aplikacja oczekuje
+            setVocabulary: (vocabulary) => {
+                console.log('🔇 Mock: setVocabulary wywołane');
+            },
+            
+            startCategoryQuiz: (category, app) => {
+                console.warn('🔇 Mock: Quiz nie jest dostępny');
+                if (window.NotificationManager) {
+                    NotificationManager.show('Moduł quizów nie jest dostępny', 'error');
+                }
+                return false;
+            },
+            
+            // Inne wymagane metody
+            startRandomQuiz: () => false,
+            startBookmarksQuiz: () => false,
+            startFinalQuiz: () => false,
+            getDifficultyQuizStats: () => null,
+            getOverallStats: () => ({ averageScore: 0, completedCategories: 0 }),
+            getCategoryResults: () => null,
+            loadQuizResults: () => ({}),
+            
+            // Metody kontroli quizu
+            submitAnswer: () => {},
+            nextQuestion: () => {},
+            cancelQuiz: () => true,
+            continueAfterQuiz: () => {},
+            retryCurrentQuiz: () => {},
+            
+            // Export/import
+            exportData: () => ({}),
+            importData: () => true,
+            reset: () => true,
+            
+            // Informacja o mock
+            isMock: true
+        };
+        
+        // Pokaż ostrzeżenie użytkownikowi
+        setTimeout(() => {
+            if (window.NotificationManager) {
+                NotificationManager.show(
+                    'Moduł quizów nie jest w pełni dostępny. Niektóre funkcje mogą nie działać.', 
+                    'warning', 
+                    8000
+                );
+            }
+        }, 3000);
+        
+        console.log('🆘 Mock QuizManager utworzony');
+    }
 
     /**
      * Ładowanie danych słownictwa

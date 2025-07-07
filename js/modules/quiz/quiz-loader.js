@@ -326,24 +326,6 @@ if (typeof module !== 'undefined' && module.exports) {
     module.exports = { QuizLoader, getQuizLoader, loadQuizManager };
 }
 
-// Globalne dostępność
-if (typeof window !== 'undefined') {
-    window.QuizLoader = QuizLoader;
-    window.getQuizLoader = getQuizLoader;
-    window.loadQuizManager = loadQuizManager;
-    
-    // Debug tools
-    window.checkQuizModules = () => {
-        const loader = getQuizLoader();
-        const diagnostics = loader.getDiagnostics();
-        console.group('🔍 Diagnostyka modułów quizu');
-        console.table(diagnostics.globalClasses);
-        console.log('📊 Status ładowania:', diagnostics.loadingStatus);
-        console.log('💡 Rekomendacje:', diagnostics.recommendations);
-        console.groupEnd();
-        return diagnostics;
-    };
-}
-
-console.log('✅ QuizLoader załadowany i gotowy do użycia');
-console.log('💡 Użyj window.checkQuizModules() aby sprawdzić stan modułów');
+// ES6 Exports (dodaj te linie)
+export default QuizLoader;
+export { QuizLoader, getQuizLoader, loadQuizManager };

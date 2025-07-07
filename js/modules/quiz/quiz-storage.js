@@ -326,7 +326,11 @@ class QuizStorage {
     }
 }
 
-// Export
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = QuizStorage;
-}
+
+// Export dla ES6 modules
+export { QuizStorage };
+
+// Export default dla wygody
+export default QuizStorage;
+
+console.log('✅ QuizStorage załadowany');

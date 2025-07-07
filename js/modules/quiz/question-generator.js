@@ -430,7 +430,10 @@ class QuestionGenerator {
     }
 }
 
-// Export
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = QuestionGenerator;
-}
+// Export dla ES6 modules
+export { QuestionGenerator };
+
+// Export default dla wygody
+export default QuestionGenerator;
+
+console.log('✅ QuestionGenerator załadowany');
