@@ -26,10 +26,53 @@
           "type": "adjective",
           "difficulty": "easy",
           "frequency": "high",
-          "examples": {
-            "english": "She has beautiful eyes.",
-            "polish": "Ona ma piękne oczy."
-          },
+          "examples": [
+            {
+              "id": 1,
+              "english": "She has beautiful eyes.",
+              "polish": "Ona ma piękne oczy.",
+              "source": "original",
+              "context": "appearance",
+              "difficulty": "easy",
+              "verified": true
+            },
+            {
+              "id": 2,
+              "english": "This is a beautiful garden.",
+              "polish": "To jest piękny ogród.",
+              "source": "original",
+              "context": "nature",
+              "difficulty": "easy",
+              "verified": true
+            },
+            {
+              "id": 3,
+              "english": "You look beautiful tonight.",
+              "polish": "Wyglądasz pięknie dziś wieczorem.",
+              "source": "original",
+              "context": "social",
+              "difficulty": "medium",
+              "verified": true
+            },
+            {
+              "id": 4,
+              "english": "The sunset is absolutely beautiful.",
+              "polish": "Zachód słońca jest absolutnie piękny.",
+              "source": "original",
+              "context": "nature",
+              "difficulty": "medium",
+              "verified": true
+            },
+            {
+              "id": 5,
+              "english": "She played a beautiful piece on the piano.",
+              "polish": "Zagrała piękny utwór na pianinie.",
+              "source": "original",
+              "context": "music",
+              "difficulty": "hard",
+              "verified": true
+            }
+          ],
           "synonyms": ["gorgeous", "lovely", "attractive"],
           "audio": "beautiful"
         },
