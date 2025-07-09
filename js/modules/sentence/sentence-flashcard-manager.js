@@ -394,19 +394,22 @@ class SentenceFlashcardManager {
             
         } else {
             // Na tylnej stronie - krótsze etykiety, BEZ IKON
-            const wordAudioBtn = this.createAudioButton(
-                this.currentWord.english, 
-                'word', 
-                'Słowo'  // ✅ BEZ IKONY
-            );
-            audioContainer.appendChild(wordAudioBtn);
-            
             const sentenceAudioBtn = this.createAudioButton(
                 this.currentSentence.english, 
                 'sentence', 
-                'Zdanie'  // ✅ BEZ IKONY
+                'Posłuchaj zdania'  // ✅ BEZ IKONY
             );
+
+            const wordAudioBtn = this.createAudioButton(
+                this.currentWord.english, 
+                'word', 
+                'Posłuchaj słowa'  // ✅ BEZ IKONY
+            );
+
             audioContainer.appendChild(sentenceAudioBtn);
+
+            audioContainer.appendChild(wordAudioBtn);
+            
         }
         
         container.appendChild(audioContainer);
@@ -420,7 +423,11 @@ class SentenceFlashcardManager {
         // Unikalne ID dla każdego przycisku
         const uniqueId = `audio-btn-${type}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
         
-        const button = DOMHelper.createElement('button', `audio-btn ${type}-audio`);
+        const audioClasses = type === 'sentence' 
+            ? 'audio-btn sentence-audio-btn'  // ✅ Zgodne z AudioManager
+            : 'audio-btn word-audio-btn';     // ✅ Zgodne z AudioManager
+
+        const button = DOMHelper.createElement('button', audioClasses);
         button.id = uniqueId;
         button.setAttribute('data-audio-type', type);
         button.setAttribute('data-audio-text', text);
@@ -450,7 +457,8 @@ class SentenceFlashcardManager {
                 this.animateSpecificButton(button);
                 
                 // Odtwórz audio
-                await this.audioManager.playAudio(text);
+                const buttonSelector = `#${uniqueId}`;
+                await this.audioManager.playAudio(text, {}, buttonSelector);
                 
                 console.log(`✅ Audio odtworzone: ${type} - "${text}"`);
                 
