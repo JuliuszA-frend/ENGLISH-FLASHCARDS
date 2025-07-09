@@ -300,10 +300,8 @@ class SentenceFlashcardManager {
         // 4. Przyciski audio
         this.addAudioButtons(container, 'back');
         
-        // 5. Kontrolki słowa (bookmark, trudność)
-        this.addWordControls(container);
         
-        // 6. Informacja o pozostałych zdaniach
+        // 5. Informacja o pozostałych zdaniach
         if (this.currentWord.totalSentences > 1) {
             const moreExamplesEl = DOMHelper.createElement('div', 'more-examples-info');
             moreExamplesEl.innerHTML = `
@@ -374,31 +372,6 @@ class SentenceFlashcardManager {
         });
         
         return button;
-    }
-
-    /**
-     * 🎛️ Dodawanie kontrolek słowa
-     */
-    addWordControls(container) {
-        const controlsEl = DOMHelper.createElement('div', 'word-controls');
-        
-        // Przycisk bookmark
-        const isBookmarked = this.isWordBookmarked();
-        const bookmarkBtn = DOMHelper.createElement('button', 
-            `control-btn bookmark-btn ${isBookmarked ? 'bookmarked' : 'not-bookmarked'}`
-        );
-        bookmarkBtn.innerHTML = `
-            <span class="icon">${isBookmarked ? '🔖' : '⚪'}</span>
-            <span class="text">${isBookmarked ? 'Usuń z powtórek' : 'Dodaj do powtórek'}</span>
-        `;
-        
-        bookmarkBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            this.toggleBookmark();
-        });
-        
-        controlsEl.appendChild(bookmarkBtn);
-        container.appendChild(controlsEl);
     }
 
     /**
