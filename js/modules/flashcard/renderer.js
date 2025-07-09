@@ -174,7 +174,10 @@ class FlashcardRenderer {
 
         // 4. Przykład zdania
         if (word.examples) {
-            this.addExampleSection(container, word.examples);
+            const exampleData = this.getExampleData(word.examples);
+            if (exampleData) {
+                this.addExampleSection(container, exampleData);
+            }
         }
 
         // 5. Synonimy i antonimy
@@ -248,6 +251,47 @@ class FlashcardRenderer {
         if (word.english && this.audioHandler) {
             this.audioHandler.addAudioButton(container, word.english, 'word');
         }
+    }
+
+    /**
+     * 🔧 Pomocnicza metoda - Pobieranie danych przykładu (kompatybilność z nową i starą strukturą)
+     */
+    getExampleData(examples) {
+        if (!examples) {
+            return null;
+        }
+
+        // Jeśli examples to tablica (nowa struktura)
+        if (Array.isArray(examples)) {
+            if (examples.length === 0) {
+                console.warn('⚠️ Tablica examples jest pusta');
+                return null;
+            }
+            
+            // Wybierz pierwszy przykład (lub można losowy)
+            const firstExample = examples[0];
+            console.log(`📝 Wybrano pierwszy przykład z ${examples.length} dostępnych: "${firstExample.english}"`);
+            
+            return {
+                english: firstExample.english,
+                polish: firstExample.polish,
+                id: firstExample.id,
+                context: firstExample.context,
+                difficulty: firstExample.difficulty
+            };
+        }
+        
+        // Jeśli examples to obiekt (stara struktura)
+        if (examples.english && examples.polish) {
+            console.log('📝 Używam starą strukturę examples (obiekt)');
+            return {
+                english: examples.english,
+                polish: examples.polish
+            };
+        }
+        
+        console.warn('⚠️ Nierozpoznana struktura examples:', examples);
+        return null;
     }
 
     /**
