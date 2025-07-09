@@ -208,7 +208,7 @@ class SentenceFlashcardManager {
         // 1. Nagłówek z trybem zdaniowym
         const headerEl = DOMHelper.createElement('div', 'sentence-mode-header');
         headerEl.innerHTML = `
-            <div class="mode-indicator">
+            <div class="sentence-mode-indicator">
                 <span class="icon">💬</span>
                 <span class="text">Fiszka zdaniowa</span>
             </div>
