@@ -176,6 +176,7 @@ class EnglishFlashcardsApp {
             throw error;
         }
     }
+
     /**
      * 💬 POPRAWIONA: Inicjalizacja trybu zdaniowego
      */
@@ -189,9 +190,11 @@ class EnglishFlashcardsApp {
         }
 
         try {
-            // Sprawdź czy już zainicjalizowany
-            if (this.managers.sentence.vocabulary) {
-                console.log('✅ SentenceFlashcardManager już zainicjalizowany');
+            // 🔍 NOWE: Sprawdź czy już zainicjalizowany i ma dane
+            if (this.managers.sentence.vocabulary && 
+                this.managers.sentence.sentenceWords && 
+                this.managers.sentence.sentenceWords.length > 0) {
+                console.log('✅ SentenceFlashcardManager już ma dane - pomijam reinicjalizację');
                 return true;
             }
 
@@ -207,6 +210,7 @@ class EnglishFlashcardsApp {
 
             if (success) {
                 console.log('✅ Tryb zdaniowy zainicjalizowany pomyślnie');
+                console.log(`📊 Dostępne zdania: ${this.managers.sentence.sentenceWords.length}`);
                 return true;
             } else {
                 console.error('❌ Błąd inicjalizacji trybu zdaniowego');
@@ -280,13 +284,74 @@ class EnglishFlashcardsApp {
      * 💬 Aktualizacja karty zdaniowej
      */
     updateSentenceCard() {
-        if (this.state.currentMode !== 'sentences' || !this.managers.sentence) {
+        console.log('💬 updateSentenceCard() wywołane');
+        
+        if (this.state.currentMode !== 'sentences') {
+            console.warn('⚠️ updateSentenceCard() wywołane poza trybem zdaniowym');
             return;
         }
 
-        // SentenceFlashcardManager sam zarządza wyświetlaniem
-        // Aktualizuj tylko progress
+        if (!this.managers.sentence) {
+            console.error('❌ SentenceFlashcardManager nie jest dostępny');
+            return;
+        }
+
+        // 🔍 NOWE: Sprawdź czy manager ma dane
+        if (!this.managers.sentence.sentenceWords || this.managers.sentence.sentenceWords.length === 0) {
+            console.warn('⚠️ Brak danych zdaniowych - próbuję reinicjalizować...');
+            
+            // Spróbuj ponownie zainicjalizować
+            this.reinitializeSentenceMode();
+            return;
+        }
+
+        // 🎯 NOWE: Wyrenderuj aktualną kartę zdaniową
+        try {
+            this.managers.sentence.renderToMainContainers();
+            console.log('✅ Karta zdaniowa wyrenderowana');
+        } catch (error) {
+            console.error('❌ Błąd renderowania karty zdaniowej:', error);
+            // Fallback - spróbuj załadować pierwsze słowo
+            if (this.managers.sentence.sentenceWords.length > 0) {
+                this.managers.sentence.loadWord(0);
+            }
+        }
+        
+        // Aktualizuj progress
         this.updateProgress();
+    }
+
+
+    async reinitializeSentenceMode() {
+        console.log('🔄 Reinicjalizuję tryb zdaniowy...');
+        
+        try {
+            // Wyczyść poprzedni stan jeśli istnieje
+            if (this.managers.sentence) {
+                this.managers.sentence.cleanup();
+            }
+            
+            // Ponownie zainicjalizuj
+            const success = await this.initializeSentenceMode();
+            
+            if (success) {
+                console.log('✅ Tryb zdaniowy reinicjalizowany pomyślnie');
+                this.updateSentenceCard();
+            } else {
+                console.error('❌ Błąd reinicjalizacji trybu zdaniowego');
+                // Fallback na tryb fiszek
+                this.state.currentMode = 'flashcards';
+                this.updateModeDisplay();
+                this.updateCard();
+            }
+            
+        } catch (error) {
+            console.error('❌ Krytyczny błąd reinicjalizacji:', error);
+            // Fallback na tryb fiszek
+            this.state.currentMode = 'flashcards';
+            this.updateModeDisplay();
+            this.updateCard();
+        }
     }
 
     /**
@@ -955,17 +1020,28 @@ Czy chcesz kontynuować?`;
         
         console.log(`🔄 Przełączanie z trybu ${previousMode} na ${mode}`);
         
-        // 💬 NOWE: Obsługa trybu zdaniowego
+        // 🧹 NOWE: Wyczyść poprzedni tryb jeśli to konieczne
+        if (previousMode === 'sentences' && this.managers.sentence) {
+            console.log('🧹 Czyszczę poprzedni tryb zdaniowy...');
+            // Nie czyścimy całkowicie, tylko ukrywamy klasę trybu zdaniowego
+            const flashcardContainer = document.getElementById('flashcard-container');
+            if (flashcardContainer) {
+                flashcardContainer.classList.remove('sentence-mode');
+            }
+        }
+        
+        // 💬 OBSŁUGA TRYBU ZDANIOWEGO
         if (mode === 'sentences') {
             this.initializeSentenceMode().then(success => {
                 if (success) {
                     this.updateModeDisplay();
-                    this.updateSentenceCard(); // NOWE: Użyj dedykowanej metody
+                    this.updateSentenceCard(); // Wywołaj renderowanie zdań
                     this.updateProgress();
                     showNotification(`Przełączono na tryb: ${this.getModeDisplayName(mode)}`, 'info');
                 } else {
                     // Fallback na poprzedni tryb jeśli inicjalizacja się nie udała
                     this.state.currentMode = previousMode;
+                    this.updateModeDisplay();
                     showNotification('Nie udało się przełączyć na tryb zdaniowy', 'error');
                 }
             });
@@ -1060,6 +1136,13 @@ Czy chcesz kontynuować?`;
      * Aktualizacja karty
      */
     updateCard() {
+        // 🔍 NOWE: Sprawdź czy jesteśmy w trybie zdaniowym
+        if (this.state.currentMode === 'sentences') {
+            console.log('🔄 Tryb zdaniowy wykryty - przekierowuję do updateSentenceCard()');
+            this.updateSentenceCard();
+            return;
+        }
+
         if (!this.state.vocabulary) return;
 
         let word = null;
@@ -1071,11 +1154,8 @@ Czy chcesz kontynuować?`;
             
             if (bookmarkedWord) {
                 word = bookmarkedWord;
-                // Znajdź oryginalne słowo w słowniku, aby mieć pełne dane (jeśli to konieczne)
-                // W tym przypadku `getAllBookmarkedWords` zwraca już pełny obiekt, więc jest OK.
                 console.log(`🔖 Tryb ulubionych: wyświetlam słowo ${this.state.bookmarksQueueIndex + 1}/${this.state.bookmarkedWordsQueue.length}: ${word.english}`);
             } else {
-                // Jeśli z jakiegoś powodu słowa nie ma, wyjdź z trybu
                 console.warn('⚠️ Nie znaleziono słowa w kolejce ulubionych. Wychodzę z trybu.');
                 this.exitBookmarksOnlyMode();
                 return;
@@ -1087,7 +1167,6 @@ Czy chcesz kontynuować?`;
             const category = this.state.vocabulary.categories[this.state.currentCategory];
             if (!category || !category.words || category.words.length === 0) {
                 console.warn(`⚠️ Kategoria ${this.state.currentCategory} nie ma słów.`);
-                // Można tu wyświetlić jakąś informację na karcie
                 return;
             }
             
@@ -1102,7 +1181,7 @@ Czy chcesz kontynuować?`;
         // ✅ DODANE: Zapisz obecne słowo do state
         this.state.currentWord = word;
 
-        // Wyświetl słowo
+        // Wyświetl słowo w trybie flashcards
         this.managers.flashcard.displayWord(word, this.state.currentMode);
         this.resetCardFlip();
         
@@ -1306,6 +1385,87 @@ Czy chcesz kontynuować?`;
      * Reset kategorii
      */
     resetCategory() {
+        // 💬 POPRAWKA: Obsługa trybu zdaniowego
+        if (this.state.currentMode === 'sentences') {
+            console.log('🔄 Reset w trybie zdaniowym - cofanie do pierwszej karty');
+            
+            if (!this.managers.sentence) {
+                console.warn('⚠️ SentenceFlashcardManager nie jest dostępny');
+                showNotification('Tryb zdaniowy nie jest dostępny', 'error');
+                return;
+            }
+            
+            // Sprawdź czy są dostępne karty zdaniowe
+            const stats = this.managers.sentence.getStats();
+            if (!stats.hasData || stats.totalSentences === 0) {
+                console.warn('⚠️ Brak kart zdaniowych do resetu');
+                showNotification('Brak kart zdaniowych', 'info');
+                return;
+            }
+            
+            // Pokaż potwierdzenie dla trybu zdaniowego
+            const confirmMessage = `🔄 Czy chcesz wrócić do pierwszej karty zdaniowej?
+
+    📊 Aktualna pozycja: ${stats.currentIndex + 1}/${stats.totalSentences}
+    🎯 Powrót do: 1/${stats.totalSentences}
+
+    Twój postęp w kategoriach nie zostanie utracony.`;
+
+            if (confirm(confirmMessage.trim())) {
+                try {
+                    // Reset do pierwszej karty zdaniowej
+                    const success = this.managers.sentence.resetToFirstCard();
+                    
+                    if (success) {
+                        // Aktualizuj UI
+                        this.updateProgress();
+                        
+                        showNotification('Wrócono do pierwszej karty zdaniowej', 'info');
+                        console.log('✅ Reset trybu zdaniowego wykonany');
+                    } else {
+                        showNotification('Nie udało się zresetować trybu zdaniowego', 'error');
+                        console.error('❌ Błąd resetu trybu zdaniowego');
+                    }
+                    
+                } catch (error) {
+                    console.error('❌ Błąd resetu trybu zdaniowego:', error);
+                    showNotification('Błąd podczas resetu', 'error');
+                }
+            } else {
+                console.log('❌ Użytkownik anulował reset trybu zdaniowego');
+            }
+            
+            return; // Wyjdź z metody - nie wykonuj resetu kategorii
+        }
+        
+        // 🔖 POPRAWKA: Obsługa trybu ulubionych 
+        if (this.state.bookmarksOnlyMode) {
+            console.log('🔄 Reset w trybie ulubionych - cofanie do pierwszego słowa');
+            
+            if (this.state.bookmarkedWordsQueue && this.state.bookmarkedWordsQueue.length > 0) {
+                const confirmMessage = `🔄 Czy chcesz wrócić do pierwszego słowa w trybie powtórki?
+
+    📊 Aktualna pozycja: ${this.state.bookmarksQueueIndex + 1}/${this.state.bookmarkedWordsQueue.length}
+    🎯 Powrót do: 1/${this.state.bookmarkedWordsQueue.length}
+
+    Lista słów do powtórki nie zostanie zmieniona.`;
+
+                if (confirm(confirmMessage.trim())) {
+                    this.state.bookmarksQueueIndex = 0;
+                    this.updateCard();
+                    this.updateProgress();
+                    
+                    showNotification('Wrócono do pierwszego słowa z powtórek', 'info');
+                    console.log('✅ Reset trybu ulubionych wykonany');
+                }
+            } else {
+                showNotification('Brak słów w trybie powtórki', 'info');
+            }
+            
+            return; // Wyjdź z metody - nie wykonuj resetu kategorii
+        }
+        
+        // 📚 STANDARDOWY RESET KATEGORII (tylko dla trybu fiszek)
         if (confirm('Czy na pewno chcesz zresetować postęp tej kategorii?')) {
             console.log(`🔄 Resetuję kategorię: ${this.state.currentCategory}`);
             
@@ -1319,7 +1479,7 @@ Czy chcesz kontynuować?`;
             if (resetSuccess) {
                 console.log(`✅ Kategoria ${this.state.currentCategory} zresetowana w ProgressManager`);
                 
-                // ✅ NOWE: Natychmiastowa aktualizacja UI
+                // ✅ Natychmiastowa aktualizacja UI
                 this.updateCategoryProgressUI(this.state.currentCategory);
                 
                 // 🔄 Resetuj indeks karty do pierwszej

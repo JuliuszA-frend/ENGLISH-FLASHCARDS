@@ -97,10 +97,6 @@
   color: var(--gray-800);
   margin: var(--spacing-4) 0;
   padding: var(--spacing-4);
-  background: rgba(255, 255, 255, 0.8);
-  border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-sm);
-  border: 1px solid rgba(124, 58, 237, 0.1);
   flex-shrink: 0;
   word-break: break-word;
   hyphens: auto;
@@ -167,7 +163,7 @@
 .word-details {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
+  align-items: first baseline;
   justify-content: center;
   gap: var(--spacing-2);
   font-size: var(--font-size-sm);
