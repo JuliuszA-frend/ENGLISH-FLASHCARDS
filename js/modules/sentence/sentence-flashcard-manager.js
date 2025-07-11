@@ -5,11 +5,13 @@
 
 import FlashcardTemplates from '../flashcard/templates.js';
 import DOMHelper from '../flashcard/dom-helper.js';
+import SentenceSearch from './sentence-search.js';
 
 class SentenceFlashcardManager {
     constructor() {
         this.vocabulary = null;
         this.sentenceWords = []; // Słowa z przykładami zdań
+        this.originalSentenceWords = [];
         this.currentWordIndex = 0;
         this.currentSentenceIndex = 0;
         this.currentWord = null;
@@ -20,6 +22,10 @@ class SentenceFlashcardManager {
         this.audioManager = null;
         this.progressManager = null;
         this.imageManager = null;
+
+        this.searchInstance = new SentenceSearch();
+        this.isSearchActive = false;
+        this.currentSearchTerm = '';
         
         // 🎯 ZMIANA: Użyj głównych kontenerów aplikacji zamiast tworzenia własnych
         this.frontContainer = null;
@@ -53,6 +59,12 @@ class SentenceFlashcardManager {
             
             // Przefiltruj słowa z przykładami zdań
             this.filterWordsWithSentences();
+
+            this.originalSentenceWords = [...this.sentenceWords];
+            console.log(`📋 Zapisano ${this.originalSentenceWords.length} słów jako backup dla wyszukiwarki`);
+            
+            // 🔍 NOWE: Inicjalizacja wyszukiwarki
+            this.initializeSearch();
             
             // Załaduj pierwsze słowo jeśli są dostępne
             if (this.sentenceWords.length > 0) {
@@ -162,6 +174,220 @@ class SentenceFlashcardManager {
         return true;
     }
 
+    // ========================================
+    // NOWE METODY WYSZUKIWARKI
+    // ========================================
+
+    /**
+     * 🔍 Inicjalizacja wyszukiwarki zdań
+     */
+    initializeSearch() {
+        console.log('🔍 Inicjalizuję wyszukiwarkę zdań...');
+        
+        // Tworzenie UI zostanie wywołane osobno przez app.js
+        // Tutaj tylko przygotowujemy dane
+        
+        console.log('✅ Wyszukiwarka zdań zainicjalizowana (bez UI)');
+    }
+
+    /**
+     * 🔍 Tworzenie UI wyszukiwarki jako osobny element NAD fiszką
+     */
+    createSearchUI() {
+        console.log('🔍 Tworzę UI wyszukiwarki nad fiszką...');
+        
+        // Usuń istniejącą wyszukiwarkę jeśli istnieje
+        this.removeSearchUI();
+        
+        // Znajdź kontener fiszki
+        const flashcardContainer = document.getElementById('flashcard-container');
+        if (!flashcardContainer) {
+            console.error('❌ Nie znaleziono kontenera fiszki');
+            return false;
+        }
+        
+        // Utwórz kontener wyszukiwarki
+        const searchContainer = document.createElement('div');
+        searchContainer.id = 'sentence-search-ui';
+        searchContainer.className = 'sentence-search-container';
+        searchContainer.innerHTML = this.renderSearchInput();
+        
+        // Wstaw PRZED kontenerem fiszki
+        flashcardContainer.parentNode.insertBefore(searchContainer, flashcardContainer);
+        
+        // Podłącz event listenery
+        setTimeout(() => {
+            const searchInput = document.getElementById('sentence-search-input');
+            if (searchInput) {
+                this.attachSearchListener(searchInput);
+                console.log('✅ Wyszukiwarka zdań utworzona nad fiszką');
+            }
+        }, 0);
+        
+        return true;
+    }
+
+    /**
+     * 🗑️ Usuwanie UI wyszukiwarki
+     */
+    removeSearchUI() {
+        const existingSearch = document.getElementById('sentence-search-ui');
+        if (existingSearch) {
+            existingSearch.remove();
+            console.log('🗑️ Usunięto istniejącą wyszukiwarkę');
+        }
+    }
+
+    /**
+     * 🔍 Setup event listenera dla wyszukiwania
+     */
+    setupSearchEventListener() {
+        // Event listener będzie dodany po wyrenderowaniu search input w UI
+        // Sprawdź czy element już istnieje
+        const searchInput = document.getElementById('sentence-search-input');
+        if (searchInput) {
+            this.attachSearchListener(searchInput);
+        }
+    }
+
+    /**
+     * 🔍 Dodanie event listenera do search input
+     */
+    attachSearchListener(searchInput) {
+        if (!searchInput) return;
+        
+        // Usuń stary listener jeśli istnieje
+        if (searchInput._sentenceSearchHandler) {
+            searchInput.removeEventListener('input', searchInput._sentenceSearchHandler);
+        }
+        
+        // Dodaj nowy listener z debounce
+        searchInput._sentenceSearchHandler = (e) => {
+            const searchTerm = e.target.value;
+            this.performSearch(searchTerm);
+        };
+        
+        searchInput.addEventListener('input', searchInput._sentenceSearchHandler);
+        console.log('🔍 Event listener wyszukiwarki zdań podłączony');
+    }
+
+    /**
+     * 🔍 Wykonanie wyszukiwania z debounce
+     */
+    performSearch(searchTerm) {
+        this.currentSearchTerm = searchTerm.trim();
+        this.isSearchActive = this.currentSearchTerm.length > 0;
+        
+        // Użyj wyszukiwarki z debounce
+        this.searchInstance.search(
+            searchTerm,
+            this.originalSentenceWords, // Zawsze przeszukuj pełną listę
+            (results, term) => this.handleSearchResults(results, term),
+            300 // 300ms debounce jak w bookmarks
+        );
+    }
+
+    /**
+     * 🔍 Obsługa wyników wyszukiwania
+     */
+    handleSearchResults(results, searchTerm) {
+        console.log(`🔍 Otrzymano ${results.length} wyników dla: "${searchTerm}"`);
+        
+        // Aktualizuj listę słów
+        this.sentenceWords = results;
+        
+        // Reset indeksu i załaduj pierwsze słowo jeśli są wyniki
+        if (this.sentenceWords.length > 0) {
+            this.currentWordIndex = 0;
+            this.loadWord(0);
+            
+            // Aktualizuj licznik wyników w UI
+            this.updateSearchResultsCounter(results.length, searchTerm);
+        } else {
+            // Brak wyników - pokaż komunikat
+            this.showNoResultsMessage(searchTerm);
+        }
+    }
+
+    /**
+     * 🔍 Aktualizacja licznika wyników wyszukiwania
+     */
+    updateSearchResultsCounter(count, searchTerm) {
+        const counterEl = document.getElementById('sentence-search-results-counter');
+        if (counterEl) {
+            if (searchTerm.trim().length === 0) {
+                counterEl.textContent = `Wszystkie zdania: ${count}`;
+                counterEl.className = 'search-results-counter';
+            } else {
+                counterEl.textContent = `Znaleziono: ${count} zdań`;
+                counterEl.className = count > 0 ? 'search-results-counter has-results' : 'search-results-counter no-results';
+            }
+        }
+    }
+
+    /**
+     * 🔍 Pokaż komunikat braku wyników
+     */
+    showNoResultsMessage(searchTerm) {
+        if (!this.frontContainer) return;
+        
+        this.frontContainer.innerHTML = `
+            <div class="sentence-search-container">
+                ${this.renderSearchInput()}
+                <div class="search-results-counter no-results">
+                    Brak wyników dla: "${searchTerm}"
+                </div>
+            </div>
+            <div class="no-search-results">
+                <div class="no-results-icon">🔍</div>
+                <h3>Brak wyników</h3>
+                <p>Nie znaleziono zdań pasujących do wyszukiwania "<strong>${searchTerm}</strong>"</p>
+                <p>Spróbuj:</p>
+                <ul>
+                    <li>Sprawdzić pisownię</li>
+                    <li>Użyć krótszych słów kluczowych</li>
+                    <li>Wyszukać w języku polskim lub angielskim</li>
+                </ul>
+                <button class="btn secondary" onclick="document.getElementById('sentence-search-input').value=''; document.getElementById('sentence-search-input').dispatchEvent(new Event('input'))">
+                    Wyczyść wyszukiwanie
+                </button>
+            </div>
+        `;
+    }
+
+    /**
+     * 🔍 Czyszczenie wyszukiwania
+     */
+    clearSearch() {
+        console.log('🧹 Czyszczenie wyszukiwania zdań...');
+        
+        // Wyczyść wyszukiwarkę
+        this.searchInstance.clear();
+        
+        // Przywróć oryginalną listę słów
+        this.sentenceWords = [...this.originalSentenceWords];
+        
+        // Reset stanu
+        this.isSearchActive = false;
+        this.currentSearchTerm = '';
+        
+        // Wyczyść search input
+        const searchInput = document.getElementById('sentence-search-input');
+        if (searchInput) {
+            searchInput.value = '';
+        }
+        
+        // Załaduj pierwsze słowo
+        if (this.sentenceWords.length > 0) {
+            this.currentWordIndex = 0;
+            this.loadWord(0);
+        }
+        
+        console.log('✅ Wyszukiwanie wyczyszczone');
+    }
+
+
+
     /**
      * 🎯 NOWE: Renderowanie do głównych kontenerów aplikacji
      */
@@ -199,6 +425,7 @@ class SentenceFlashcardManager {
         
         try {
             // 4. Zbuduj zawartość
+            
             this.buildSentenceFront(this.frontContainer);
             this.buildSentenceBack(this.backContainer);
             
@@ -338,6 +565,40 @@ class SentenceFlashcardManager {
             container.appendChild(moreExamplesEl);
         }
     }
+
+    /**
+     * 🔍 Renderowanie search input HTML
+     */
+    renderSearchInput() {
+        const resultCount = this.sentenceWords.length;
+        const totalCount = this.originalSentenceWords.length;
+        
+        return `
+            <div class="search-input-wrapper">
+                <input 
+                    type="text" 
+                    id="sentence-search-input" 
+                    class="sentence-search-input" 
+                    placeholder="🔍 Szukaj słów i zdań..."
+                    value="${this.currentSearchTerm}"
+                    autocomplete="off"
+                    spellcheck="false"
+                >
+                <button 
+                    class="search-clear-btn" 
+                    onclick="document.getElementById('sentence-search-input').value=''; document.getElementById('sentence-search-input').dispatchEvent(new Event('input'))"
+                    title="Wyczyść wyszukiwanie"
+                    ${this.currentSearchTerm.length === 0 ? 'style="display: none;"' : ''}
+                >
+                    ✕
+                </button>
+            </div>
+            <div id="sentence-search-results-counter" class="search-results-counter ${this.isSearchActive ? (resultCount > 0 ? 'has-results' : 'no-results') : ''}">
+                ${this.isSearchActive ? `Znaleziono: ${resultCount} zdań` : `Wszystkie zdania: ${totalCount}`}
+            </div>
+        `;
+    }
+
     /**
      * 🔊 Dodawanie przycisków audio
      */
@@ -611,14 +872,19 @@ class SentenceFlashcardManager {
      */
     getStats() {
         return {
-            totalSentences: this.sentenceWords.length,
+            totalSentences: this.originalSentenceWords.length, // 🔍 ZMIANA: użyj oryginalnej listy
+            filteredSentences: this.sentenceWords.length, // 🔍 NOWE: aktualne wyniki
             currentIndex: this.currentWordIndex,
             currentWord: this.currentWord?.english || null,
             currentSentence: this.currentSentence?.english || null,
             isFlipped: this.isFlipped,
             uniqueWords: [...new Set(this.sentenceWords.map(w => w.english))].length,
             isReady: this.isReady(),
-            hasData: !!(this.vocabulary && this.sentenceWords.length > 0)
+            hasData: !!this.vocabulary,
+            // 🔍 NOWE: Informacje o wyszukiwarce
+            searchActive: this.isSearchActive,
+            searchTerm: this.currentSearchTerm,
+            searchResults: this.sentenceWords.length
         };
     }
 

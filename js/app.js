@@ -178,7 +178,7 @@ class EnglishFlashcardsApp {
     }
 
     /**
-     * 💬 POPRAWIONA: Inicjalizacja trybu zdaniowego
+     * 💬 POPRAWIONA: Inicjalizacja trybu zdaniowego z wyszukiwarką
      */
     async initializeSentenceMode() {
         console.log('💬 Inicjalizuję tryb zdaniowy...');
@@ -190,15 +190,19 @@ class EnglishFlashcardsApp {
         }
 
         try {
-            // 🔍 NOWE: Sprawdź czy już zainicjalizowany i ma dane
+            // 🔍 KROK 1: Sprawdź czy już zainicjalizowany i ma dane
             if (this.managers.sentence.vocabulary && 
                 this.managers.sentence.sentenceWords && 
                 this.managers.sentence.sentenceWords.length > 0) {
-                console.log('✅ SentenceFlashcardManager już ma dane - pomijam reinicjalizację');
+                console.log('✅ SentenceFlashcardManager już ma dane');
+                
+                // 🔍 KROK 2: Utwórz UI wyszukiwarki nad fiszką
+                this.managers.sentence.createSearchUI();
+                
                 return true;
             }
 
-            // Inicjalizuj manager zdaniowy z danymi
+            // KROK 3: Inicjalizuj manager zdaniowy z danymi
             const success = await this.managers.sentence.init(
                 this.state.vocabulary,
                 {
@@ -211,6 +215,10 @@ class EnglishFlashcardsApp {
             if (success) {
                 console.log('✅ Tryb zdaniowy zainicjalizowany pomyślnie');
                 console.log(`📊 Dostępne zdania: ${this.managers.sentence.sentenceWords.length}`);
+                
+                // 🔍 KROK 4: Utwórz UI wyszukiwarki nad fiszką (PO inicjalizacji danych)
+                this.managers.sentence.createSearchUI();
+                
                 return true;
             } else {
                 console.error('❌ Błąd inicjalizacji trybu zdaniowego');
@@ -1023,7 +1031,11 @@ Czy chcesz kontynuować?`;
         // 🧹 NOWE: Wyczyść poprzedni tryb jeśli to konieczne
         if (previousMode === 'sentences' && this.managers.sentence) {
             console.log('🧹 Czyszczę poprzedni tryb zdaniowy...');
-            // Nie czyścimy całkowicie, tylko ukrywamy klasę trybu zdaniowego
+            
+            // 🔍 USUŃ UI wyszukiwarki przy wyjściu z trybu zdaniowego
+            this.managers.sentence.removeSearchUI();
+            
+            // Usuń klasę trybu zdaniowego
             const flashcardContainer = document.getElementById('flashcard-container');
             if (flashcardContainer) {
                 flashcardContainer.classList.remove('sentence-mode');
@@ -1056,6 +1068,33 @@ Czy chcesz kontynuować?`;
         }
     }
 
+    /**
+     * 🔍 Helper do zarządzania UI wyszukiwarki zdań
+     */
+    manageSentenceSearchUI(action) {
+        if (!this.managers.sentence) return;
+        
+        switch (action) {
+            case 'show':
+                if (this.state.currentMode === 'sentences') {
+                    this.managers.sentence.createSearchUI();
+                }
+                break;
+                
+            case 'hide':
+                this.managers.sentence.removeSearchUI();
+                break;
+                
+            case 'toggle':
+                const searchUI = document.getElementById('sentence-search-ui');
+                if (searchUI) {
+                    this.managers.sentence.removeSearchUI();
+                } else if (this.state.currentMode === 'sentences') {
+                    this.managers.sentence.createSearchUI();
+                }
+                break;
+        }
+    }
 
     /**
     * 💬 POPRAWIONA: Aktualizacja wyświetlania trybu
