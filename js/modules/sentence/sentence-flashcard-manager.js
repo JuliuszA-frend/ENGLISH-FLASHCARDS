@@ -43,7 +43,7 @@ class SentenceFlashcardManager {
     }
 
     /**
-     * 🚀 Inicjalizacja managera
+     * 🚀 Inicjalizacja managera z aktualizacją progress bara na końcu
      */
     async init(vocabulary, managers = {}) {
         try {
@@ -54,21 +54,25 @@ class SentenceFlashcardManager {
             this.progressManager = managers.progress;
             this.imageManager = managers.image;
             
-            // 🎯 ZMIANA: Użyj głównych kontenerów aplikacji
+            // Użyj głównych kontenerów aplikacji
             this.setupMainContainers();
             
             // Przefiltruj słowa z przykładami zdań
             this.filterWordsWithSentences();
-
+            
+            // Zapisz oryginalną listę słów dla wyszukiwarki
             this.originalSentenceWords = [...this.sentenceWords];
             console.log(`📋 Zapisano ${this.originalSentenceWords.length} słów jako backup dla wyszukiwarki`);
             
-            // 🔍 NOWE: Inicjalizacja wyszukiwarki
+            // Inicjalizacja wyszukiwarki (bez UI - UI tworzone osobno)
             this.initializeSearch();
             
             // Załaduj pierwsze słowo jeśli są dostępne
             if (this.sentenceWords.length > 0) {
                 this.loadWord(0);
+                
+                // 🎯 WYWOŁANIE: Aktualizuj progress bar po inicjalizacji
+                this.updateProgressBar();
             } else {
                 console.warn('⚠️ Brak słów z przykładami zdań');
                 return false;
@@ -152,7 +156,10 @@ class SentenceFlashcardManager {
         }
     }
 
-    loadWord(index) {
+    /**
+     * 📚 Ładowanie słowa z opcjonalną aktualizacją progress bara
+     */
+    loadWord(index, updateProgress = false) {
         if (index < 0 || index >= this.sentenceWords.length) {
             console.warn('⚠️ Nieprawidłowy indeks słowa:', index);
             return false;
@@ -168,8 +175,10 @@ class SentenceFlashcardManager {
         // Renderuj do głównych kontenerów aplikacji
         this.renderToMainContainers();
         
-        // 🔇 USUNIĘTE: Automatyczne audio - teraz tylko przyciski
-        // Auto-play audio zostało usunięte
+        // 🎯 OPCJONALNE WYWOŁANIE: Aktualizuj progress bar jeśli requested
+        if (updateProgress) {
+            this.updateProgressBar();
+        }
         
         return true;
     }
@@ -307,6 +316,8 @@ class SentenceFlashcardManager {
             // Brak wyników - pokaż komunikat
             this.showNoResultsMessage(searchTerm);
         }
+
+        this.updateProgressBar();
     }
 
     /**
@@ -356,6 +367,19 @@ class SentenceFlashcardManager {
     }
 
     /**
+     * 🎯 Aktualizacja progress bara z głównej aplikacji
+     */
+    updateProgressBar() {
+        // Dostęp do głównej aplikacji
+        if (window.englishFlashcardsApp && typeof window.englishFlashcardsApp.updateProgress === 'function') {
+            window.englishFlashcardsApp.updateProgress();
+            console.log(`📊 Progress bar zaktualizowany: ${this.currentWordIndex + 1}/${this.sentenceWords.length}`);
+        } else {
+            console.warn('⚠️ Nie można zaktualizować progress bara - brak dostępu do głównej aplikacji');
+        }
+    }
+
+    /**
      * 🔍 Czyszczenie wyszukiwania
      */
     clearSearch() {
@@ -382,6 +406,8 @@ class SentenceFlashcardManager {
             this.currentWordIndex = 0;
             this.loadWord(0);
         }
+
+        this.updateProgressBar();
         
         console.log('✅ Wyszukiwanie wyczyszczone');
     }
@@ -797,6 +823,10 @@ class SentenceFlashcardManager {
     nextSentence() {
         if (this.currentWordIndex < this.sentenceWords.length - 1) {
             this.loadWord(this.currentWordIndex + 1);
+            
+            // 🎯 WYWOŁANIE: Aktualizuj progress bar po przejściu do następnego zdania
+            this.updateProgressBar();
+            
             return true;
         } else {
             console.log('📝 Koniec zdań');
@@ -810,6 +840,10 @@ class SentenceFlashcardManager {
     previousSentence() {
         if (this.currentWordIndex > 0) {
             this.loadWord(this.currentWordIndex - 1);
+            
+            // 🎯 WYWOŁANIE: Aktualizuj progress bar po przejściu do poprzedniego zdania
+            this.updateProgressBar();
+            
             return true;
         } else {
             console.log('📝 To jest pierwsze zdanie');
@@ -868,12 +902,13 @@ class SentenceFlashcardManager {
     }
 
     /**
-     * 📊 Statystyki modułu
+     * 📊 Statystyki modułu z informacjami o wyszukiwaniu i progress
      */
     getStats() {
         return {
-            totalSentences: this.originalSentenceWords.length, // 🔍 ZMIANA: użyj oryginalnej listy
-            filteredSentences: this.sentenceWords.length, // 🔍 NOWE: aktualne wyniki
+            // 🎯 WAŻNE: Używamy przefiltrowanej długości dla progress bara!
+            totalSentences: this.sentenceWords.length,
+            originalTotalSentences: this.originalSentenceWords.length,
             currentIndex: this.currentWordIndex,
             currentWord: this.currentWord?.english || null,
             currentSentence: this.currentSentence?.english || null,
@@ -881,10 +916,16 @@ class SentenceFlashcardManager {
             uniqueWords: [...new Set(this.sentenceWords.map(w => w.english))].length,
             isReady: this.isReady(),
             hasData: !!this.vocabulary,
-            // 🔍 NOWE: Informacje o wyszukiwarce
+            // Informacje o wyszukiwarce
             searchActive: this.isSearchActive,
             searchTerm: this.currentSearchTerm,
-            searchResults: this.sentenceWords.length
+            searchResults: this.sentenceWords.length,
+            // Progress info dla debugowania
+            progressInfo: {
+                current: this.currentWordIndex + 1,
+                total: this.sentenceWords.length,
+                percent: this.sentenceWords.length > 0 ? Math.round(((this.currentWordIndex + 1) / this.sentenceWords.length) * 100) : 0
+            }
         };
     }
 
