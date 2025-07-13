@@ -632,13 +632,13 @@
 }
 
 .search-results-counter.has-results {
-  color: var(--sentence-primary);
+  color: var(--white);
   background: rgba(124, 58, 237, 0.1);
   border: 1px solid rgba(124, 58, 237, 0.2);
 }
 
 .search-results-counter.no-results {
-  color: var(--sentence-secondary);
+  color: var(--white);
   background: rgba(236, 72, 153, 0.1);
   border: 1px solid rgba(236, 72, 153, 0.2);
 }
@@ -878,4 +878,659 @@
 .search-clear-btn:focus-visible {
   outline: 2px solid var(--sentence-primary);
   outline-offset: 2px;
+}
+
+/* ============================================
+   PLIK: sentence-flashcard.css
+   NOWE STYLE - KOMUNIKATY BRAKU WYNIKÓW
+   ============================================ */
+
+/* Kontener komunikatów pod wyszukiwarką */
+.search-message-container {
+  margin-top: var(--spacing-2);
+  animation: slideDownFadeIn 0.3s ease-out;
+}
+
+/* Mały komunikat pod wyszukiwarką */
+.search-no-results-info {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-2);
+  padding: var(--spacing-2) var(--spacing-3);
+  background: rgba(236, 72, 153, 0.1);
+  border: 1px solid rgba(236, 72, 153, 0.2);
+  border-radius: var(--radius-md);
+  color: var(--white);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  text-align: center;
+}
+
+.search-no-results-info strong {
+  color: var(--white);
+  font-weight: var(--font-weight-bold);
+}
+
+/* Przycisk "Wyczyść" w małym komunikacie */
+.btn-link.search-clear-link {
+  background: none;
+  border: none;
+  color: var(--white);
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  padding: var(--spacing-1);
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-normal);
+}
+
+.btn-link.search-clear-link:hover {
+  background: rgba(236, 72, 153, 0.1);
+  text-decoration: none;
+}
+
+/* ============================================
+   GŁÓWNY KOMUNIKAT NA MIEJSCU FISZKI
+   ============================================ */
+
+/* Kontener głównego komunikatu */
+.sentence-no-results-main {
+  display: none; /* Domyślnie ukryty */
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: var(--spacing-6);
+  animation: fadeInScale 0.4s ease-out;
+}
+
+/* Zawartość głównego komunikatu */
+.no-results-main-content {
+  text-align: center;
+  padding: var(--spacing-8) var(--spacing-6);
+  background: var(--blue-500);
+  backdrop-filter: blur(15px);
+  border: 1px solid var(--sentence-glass-border);
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--sentence-shadow);
+  color: var(--white);
+}
+
+/* Ikona w głównym komunikacie */
+.no-results-main-content .no-results-icon {
+  font-size: 4rem;
+  margin-bottom: var(--spacing-4);
+  opacity: 0.8;
+  display: block;
+}
+
+/* Nagłówek głównego komunikatu */
+.no-results-main-content h2 {
+  margin-bottom: var(--spacing-3);
+  color: var(--white);
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+}
+
+/* Tekst w głównym komunikacie */
+.no-results-main-content p {
+  margin-bottom: var(--spacing-2);
+  color: rgba(255, 255, 255, 0.9);
+  font-size: var(--font-size-lg);
+  line-height: 1.6;
+}
+
+/* Wyróżniony termin wyszukiwania */
+.search-term-display {
+  display: inline-block;
+  margin: var(--spacing-3) 0;
+  padding: var(--spacing-2) var(--spacing-4);
+  background: rgba(236, 72, 153);
+  border: 1px solid rgba(236, 72, 153, 0.3);
+  border-radius: var(--radius-lg);
+  color: var(--white);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  font-family: monospace;
+}
+
+/* Sekcja sugestii */
+.search-suggestions {
+  margin: var(--spacing-6) 0;
+  text-align: left;
+  display: inline-block;
+}
+
+.search-suggestions h3 {
+  margin-bottom: var(--spacing-3);
+  color: var(--white);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  text-align: center;
+}
+
+.search-suggestions ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.search-suggestions li {
+  margin-bottom: var(--spacing-2);
+  padding-left: var(--spacing-4);
+  color: rgba(255, 255, 255, 0.8);
+  font-size: var(--font-size-base);
+  line-height: 1.5;
+  position: relative;
+}
+
+.search-suggestions li::before {
+  content: "💡";
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+/* Przyciski akcji w głównym komunikacie */
+.no-results-actions {
+  margin-top: var(--spacing-6);
+  display: flex;
+  gap: var(--spacing-3);
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.no-results-actions .btn {
+  min-width: 160px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-2);
+  padding: var(--spacing-3) var(--spacing-5);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+}
+
+.no-results-actions .btn.primary {
+  background: var(--sentence-secondary);
+  border-color: var(--sentence-secondary);
+  color: var(--white);
+}
+
+.no-results-actions .btn.primary:hover {
+  background: var(--sentence-secondary-light);
+  border-color: var(--sentence-secondary-light);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.no-results-actions .btn.secondary {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: var(--white);
+}
+
+.no-results-actions .btn.secondary:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+}
+
+/* ============================================
+   ANIMACJE
+   ============================================ */
+
+/* Animacja pojawiania się komunikatu pod wyszukiwarką */
+@keyframes slideDownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Animacja pojawiania się głównego komunikatu */
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* ============================================
+   RESPONSYWNOŚĆ - MOBILE
+   ============================================ */
+
+/* Tablet */
+@media (max-width: 768px) {
+  .sentence-no-results-main {
+    padding: var(--spacing-4);
+  }
+  
+  .no-results-main-content {
+    padding: var(--spacing-6) var(--spacing-4);
+  }
+  
+  .no-results-main-content .no-results-icon {
+    font-size: 3rem;
+    margin-bottom: var(--spacing-3);
+  }
+  
+  .no-results-main-content h2 {
+    font-size: var(--font-size-xl);
+    margin-bottom: var(--spacing-2);
+  }
+  
+  .no-results-main-content p {
+    font-size: var(--font-size-base);
+  }
+  
+  .search-term-display {
+    margin: var(--spacing-2) 0;
+    padding: var(--spacing-2) var(--spacing-3);
+    font-size: var(--font-size-base);
+  }
+  
+  .search-suggestions {
+    margin: var(--spacing-4) 0;
+  }
+  
+  .search-suggestions h3 {
+    font-size: var(--font-size-base);
+    margin-bottom: var(--spacing-2);
+  }
+  
+  .search-suggestions li {
+    font-size: var(--font-size-sm);
+    margin-bottom: var(--spacing-1);
+  }
+  
+  .no-results-actions {
+    flex-direction: column;
+    gap: var(--spacing-2);
+  }
+  
+  .no-results-actions .btn {
+    min-width: auto;
+    width: 100%;
+  }
+}
+
+/* Mobile */
+@media (max-width: 576px) {
+  .search-no-results-info {
+    flex-direction: column;
+    gap: var(--spacing-1);
+    padding: var(--spacing-2);
+    font-size: var(--font-size-xs);
+  }
+  
+  .sentence-no-results-main {
+    padding: var(--spacing-3);
+  }
+  
+  .no-results-main-content {
+    padding: var(--spacing-4) var(--spacing-3);
+    border-radius: var(--radius-xl);
+  }
+  
+  .no-results-main-content .no-results-icon {
+    font-size: 2.5rem;
+    margin-bottom: var(--spacing-2);
+  }
+  
+  .no-results-main-content h2 {
+    font-size: var(--font-size-lg);
+    margin-bottom: var(--spacing-2);
+  }
+  
+  .no-results-main-content p {
+    font-size: var(--font-size-sm);
+    margin-bottom: var(--spacing-1);
+  }
+  
+  .search-term-display {
+    margin: var(--spacing-2) 0;
+    padding: var(--spacing-1) var(--spacing-2);
+    font-size: var(--font-size-sm);
+    word-break: break-all;
+  }
+  
+  .search-suggestions {
+    margin: var(--spacing-3) 0;
+  }
+  
+  .search-suggestions h3 {
+    font-size: var(--font-size-sm);
+    margin-bottom: var(--spacing-1);
+  }
+  
+  .search-suggestions li {
+    font-size: var(--font-size-xs);
+    margin-bottom: var(--spacing-1);
+    padding-left: var(--spacing-3);
+  }
+  
+  .no-results-actions {
+    margin-top: var(--spacing-4);
+    flex-direction: column;
+    gap: var(--spacing-2);
+  }
+  
+  .no-results-actions .btn {
+    min-width: auto;
+    width: 100%;
+    padding: var(--spacing-2) var(--spacing-3);
+    font-size: var(--font-size-sm);
+  }
+}
+
+/* ============================================
+   DARK MODE SUPPORT
+   ============================================ */
+
+/* Dark mode dla małego komunikatu */
+[data-theme="dark"] .search-no-results-info {
+  background: rgba(236, 72, 153, 0.15);
+  border-color: rgba(236, 72, 153, 0.3);
+  color: var(--sentence-secondary-light);
+}
+
+[data-theme="dark"] .search-no-results-info strong {
+  color: var(--sentence-secondary-light);
+}
+
+[data-theme="dark"] .btn-link.search-clear-link {
+  color: var(--sentence-secondary-light);
+}
+
+[data-theme="dark"] .btn-link.search-clear-link:hover {
+  background: rgba(236, 72, 153, 0.2);
+}
+
+/* Dark mode dla głównego komunikatu */
+[data-theme="dark"] .no-results-main-content {
+  background: rgba(124, 58, 237, 0.15);
+  border-color: rgba(124, 58, 237, 0.3);
+  color: var(--gray-100);
+}
+
+[data-theme="dark"] .no-results-main-content h2 {
+  color: var(--gray-100);
+}
+
+[data-theme="dark"] .no-results-main-content p {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+[data-theme="dark"] .search-term-display {
+  background: rgba(236, 72, 153, 0.25);
+  border-color: rgba(236, 72, 153, 0.4);
+  color: var(--sentence-secondary-light);
+}
+
+[data-theme="dark"] .search-suggestions h3 {
+  color: var(--gray-100);
+}
+
+[data-theme="dark"] .search-suggestions li {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+[data-theme="dark"] .no-results-actions .btn.primary {
+  background: var(--sentence-secondary-light);
+  border-color: var(--sentence-secondary-light);
+  color: var(--gray-900);
+}
+
+[data-theme="dark"] .no-results-actions .btn.primary:hover {
+  background: var(--sentence-secondary);
+  border-color: var(--sentence-secondary);
+  color: var(--white);
+}
+
+[data-theme="dark"] .no-results-actions .btn.secondary {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+[data-theme="dark"] .no-results-actions .btn.secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+
+/* Przycisk X - ULEPSZONY */
+.search-clear-btn {
+  position: absolute;
+  right: var(--spacing-2);
+  top: 50%;
+  transform: translateY(-50%);
+  width: 32px;
+  height: 32px;
+  background: rgba(124, 58, 237, 0.1);
+  border: 1px solid rgba(124, 58, 237, 0.2);
+  border-radius: var(--radius-full);
+  color: var(--sentence-primary);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-bold);
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  opacity: 0;
+  visibility: hidden;
+}
+
+/* Stany widoczności przycisku X */
+.search-clear-btn.visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(-50%) scale(1);
+}
+
+.search-clear-btn.hidden {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-50%) scale(0.8);
+}
+
+/* Hover effect dla przycisku X */
+.search-clear-btn:hover {
+  background: rgba(124, 58, 237, 0.2);
+  border-color: rgba(124, 58, 237, 0.4);
+  transform: translateY(-50%) scale(1.1);
+  box-shadow: 0 2px 8px rgba(124, 58, 237, 0.3);
+}
+
+/* Active state dla przycisku X */
+.search-clear-btn:active {
+  transform: translateY(-50%) scale(0.95);
+  background: rgba(124, 58, 237, 0.3);
+}
+
+/* Focus state dla przycisku X */
+.search-clear-btn:focus {
+  outline: 2px solid var(--sentence-primary);
+  outline-offset: 2px;
+}
+
+/* Animacja pulsowania gdy input ma focus */
+.sentence-search-input:focus + .search-clear-btn.visible {
+  animation: clearButtonPulse 2s ease-in-out infinite;
+}
+
+/* Wrapper dla input - ULEPSZONY */
+.search-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+/* Hover effect na całym wrapper */
+.search-input-wrapper:hover .search-clear-btn.visible {
+  opacity: 1;
+  transform: translateY(-50%) scale(1.05);
+}
+
+/* ============================================
+   ANIMACJE PRZYCISKU X
+   ============================================ */
+
+/* Animacja pulsowania przycisku X */
+@keyframes clearButtonPulse {
+  0%, 100% {
+    box-shadow: 0 2px 8px rgba(124, 58, 237, 0.3);
+  }
+  50% {
+    box-shadow: 0 2px 12px rgba(124, 58, 237, 0.5);
+  }
+}
+
+/* Animacja pojawiania się przycisku X */
+@keyframes clearButtonAppear {
+  from {
+    opacity: 0;
+    transform: translateY(-50%) scale(0.5) rotate(90deg);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(-50%) scale(1) rotate(0deg);
+  }
+}
+
+/* Animacja znikania przycisku X */
+@keyframes clearButtonDisappear {
+  from {
+    opacity: 1;
+    transform: translateY(-50%) scale(1) rotate(0deg);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-50%) scale(0.5) rotate(90deg);
+  }
+}
+
+/* Zastosowanie animacji */
+.search-clear-btn.visible {
+  animation: clearButtonAppear 0.2s ease-out;
+}
+
+.search-clear-btn.hidden {
+  animation: clearButtonDisappear 0.2s ease-in;
+}
+
+/* ============================================
+   RESPONSYWNOŚĆ PRZYCISKU X
+   ============================================ */
+
+/* Tablet */
+@media (max-width: 768px) {
+  .sentence-search-input {
+    padding-right: 42px;
+  }
+  
+  .search-clear-btn {
+    width: 28px;
+    height: 28px;
+    font-size: var(--font-size-sm);
+    right: var(--spacing-2);
+  }
+}
+
+/* Mobile */
+@media (max-width: 576px) {
+  .sentence-search-input {
+    padding: var(--spacing-2);
+    padding-right: 38px;
+    font-size: var(--font-size-sm);
+  }
+  
+  .search-clear-btn {
+    width: 26px;
+    height: 26px;
+    right: var(--spacing-1);
+    font-size: var(--font-size-sm);
+  }
+  
+  .search-clear-btn:hover {
+    transform: translateY(-50%) scale(1.05);
+  }
+}
+
+/* ============================================
+   DARK MODE SUPPORT DLA PRZYCISKU X
+   ============================================ */
+
+[data-theme="dark"] .sentence-search-input {
+  background: rgba(0, 0, 0, 0.3);
+  border-color: rgba(124, 58, 237, 0.4);
+  color: var(--gray-100);
+}
+
+[data-theme="dark"] .sentence-search-input:focus {
+  background: rgba(0, 0, 0, 0.4);
+  border-color: var(--sentence-primary-light);
+}
+
+[data-theme="dark"] .search-clear-btn {
+  background: rgba(124, 58, 237, 0.2);
+  border-color: rgba(124, 58, 237, 0.3);
+  color: var(--sentence-primary-light);
+}
+
+[data-theme="dark"] .search-clear-btn:hover {
+  background: rgba(124, 58, 237, 0.3);
+  border-color: rgba(124, 58, 237, 0.5);
+  box-shadow: 0 2px 8px rgba(124, 58, 237, 0.4);
+}
+
+[data-theme="dark"] .search-clear-btn:active {
+  background: rgba(124, 58, 237, 0.4);
+}
+
+/* ============================================
+   ACCESSIBILITY IMPROVEMENTS
+   ============================================ */
+
+/* Lepsze contraty dla użytkowników z problemami wzroku */
+@media (prefers-contrast: high) {
+  .search-clear-btn {
+    border-width: 2px;
+    font-weight: var(--font-weight-extrabold);
+  }
+  
+  .search-clear-btn:hover {
+    border-width: 3px;
+  }
+}
+
+/* Redukcja animacji dla użytkowników preferujących mniej ruchu */
+@media (prefers-reduced-motion: reduce) {
+  .search-clear-btn {
+    transition: opacity 0.1s ease;
+  }
+  
+  .search-clear-btn.visible {
+    animation: none;
+  }
+  
+  .search-clear-btn.hidden {
+    animation: none;
+  }
+  
+  .search-clear-btn:hover {
+    transform: translateY(-50%);
+  }
 }

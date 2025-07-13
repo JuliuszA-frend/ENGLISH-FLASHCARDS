@@ -201,6 +201,7 @@ class SentenceFlashcardManager {
 
     /**
      * 🔍 Tworzenie UI wyszukiwarki jako osobny element NAD fiszką
+     * ZMIANA: Dodano lepsze bindowanie event listenerów dla przycisku X
      */
     createSearchUI() {
         console.log('🔍 Tworzę UI wyszukiwarki nad fiszką...');
@@ -224,12 +225,16 @@ class SentenceFlashcardManager {
         // Wstaw PRZED kontenerem fiszki
         flashcardContainer.parentNode.insertBefore(searchContainer, flashcardContainer);
         
-        // Podłącz event listenery
+        // Podłącz event listenery z obsługą przycisku X
         setTimeout(() => {
             const searchInput = document.getElementById('sentence-search-input');
             if (searchInput) {
                 this.attachSearchListener(searchInput);
-                console.log('✅ Wyszukiwarka zdań utworzona nad fiszką');
+                
+                // Ustaw początkową widoczność przycisku X
+                this.updateClearButtonVisibility(this.currentSearchTerm.length > 0);
+                
+                console.log('✅ Wyszukiwarka zdań utworzona nad fiszką z przyciskiem X');
             }
         }, 0);
         
@@ -238,6 +243,7 @@ class SentenceFlashcardManager {
 
     /**
      * 🗑️ Usuwanie UI wyszukiwarki
+     * POPRAWKA: Lepsze czyszczenie globalnych referencji
      */
     removeSearchUI() {
         const existingSearch = document.getElementById('sentence-search-ui');
@@ -245,7 +251,14 @@ class SentenceFlashcardManager {
             existingSearch.remove();
             console.log('🗑️ Usunięto istniejącą wyszukiwarkę');
         }
+        
+        // Wyczyść globalną funkcję clearSearchInput
+        if (window.clearSearchInput) {
+            delete window.clearSearchInput;
+            console.log('🗑️ Usunięto globalną funkcję clearSearchInput');
+        }
     }
+
 
     /**
      * 🔍 Setup event listenera dla wyszukiwania
@@ -261,6 +274,7 @@ class SentenceFlashcardManager {
 
     /**
      * 🔍 Dodanie event listenera do search input
+     * POPRAWKA: Lepsze zarządzanie globalną funkcją clearSearchInput
      */
     attachSearchListener(searchInput) {
         if (!searchInput) return;
@@ -270,14 +284,36 @@ class SentenceFlashcardManager {
             searchInput.removeEventListener('input', searchInput._sentenceSearchHandler);
         }
         
+        // Przechowaj referencję do instancji dla globalnej funkcji
+        const managerInstance = this;
+        
         // Dodaj nowy listener z debounce
         searchInput._sentenceSearchHandler = (e) => {
             const searchTerm = e.target.value;
-            this.performSearch(searchTerm);
+            
+            // Aktualizuj widoczność przycisku X
+            managerInstance.updateClearButtonVisibility(searchTerm.length > 0);
+            
+            // Wykonaj wyszukiwanie
+            managerInstance.performSearch(searchTerm);
         };
         
+        // Event listener dla input
         searchInput.addEventListener('input', searchInput._sentenceSearchHandler);
-        console.log('🔍 Event listener wyszukiwarki zdań podłączony');
+        
+        // Event listener dla focusa - pokaż przycisk X jeśli jest tekst
+        searchInput.addEventListener('focus', () => {
+            if (searchInput.value.length > 0) {
+                managerInstance.updateClearButtonVisibility(true);
+            }
+        });
+        
+        // Ustaw globalną funkcję clearSearchInput wskazującą na tę instancję
+        window.clearSearchInput = () => {
+            managerInstance.clearSearchInput();
+        };
+        
+        console.log('🔍 Event listener wyszukiwarki zdań podłączony z globalna funkcją clearSearchInput');
     }
 
     /**
@@ -298,6 +334,7 @@ class SentenceFlashcardManager {
 
     /**
      * 🔍 Obsługa wyników wyszukiwania
+     * ZMIANA: Dodano ukrywanie/pokazywanie komunikatów i fiszki
      */
     handleSearchResults(results, searchTerm) {
         console.log(`🔍 Otrzymano ${results.length} wyników dla: "${searchTerm}"`);
@@ -307,17 +344,62 @@ class SentenceFlashcardManager {
         
         // Reset indeksu i załaduj pierwsze słowo jeśli są wyniki
         if (this.sentenceWords.length > 0) {
+            // 🎯 NOWE: Ukryj komunikaty o braku wyników i pokaż fiszkę
+            this.hideNoResultsMessage();
+            this.showFlashcardAndHideMainMessage();
+            
             this.currentWordIndex = 0;
             this.loadWord(0);
             
             // Aktualizuj licznik wyników w UI
             this.updateSearchResultsCounter(results.length, searchTerm);
         } else {
-            // Brak wyników - pokaż komunikat
+            // Brak wyników - ukryj fiszkę i pokaż komunikaty
             this.showNoResultsMessage(searchTerm);
         }
-
+        
+        // Aktualizuj progress bar po wyszukiwaniu
         this.updateProgressBar();
+    }
+
+
+    /**
+     * 🔍 Ukryj komunikat o braku wyników i pokaż fiszkę
+     * NOWA FUNKCJA: Przywraca normalny widok fiszki i usuwa komunikaty
+     */
+    hideNoResultsMessage() {
+        // 1. Usuń komunikat pod wyszukiwarką
+        const searchContainer = document.getElementById('sentence-search-ui');
+        if (searchContainer) {
+            const messageContainer = searchContainer.querySelector('.search-message-container');
+            if (messageContainer) {
+                messageContainer.remove();
+                console.log('🗑️ Usunięto komunikat pod wyszukiwarką');
+            }
+        }
+        
+        // 2. Ukryj główny komunikat i pokaż fiszkę
+        this.showFlashcardAndHideMainMessage();
+    }
+
+    /**
+    * 🔍 Pokaż fiszkę i ukryj główny komunikat
+    * NOWA FUNKCJA: Przywraca widoczność fiszki i ukrywa komunikat zastępujący
+    */
+    showFlashcardAndHideMainMessage() {
+        // 1. Pokaż kontener fiszki
+        const flashcardContainer = document.getElementById('flashcard-container');
+        if (flashcardContainer) {
+            flashcardContainer.style.display = 'block';
+            console.log('👁️ Pokazano kontener fiszki');
+        }
+        
+        // 2. Ukryj główny komunikat
+        const noResultsContainer = document.getElementById('sentence-no-results-main');
+        if (noResultsContainer) {
+            noResultsContainer.style.display = 'none';
+            console.log('🙈 Ukryto główny komunikat');
+        }
     }
 
     /**
@@ -337,33 +419,116 @@ class SentenceFlashcardManager {
     }
 
     /**
-     * 🔍 Pokaż komunikat braku wyników
+     * 🔍 Pokaż komunikat braku wyników - fiszka ZNIKA, komunikat na jej miejscu
+     * NOWA FUNKCJA: Implementuje dwupoziomowe komunikaty (pod wyszukiwarką + zamiast fiszki)
      */
     showNoResultsMessage(searchTerm) {
-        if (!this.frontContainer) return;
+        console.log(`❌ Brak wyników dla: "${searchTerm}"`);
         
-        this.frontContainer.innerHTML = `
-            <div class="sentence-search-container">
-                ${this.renderSearchInput()}
-                <div class="search-results-counter no-results">
-                    Brak wyników dla: "${searchTerm}"
-                </div>
-            </div>
-            <div class="no-search-results">
-                <div class="no-results-icon">🔍</div>
-                <h3>Brak wyników</h3>
-                <p>Nie znaleziono zdań pasujących do wyszukiwania "<strong>${searchTerm}</strong>"</p>
-                <p>Spróbuj:</p>
-                <ul>
-                    <li>Sprawdzić pisownię</li>
-                    <li>Użyć krótszych słów kluczowych</li>
-                    <li>Wyszukać w języku polskim lub angielskim</li>
-                </ul>
-                <button class="btn secondary" onclick="document.getElementById('sentence-search-input').value=''; document.getElementById('sentence-search-input').dispatchEvent(new Event('input'))">
-                    Wyczyść wyszukiwanie
+        // 1. Aktualizuj licznik wyników na "no-results"
+        this.updateSearchResultsCounter(0, searchTerm);
+        
+        // 2. Dodaj mały komunikat POD WYSZUKIWARKĄ
+        this.addSearchMessage(searchTerm);
+        
+        // 3. UKRYJ FISZKĘ i pokaż komunikat NA JEJ MIEJSCU
+        this.hideFlashcardAndShowMainMessage(searchTerm);
+        
+        console.log('✅ Komunikat o braku wyników: pod wyszukiwarką + na miejscu fiszki');
+    }
+
+    /**
+     * 🔍 Dodaj mały komunikat pod wyszukiwarką
+     * NOWA FUNKCJA: Tworzy subtelny komunikat pod paskiem wyszukiwania
+     */
+    addSearchMessage(searchTerm) {
+        const searchContainer = document.getElementById('sentence-search-ui');
+        if (!searchContainer) {
+            console.error('❌ Nie znaleziono kontenera wyszukiwarki');
+            return;
+        }
+        
+        // Usuń poprzedni komunikat jeśli istnieje
+        const existingMessage = searchContainer.querySelector('.search-message-container');
+        if (existingMessage) {
+            existingMessage.remove();
+        }
+        
+        // Utwórz mały komunikat
+        const messageContainer = document.createElement('div');
+        messageContainer.className = 'search-message-container';
+        messageContainer.innerHTML = `
+            <div class="search-no-results-info">
+                🔍 Brak wyników dla: "<strong>${searchTerm}</strong>" 
+                <button class="btn-link search-clear-link" onclick="document.getElementById('sentence-search-input').value=''; document.getElementById('sentence-search-input').dispatchEvent(new Event('input'))" title="Wyczyść wyszukiwanie">
+                    Wyczyść
                 </button>
             </div>
         `;
+        
+        // Dodaj do kontenera wyszukiwarki
+        searchContainer.appendChild(messageContainer);
+    }
+
+    /**
+     * 🔍 Ukryj fiszkę i pokaż główny komunikat na jej miejscu
+     * NOWA FUNKCJA: Ukrywa kontener fiszki i pokazuje duży komunikat z sugestiami
+     */
+    hideFlashcardAndShowMainMessage(searchTerm) {
+        // 1. Ukryj kontener fiszki
+        const flashcardContainer = document.getElementById('flashcard-container');
+        if (flashcardContainer) {
+            flashcardContainer.style.display = 'none';
+            console.log('🙈 Ukryto kontener fiszki');
+        }
+        
+        // 2. Znajdź lub utwórz kontener dla komunikatu głównego
+        let noResultsContainer = document.getElementById('sentence-no-results-main');
+        if (!noResultsContainer) {
+            noResultsContainer = document.createElement('div');
+            noResultsContainer.id = 'sentence-no-results-main';
+            noResultsContainer.className = 'sentence-no-results-main';
+            
+            // Wstaw tam gdzie była fiszka
+            if (flashcardContainer && flashcardContainer.parentNode) {
+                flashcardContainer.parentNode.insertBefore(noResultsContainer, flashcardContainer.nextSibling);
+            }
+        }
+        
+        // 3. Pokaż główny komunikat
+        noResultsContainer.style.display = 'block';
+        noResultsContainer.innerHTML = `
+            <div class="no-results-main-content">
+                <div class="no-results-icon">🔍</div>
+                <div class="search-term-display">"${searchTerm}"</div>
+                <h2>Brak wyników wyszukiwania</h2>
+                <p>Nie znaleziono zdań pasujących do zapytania:</p>
+                
+                
+                <div class="search-suggestions">
+                    <h3>💡 Spróbuj:</h3>
+                    <ul>
+                        <li>Sprawdzić pisownię</li>
+                        <li>Użyć krótszych słów kluczowych</li>
+                        <li>Wyszukać w języku polskim lub angielskim</li>
+                        <li>Spróbować podobnych słów</li>
+                    </ul>
+                </div>
+                
+                <div class="no-results-actions">
+                    <button class="btn primary search-clear-main-btn" onclick="document.getElementById('sentence-search-input').value=''; document.getElementById('sentence-search-input').dispatchEvent(new Event('input'))" title="Wyczyść wyszukiwanie i wróć do wszystkich zdań">
+                        <span class="icon">🧹</span>
+                        Wyczyść wyszukiwanie
+                    </button>
+                    <button class="btn secondary" onclick="window.englishFlashcardsApp.switchMode('flashcards')" title="Przełącz na tryb fiszek słownych">
+                        <span class="icon">📚</span>
+                        Wróć do fiszek słownych
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        console.log('📋 Pokazano główny komunikat na miejscu fiszki');
     }
 
     /**
@@ -380,36 +545,40 @@ class SentenceFlashcardManager {
     }
 
     /**
-     * 🔍 Czyszczenie wyszukiwania
+     * 🧹 Czyszczenie pola input wyszukiwania
+     * POPRAWKA: Dodane sprawdzanie istnienia elementów przed manipulacją
      */
-    clearSearch() {
-        console.log('🧹 Czyszczenie wyszukiwania zdań...');
+    clearSearchInput() {
+        console.log('🧹 Czyszczenie pola input przez przycisk X...');
         
-        // Wyczyść wyszukiwarkę
-        this.searchInstance.clear();
-        
-        // Przywróć oryginalną listę słów
-        this.sentenceWords = [...this.originalSentenceWords];
-        
-        // Reset stanu
-        this.isSearchActive = false;
-        this.currentSearchTerm = '';
-        
-        // Wyczyść search input
+        // Znajdź input wyszukiwania
         const searchInput = document.getElementById('sentence-search-input');
-        if (searchInput) {
-            searchInput.value = '';
+        if (!searchInput) {
+            console.error('❌ Nie znaleziono pola input wyszukiwania');
+            return;
         }
         
-        // Załaduj pierwsze słowo
-        if (this.sentenceWords.length > 0) {
-            this.currentWordIndex = 0;
-            this.loadWord(0);
-        }
-
-        this.updateProgressBar();
+        // Wyczyść wartość input
+        searchInput.value = '';
         
-        console.log('✅ Wyszukiwanie wyczyszczone');
+        // Ukryj przycisk X
+        this.updateClearButtonVisibility(false);
+        
+        // Wywołaj event input aby uruchomić wyszukiwanie (pusty termin)
+        const inputEvent = new Event('input', {
+            bubbles: true,
+            cancelable: true
+        });
+        searchInput.dispatchEvent(inputEvent);
+        
+        // Ustaw focus z powrotem na input (z małym opóźnieniem)
+        setTimeout(() => {
+            if (searchInput && document.contains(searchInput)) {
+                searchInput.focus();
+            }
+        }, 100);
+        
+        console.log('✅ Pole input wyczyszczone przez przycisk X');
     }
 
 
@@ -593,11 +762,13 @@ class SentenceFlashcardManager {
     }
 
     /**
-     * 🔍 Renderowanie search input HTML
+     * 🔍 Renderowanie search input HTML z przyciskiem X
+     * POPRAWKA: Zmieniony onclick z this.clearSearchInput() na window.clearSearchInput()
      */
     renderSearchInput() {
         const resultCount = this.sentenceWords.length;
         const totalCount = this.originalSentenceWords.length;
+        const hasSearchTerm = this.currentSearchTerm && this.currentSearchTerm.length > 0;
         
         return `
             <div class="search-input-wrapper">
@@ -611,10 +782,11 @@ class SentenceFlashcardManager {
                     spellcheck="false"
                 >
                 <button 
-                    class="search-clear-btn" 
-                    onclick="document.getElementById('sentence-search-input').value=''; document.getElementById('sentence-search-input').dispatchEvent(new Event('input'))"
+                    class="search-clear-btn ${hasSearchTerm ? 'visible' : 'hidden'}" 
+                    onclick="window.clearSearchInput()"
                     title="Wyczyść wyszukiwanie"
-                    ${this.currentSearchTerm.length === 0 ? 'style="display: none;"' : ''}
+                    type="button"
+                    aria-label="Wyczyść pole wyszukiwania"
                 >
                     ✕
                 </button>
@@ -623,6 +795,61 @@ class SentenceFlashcardManager {
                 ${this.isSearchActive ? `Znaleziono: ${resultCount} zdań` : `Wszystkie zdania: ${totalCount}`}
             </div>
         `;
+    }
+
+    /**
+     * 🧹 Czyszczenie pola input wyszukiwania
+     * NOWA FUNKCJA: Dedykowana funkcja dla przycisku X w input
+     */
+    clearSearchInput() {
+        console.log('🧹 Czyszczenie pola input przez przycisk X...');
+        
+        // Znajdź input wyszukiwania
+        const searchInput = document.getElementById('sentence-search-input');
+        if (!searchInput) {
+            console.error('❌ Nie znaleziono pola input wyszukiwania');
+            return;
+        }
+        
+        // Wyczyść wartość input
+        searchInput.value = '';
+        
+        // Ukryj przycisk X
+        this.updateClearButtonVisibility(false);
+        
+        // Wywołaj event input aby uruchomić wyszukiwanie (pusty termin)
+        const inputEvent = new Event('input', {
+            bubbles: true,
+            cancelable: true
+        });
+        searchInput.dispatchEvent(inputEvent);
+        
+        // Ustaw focus z powrotem na input
+        searchInput.focus();
+        
+        console.log('✅ Pole input wyczyszczone przez przycisk X');
+    }
+
+    /**
+     * 🎯 Aktualizacja widoczności przycisku X
+     * POPRAWKA: Dodane sprawdzanie istnienia elementu
+     */
+    updateClearButtonVisibility(show) {
+        const clearBtn = document.querySelector('.search-clear-btn');
+        if (!clearBtn) {
+            console.warn('⚠️ Nie znaleziono przycisku clear w DOM');
+            return;
+        }
+        
+        if (show) {
+            clearBtn.classList.remove('hidden');
+            clearBtn.classList.add('visible');
+            clearBtn.style.display = 'flex';
+        } else {
+            clearBtn.classList.remove('visible');
+            clearBtn.classList.add('hidden');
+            clearBtn.style.display = 'none';
+        }
     }
 
     /**
@@ -943,55 +1170,41 @@ class SentenceFlashcardManager {
     }
 
     /**
-     * 🧹 Czyszczenie zasobów
+     * 🧹 Czyszczenie managera zdaniowego
+     * POPRAWKA: Dodane czyszczenie globalnych referencji
      */
     cleanup() {
-        console.log('🧹 SentenceFlashcardManager cleanup...');
+        console.log('🧹 Czyszczenie SentenceFlashcardManager...');
         
-        // 🧹 POPRAWKA: Dokładniejsze czyszczenie wszystkich event listenerów audio
-        console.log('🧹 Czyszczę wszystkie event listenery audio...');
+        // Usuń UI wyszukiwarki (automatycznie czyści globalne funkcje)
+        this.removeSearchUI();
         
-        // Znajdź wszystkie przyciski audio (nie tylko w kontenerach)
-        const allAudioButtons = document.querySelectorAll('.audio-btn');
-        let cleanedCount = 0;
+        // Ukryj główny komunikat i pokaż fiszkę
+        this.showFlashcardAndHideMainMessage();
         
-        allAudioButtons.forEach(btn => {
-            if (btn._clickHandler) {
-                btn.removeEventListener('click', btn._clickHandler);
-                delete btn._clickHandler;
-                cleanedCount++;
-            }
-            
-            // Usuń wszystkie klasy animacji
-            btn.classList.remove('btn-clicked', 'btn-playing', 'click-animation');
-        });
+        // Wyczyść wyszukiwarkę
+        if (this.searchInstance) {
+            this.searchInstance.clear();
+        }
         
-        console.log(`🗑️ Wyczyszczono ${cleanedCount} event listenerów audio`);
+        // Reset stanu wyszukiwania
+        this.isSearchActive = false;
+        this.currentSearchTerm = '';
+        this.sentenceWords = [...this.originalSentenceWords];
         
-        // Usuń klasę trybu zdaniowego z głównego kontenera
+        // Usuń klasę sentence-mode z kontenera
         const flashcardContainer = document.getElementById('flashcard-container');
         if (flashcardContainer) {
             flashcardContainer.classList.remove('sentence-mode');
         }
         
-        // Wyczyść kontenery
-        if (this.frontContainer) {
-            DOMHelper.clearContainer(this.frontContainer);
-        }
-        if (this.backContainer) {
-            DOMHelper.clearContainer(this.backContainer);
-        }
-        
-        // Zachowaj dane dla ponownego użycia ale wyczyść stan
+        // Reset właściwości
+        this.currentWordIndex = 0;
         this.currentWord = null;
         this.currentSentence = null;
         this.isFlipped = false;
         
-        // DEBUGOWANIE: Sprawdź czy wszystkie przyciski zostały wyczyszczone
-        const remainingButtons = document.querySelectorAll('.audio-btn');
-        console.log(`📊 Pozostałe przyciski audio po cleanup: ${remainingButtons.length}`);
-        
-        console.log('✅ SentenceFlashcardManager wyczyszczony (kompletnie)');
+        console.log('✅ SentenceFlashcardManager wyczyszczony');
     }
 
     // ===== POPRAWKA 6: NOWA METODA - debugAudioButtons() =====
